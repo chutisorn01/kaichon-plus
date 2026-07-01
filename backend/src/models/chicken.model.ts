@@ -1,0 +1,94 @@
+import mongoose, { Document, Schema } from 'mongoose';
+
+export interface IChicken extends Document {
+  code: string;
+  name: string;
+  gender: 'male' | 'female';
+  bloodline: string;
+  father: mongoose.Types.ObjectId | null;
+  mother: mongoose.Types.ObjectId | null;
+  user?: mongoose.Types.ObjectId;
+  originFarm?: mongoose.Types.ObjectId;
+  bandNumber?: string;
+  bandColor?: string;
+  bandText?: string;
+  isApprovedByParent?: boolean;
+  image?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const chickenSchema = new Schema<IChicken>(
+  {
+    code: {
+      type: String,
+      required: [true, 'Chicken code is required'],
+      unique: true,
+      trim: true,
+      uppercase: true,
+      index: true,
+    },
+    name: {
+      type: String,
+      required: [true, 'Chicken name is required'],
+      trim: true,
+    },
+    gender: {
+      type: String,
+      required: [true, 'Gender is required'],
+      enum: {
+        values: ['male', 'female'],
+        message: '{VALUE} is not a valid gender (male or female)',
+      },
+    },
+    bloodline: {
+      type: String,
+      required: [true, 'Bloodline description is required'],
+      trim: true,
+    },
+    father: {
+      type: Schema.Types.ObjectId,
+      ref: 'Chicken',
+      default: null,
+    },
+    mother: {
+      type: Schema.Types.ObjectId,
+      ref: 'Chicken',
+      default: null,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
+    originFarm: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    bandNumber: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    bandColor: {
+      type: String,
+      trim: true,
+    },
+    bandText: {
+      type: String,
+      trim: true,
+    },
+    isApprovedByParent: {
+      type: Boolean,
+      default: true,
+    },
+    image: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const Chicken = mongoose.model<IChicken>('Chicken', chickenSchema);

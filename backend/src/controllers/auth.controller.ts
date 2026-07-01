@@ -1,0 +1,93 @@
+import { Request, Response, NextFunction } from 'express';
+import { User } from '../models/user.model.js';
+import { hashPassword, verifyPassword, createToken } from '../config/crypto.js';
+import { AppError } from '../middleware/error.middleware.js';
+
+const getJwtSecret = () => process.env.JWT_SECRET || 'kaichon-plus-super-secret-key-12345';
+
+export const register = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username, password, name, email } = req.body;
+
+    const existingUser = await User.findOne({ username: username.toLowerCase() });
+    if (existingUser) {
+      return next(new AppError('Username is already taken', 400));
+    }
+
+    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
+      return next(new AppError('Email is already in use', 400));
+    }
+
+    const { salt, hash } = hashPassword(password);
+
+    const user = await User.create({
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+      name,
+      passwordHash: hash,
+      passwordSalt: salt,
+      role: 'admin', // Default role for pedigree management
+    });
+
+    const token = createToken({ id: user._id, role: user.role }, getJwtSecret());
+
+    res.status(201).json({
+      status: 'success',
+      token,
+      data: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ username: username.toLowerCase() });
+    if (!user) {
+      return next(new AppError('Invalid username or password', 401));
+    }
+
+    const isValidPassword = verifyPassword(password, user.passwordSalt, user.passwordHash);
+    if (!isValidPassword) {
+      return next(new AppError('Invalid username or password', 401));
+    }
+
+    const token = createToken({ id: user._id, role: user.role }, getJwtSecret());
+
+    res.status(200).json({
+      status: 'success',
+      token,
+      data: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMe = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = (req as any).user;
+    res.status(200).json({
+      status: 'success',
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
