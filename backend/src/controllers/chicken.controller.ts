@@ -4,6 +4,7 @@ import { Father } from '../models/father.model.js';
 import { Mother } from '../models/mother.model.js';
 import { Chick } from '../models/chick.model.js';
 import { AppError } from '../middleware/error.middleware.js';
+import { User } from '../models/user.model.js';
 
 // Recursive helper to build pedigree tree
 const buildPedigreeTree = async (chickenId: any, depth = 1, maxDepth = 3): Promise<any> => {
@@ -77,15 +78,60 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
       filter.gender = gender;
     }
 
+    let userIds: any[] = [];
+    let parentIds: any[] = [];
+    let searchWords: string[] = [];
+    let matchingUsers: any[] = [];
+    let matchingParents: any[] = [];
+
     if (search) {
-      const searchRegex = new RegExp(search as string, 'i');
-      filter.$or = [
-        { code: searchRegex },
-        { name: searchRegex },
-        { bloodline: searchRegex },
-        { bandNumber: searchRegex },
-        { bandText: searchRegex },
-      ];
+      const searchStr = search as string;
+      searchWords = searchStr.trim().split(/\s+/);
+      
+      const regexPattern = searchWords.join('|');
+      const anyWordRegex = new RegExp(regexPattern, 'i');
+
+      matchingUsers = await User.find({
+        $or: [{ farmName: anyWordRegex }, { name: anyWordRegex }]
+      }).select('_id farmName name').lean();
+      
+      // Look up parent IDs that match any of the search words
+      matchingParents = await Chicken.find({
+        $or: [
+          { code: anyWordRegex },
+          { name: anyWordRegex }
+        ]
+      }).select('_id code name').lean();
+
+      filter.$and = searchWords.map(word => {
+        const regex = new RegExp(word, 'i');
+        const conditions: any[] = [
+          { code: regex },
+          { name: regex },
+          { bloodline: regex },
+          { bandNumber: regex },
+          { bandText: regex },
+          { fatherNameText: regex },
+          { motherNameText: regex }
+        ];
+        
+        const matchedUserIds = matchingUsers
+          .filter((u: any) => regex.test(u.farmName || '') || regex.test(u.name || ''))
+          .map((u: any) => u._id);
+          
+        if (matchedUserIds.length > 0) conditions.push({ user: { $in: matchedUserIds } });
+
+        const matchedParentIds = matchingParents
+          .filter((p: any) => regex.test(p.code || '') || regex.test(p.name || ''))
+          .map((p: any) => p._id);
+
+        if (matchedParentIds.length > 0) {
+          conditions.push({ father: { $in: matchedParentIds } });
+          conditions.push({ mother: { $in: matchedParentIds } });
+        }
+        
+        return { $or: conditions };
+      });
     }
 
     let chickens = await Chicken.find(filter)
@@ -97,13 +143,35 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
 
     if (includeChicks === 'true' && search) {
       const chickFilter: any = {};
-      const searchRegex = new RegExp(search as string, 'i');
-      chickFilter.$or = [
-        { code: searchRegex },
-        { name: searchRegex },
-        { bandNumber: searchRegex },
-        { bandText: searchRegex },
-      ];
+      
+      chickFilter.$and = searchWords.map(word => {
+        const regex = new RegExp(word, 'i');
+        const conditions: any[] = [
+          { code: regex },
+          { name: regex },
+          { bandNumber: regex },
+          { bandText: regex },
+          { fatherNameText: regex },
+          { motherNameText: regex }
+        ];
+        
+        const matchedUserIds = matchingUsers
+          .filter((u: any) => regex.test(u.farmName || '') || regex.test(u.name || ''))
+          .map((u: any) => u._id);
+          
+        if (matchedUserIds.length > 0) conditions.push({ user: { $in: matchedUserIds } });
+
+        const matchedParentIds = matchingParents
+          .filter((p: any) => regex.test(p.code || '') || regex.test(p.name || ''))
+          .map((p: any) => p._id);
+
+        if (matchedParentIds.length > 0) {
+          conditions.push({ father: { $in: matchedParentIds } });
+          conditions.push({ mother: { $in: matchedParentIds } });
+        }
+        
+        return { $or: conditions };
+      });
 
       const chicks = await Chick.find(chickFilter)
         .populate('father', 'code name')
@@ -142,18 +210,19 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
       let data: any = await Chicken.findById(req.params.id)
         .populate('father', 'code name gender bloodline')
         .populate('mother', 'code name gender bloodline')
+        .populate('user', 'name farmName farmCode isVerified')
         .lean();
         
       if (data) {
         return res.status(200).json({ status: 'success', data: { ...data, _sourceCollection: 'chickens' } });
       }
 
-      data = await Father.findById(req.params.id).lean();
+      data = await Father.findById(req.params.id).populate('user', 'name farmName farmCode isVerified').lean();
       if (data) {
         return res.status(200).json({ status: 'success', data: { ...data, gender: 'male', _sourceCollection: 'fathers' } });
       }
 
-      data = await Mother.findById(req.params.id).lean();
+      data = await Mother.findById(req.params.id).populate('user', 'name farmName farmCode isVerified').lean();
       if (data) {
         return res.status(200).json({ status: 'success', data: { ...data, gender: 'female', _sourceCollection: 'mothers' } });
       }
@@ -162,6 +231,7 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
         .populate('father', 'code name')
         .populate('mother', 'code name')
         .populate('batch')
+        .populate('user', 'name farmName farmCode isVerified')
         .lean();
       if (data) {
         return res.status(200).json({ status: 'success', data: { ...data, _sourceCollection: 'chicks' } });
@@ -172,7 +242,8 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
 
     const chicken = await Chicken.findById(req.params.id)
       .populate('father', 'code name gender bloodline')
-      .populate('mother', 'code name gender bloodline');
+      .populate('mother', 'code name gender bloodline')
+      .populate('user', 'name farmName farmCode isVerified');
 
     if (!chicken) {
       return next(new AppError('Chicken not found', 404));
