@@ -12,6 +12,13 @@ export interface IUser extends Document {
   isVerified?: boolean;
   farmType?: 'main' | 'sub';
   parentFarm?: mongoose.Types.ObjectId;
+  profileImage?: string;
+  coverImage?: string;
+  description?: string;
+  phone?: string;
+  lineId?: string;
+  facebook?: string;
+  address?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -76,6 +83,13 @@ const userSchema = new Schema<IUser>(
       required: true,
       default: 'admin',
     },
+    profileImage: { type: String, trim: true },
+    coverImage: { type: String, trim: true },
+    description: { type: String, trim: true },
+    phone: { type: String, trim: true },
+    lineId: { type: String, trim: true },
+    facebook: { type: String, trim: true },
+    address: { type: String, trim: true },
   },
   {
     timestamps: true,

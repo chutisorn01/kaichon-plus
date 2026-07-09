@@ -5,6 +5,8 @@ export interface IChick extends Document {
   batch: mongoose.Types.ObjectId;
   father: mongoose.Types.ObjectId;
   mother: mongoose.Types.ObjectId;
+  fatherNameText?: string;
+  motherNameText?: string;
   code: string;
   name: string;
   gender: 'ผู้' | 'เมีย' | 'ยังไม่ระบุ';
@@ -14,7 +16,9 @@ export interface IChick extends Document {
   originFarm?: mongoose.Types.ObjectId;
   isApprovedByParent?: boolean;
   status: string;
+  notes?: string;
   image?: string;
+  hatchDate?: Date;
 }
 
 const chickSchema = new Schema<IChick>(
@@ -23,6 +27,8 @@ const chickSchema = new Schema<IChick>(
     batch: { type: Schema.Types.ObjectId, ref: 'BreedingBatch', required: true },
     father: { type: Schema.Types.ObjectId, ref: 'Father', required: true },
     mother: { type: Schema.Types.ObjectId, ref: 'Mother', required: true },
+    fatherNameText: { type: String, trim: true },
+    motherNameText: { type: String, trim: true },
     code: { type: String, required: true, unique: true, uppercase: true, index: true },
     name: { type: String, default: 'ลูกไก่' },
     gender: { type: String, enum: ['ผู้', 'เมีย', 'ยังไม่ระบุ'], default: 'ยังไม่ระบุ' },
@@ -32,7 +38,9 @@ const chickSchema = new Schema<IChick>(
     originFarm: { type: Schema.Types.ObjectId, ref: 'User' },
     isApprovedByParent: { type: Boolean, default: true },
     status: { type: String, default: 'ปกติ' },
-    image: { type: String }
+    image: { type: String },
+    hatchDate: { type: Date },
+    notes: { type: String },
   },
   { timestamps: true }
 );

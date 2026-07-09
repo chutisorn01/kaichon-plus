@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Chicken } from '../models/chicken.model.js';
 import { Father } from '../models/father.model.js';
 import { Mother } from '../models/mother.model.js';
+import { Chick } from '../models/chick.model.js';
 import { AppError } from '../middleware/error.middleware.js';
 
 // Recursive helper to build pedigree tree
@@ -69,7 +70,7 @@ const detectCircularReference = async (
 // Get all chickens with search and filters
 export const getAllChickens = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { search, gender } = req.query;
+    const { search, gender, includeChicks } = req.query;
     const filter: any = {};
 
     if (gender === 'male' || gender === 'female') {
@@ -87,11 +88,40 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
       ];
     }
 
-    const chickens = await Chicken.find(filter)
+    let chickens = await Chicken.find(filter)
       .populate('father', 'code name')
       .populate('mother', 'code name')
       .populate('user', 'name farmName farmCode isVerified')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (includeChicks === 'true' && search) {
+      const chickFilter: any = {};
+      const searchRegex = new RegExp(search as string, 'i');
+      chickFilter.$or = [
+        { code: searchRegex },
+        { name: searchRegex },
+        { bandNumber: searchRegex },
+        { bandText: searchRegex },
+      ];
+
+      const chicks = await Chick.find(chickFilter)
+        .populate('father', 'code name')
+        .populate('mother', 'code name')
+        .populate('user', 'name farmName farmCode isVerified')
+        .lean();
+
+      const mappedChicks = chicks.map(c => ({
+        ...c,
+        bloodline: 'ลูกไก่ (กำลังพัฒนา)'
+      }));
+
+      chickens = [...chickens, ...mappedChicks].sort((a: any, b: any) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+    }
 
     res.status(200).json({
       status: 'success',
@@ -106,6 +136,40 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
 // Get single chicken
 export const getChickenById = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const { includeAny } = req.query;
+
+    if (includeAny === 'true') {
+      let data: any = await Chicken.findById(req.params.id)
+        .populate('father', 'code name gender bloodline')
+        .populate('mother', 'code name gender bloodline')
+        .lean();
+        
+      if (data) {
+        return res.status(200).json({ status: 'success', data: { ...data, _sourceCollection: 'chickens' } });
+      }
+
+      data = await Father.findById(req.params.id).lean();
+      if (data) {
+        return res.status(200).json({ status: 'success', data: { ...data, gender: 'male', _sourceCollection: 'fathers' } });
+      }
+
+      data = await Mother.findById(req.params.id).lean();
+      if (data) {
+        return res.status(200).json({ status: 'success', data: { ...data, gender: 'female', _sourceCollection: 'mothers' } });
+      }
+
+      data = await Chick.findById(req.params.id)
+        .populate('father', 'code name')
+        .populate('mother', 'code name')
+        .populate('batch')
+        .lean();
+      if (data) {
+        return res.status(200).json({ status: 'success', data: { ...data, _sourceCollection: 'chicks' } });
+      }
+
+      return next(new AppError('Chicken not found', 404));
+    }
+
     const chicken = await Chicken.findById(req.params.id)
       .populate('father', 'code name gender bloodline')
       .populate('mother', 'code name gender bloodline');
@@ -163,7 +227,7 @@ export const getParentsOptions = async (req: Request, res: Response, next: NextF
 // Register a new chicken
 export const registerChicken = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { code, name, gender, bloodline, breed, color, hatchDate, bandColor, bandNumber, bandText, father, mother, notes, image } = req.body;
+    const { code, name, gender, bloodline, breed, color, hatchDate, bandColor, bandNumber, bandText, father, mother, fatherNameText, motherNameText, notes, image } = req.body;
 
     // Check if chicken code already exists
     const existing = await Chicken.findOne({ code: code.toUpperCase() });
@@ -187,6 +251,8 @@ export const registerChicken = async (req: Request, res: Response, next: NextFun
       image,
       father: father && father.match(/^[0-9a-fA-F]{24}$/) ? father : null,
       mother: mother && mother.match(/^[0-9a-fA-F]{24}$/) ? mother : null,
+      fatherNameText,
+      motherNameText,
     });
 
     // 2-Way Automated Sync to Father/Mother Collections
@@ -202,6 +268,8 @@ export const registerChicken = async (req: Request, res: Response, next: NextFun
             color: color || 'เพลิง/แดง',
             bandNumber,
             bandColor,
+            fatherNameText,
+            motherNameText,
             records: notes
           },
           { upsert: true, new: true }
@@ -216,7 +284,9 @@ export const registerChicken = async (req: Request, res: Response, next: NextFun
             breed: breed || bloodline || 'แม่พันธุ์',
             color: color || 'สา/เหลือง',
             bandNumber,
-            bandColor
+            bandColor,
+            fatherNameText,
+            motherNameText
           },
           { upsert: true, new: true }
         );
@@ -237,7 +307,7 @@ export const registerChicken = async (req: Request, res: Response, next: NextFun
 // Update existing chicken details
 export const updateChicken = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { code, name, gender, bloodline, breed, color, bandNumber, bandColor, notes, status, father, mother, image } = req.body;
+    const { code, name, gender, bloodline, breed, color, bandNumber, bandColor, notes, status, hatchDate, father, mother, fatherNameText, motherNameText, image } = req.body;
     const chickenId = req.params.id;
 
     const chicken = await Chicken.findById(chickenId);
@@ -294,6 +364,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
     }
 
 
+    const oldCode = chicken.code;
     chicken.code = code ? code.toUpperCase() : chicken.code;
     chicken.name = name || chicken.name;
     chicken.gender = gender || chicken.gender;
@@ -305,8 +376,11 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
     if (notes !== undefined) chicken.notes = notes;
     if (status !== undefined) chicken.status = status;
     if (image !== undefined) (chicken as any).image = image;
+    if (hatchDate !== undefined) chicken.hatchDate = hatchDate;
     chicken.father = father !== undefined ? (father || null) : chicken.father;
     chicken.mother = mother !== undefined ? (mother || null) : chicken.mother;
+    if (fatherNameText !== undefined) chicken.fatherNameText = fatherNameText;
+    if (motherNameText !== undefined) chicken.motherNameText = motherNameText;
 
     const updatedChicken = await chicken.save();
 
@@ -314,8 +388,9 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
     try {
       if (updatedChicken.gender === 'male') {
         await Father.findOneAndUpdate(
-          { code: updatedChicken.code },
+          { code: oldCode },
           {
+            code: updatedChicken.code,
             name: updatedChicken.name,
             breed: updatedChicken.breed || updatedChicken.bloodline,
             color: updatedChicken.color,
@@ -323,20 +398,28 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
             bandColor: updatedChicken.bandColor,
             hatchDate: updatedChicken.hatchDate,
             records: updatedChicken.notes,
+            status: updatedChicken.status,
+            fatherNameText: updatedChicken.fatherNameText,
+            motherNameText: updatedChicken.motherNameText,
             image: (updatedChicken as any).image,
           },
           { upsert: true, new: true }
         );
       } else if (updatedChicken.gender === 'female') {
         await Mother.findOneAndUpdate(
-          { code: updatedChicken.code },
+          { code: oldCode },
           {
+            code: updatedChicken.code,
             name: updatedChicken.name,
             breed: updatedChicken.breed || updatedChicken.bloodline,
             color: updatedChicken.color,
             bandNumber: updatedChicken.bandNumber,
             bandColor: updatedChicken.bandColor,
             hatchDate: updatedChicken.hatchDate,
+            records: updatedChicken.notes,
+            status: updatedChicken.status,
+            fatherNameText: updatedChicken.fatherNameText,
+            motherNameText: updatedChicken.motherNameText,
             image: (updatedChicken as any).image,
           },
           { upsert: true, new: true }

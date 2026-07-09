@@ -11,6 +11,9 @@ import { protect } from '../middleware/auth.middleware';
 
 const router = express.Router();
 
+router.get('/:id', getChickById);
+router.get('/:id/siblings', getSiblings);
+
 router.use(protect);
 
 router.route('/')
@@ -18,10 +21,7 @@ router.route('/')
   .post(createChick);
 
 router.route('/:id')
-  .get(getChickById)
   .put(updateChick)
   .delete(deleteChick);
-
-router.get('/:id/siblings', getSiblings);
 
 export default router;

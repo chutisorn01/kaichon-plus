@@ -8,6 +8,8 @@ export interface IFather extends Document {
   color: string;
   bandNumber?: string;
   bandColor?: string;
+  fatherNameText?: string;
+  motherNameText?: string;
   records?: string;
   hatchDate?: Date;
   status: string;
@@ -23,6 +25,8 @@ const fatherSchema = new Schema<IFather>(
     color: { type: String, required: true },
     bandNumber: { type: String },
     bandColor: { type: String },
+    fatherNameText: { type: String, trim: true },
+    motherNameText: { type: String, trim: true },
     records: { type: String },
     hatchDate: { type: Date },
     status: { type: String, default: 'ปกติ' },

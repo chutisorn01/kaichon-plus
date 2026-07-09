@@ -3,7 +3,8 @@ import {
   createBreedingBatch, 
   getBreedingBatches, 
   getBreedingBatchById, 
-  deleteBreedingBatch 
+  deleteBreedingBatch,
+  updateBreedingBatch
 } from '../controllers/breedingBatch.controller';
 import { protect } from '../middleware/auth.middleware';
 
@@ -14,6 +15,7 @@ router.use(protect);
 router.post('/', createBreedingBatch);
 router.get('/', getBreedingBatches);
 router.get('/:id', getBreedingBatchById);
+router.put('/:id', updateBreedingBatch);
 router.delete('/:id', deleteBreedingBatch);
 
 export default router;

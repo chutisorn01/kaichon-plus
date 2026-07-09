@@ -91,3 +91,37 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
     next(error);
   }
 };
+
+export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user._id;
+    const { name, farmName, description, phone, lineId, facebook, address, profileImage, coverImage } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        name,
+        farmName,
+        description,
+        phone,
+        lineId,
+        facebook,
+        address,
+        profileImage,
+        coverImage
+      },
+      { new: true, runValidators: true }
+    ).select('-passwordHash -passwordSalt');
+
+    if (!updatedUser) {
+      return next(new AppError('User not found', 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

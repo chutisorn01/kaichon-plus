@@ -15,7 +15,7 @@ export const getChicks = async (req: any, res: Response) => {
 
 export const getChickById = async (req: any, res: Response) => {
   try {
-    const chick = await Chick.findOne({ _id: req.params.id, user: req.user.id })
+    const chick = await Chick.findById(req.params.id)
       .populate('father')
       .populate('mother')
       .populate('batch');
@@ -65,14 +65,13 @@ export const deleteChick = async (req: any, res: Response) => {
 
 export const getSiblings = async (req: any, res: Response) => {
   try {
-    const chick = await Chick.findOne({ _id: req.params.id, user: req.user.id });
+    const chick = await Chick.findById(req.params.id);
     if (!chick) return res.status(404).json({ message: 'ไม่พบข้อมูลลูกไก่' });
     
     // Siblings are chicks from the same batch (excluding self)
     const siblings = await Chick.find({
       batch: chick.batch,
-      _id: { $ne: chick._id },
-      user: req.user.id
+      _id: { $ne: chick._id }
     });
     res.json(siblings);
   } catch (err: any) {

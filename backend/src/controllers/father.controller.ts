@@ -50,7 +50,10 @@ export const createFather = async (req: any, res: Response) => {
           bloodline: breed,
           bandNumber,
           bandColor,
+          fatherNameText: req.body.fatherNameText,
+          motherNameText: req.body.motherNameText,
           notes: records,
+          status: status,
           image,
           user: req.user.id
         },
@@ -68,6 +71,14 @@ export const createFather = async (req: any, res: Response) => {
 
 export const updateFather = async (req: any, res: Response) => {
   try {
+    // Map unified frontend fields to schema fields
+    if (req.body.notes !== undefined) {
+      req.body.records = req.body.notes;
+    }
+    if (req.body.bloodline !== undefined && !req.body.breed) {
+      req.body.breed = req.body.bloodline;
+    }
+
     const updatedFather = await Father.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
       req.body,
@@ -87,7 +98,10 @@ export const updateFather = async (req: any, res: Response) => {
             bloodline: updatedFather.breed,
             bandNumber: updatedFather.bandNumber,
             bandColor: updatedFather.bandColor,
+            fatherNameText: updatedFather.fatherNameText,
+            motherNameText: updatedFather.motherNameText,
             notes: updatedFather.records,
+            status: updatedFather.status,
             image: updatedFather.image,
             user: req.user.id
           },

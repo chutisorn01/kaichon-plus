@@ -77,3 +77,18 @@ export const deleteBreedingBatch = async (req: any, res: Response, next: NextFun
     next(error);
   }
 };
+
+export const updateBreedingBatch = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const { batchCode, father, mother, breedingDate, notes } = req.body;
+    const updatedBatch = await BreedingBatch.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      { batchCode, father, mother, breedingDate, notes },
+      { new: true }
+    );
+    if (!updatedBatch) return res.status(404).json({ message: 'ไม่พบข้อมูลชุดการผสม' });
+    res.json(updatedBatch);
+  } catch (error) {
+    next(error);
+  }
+};

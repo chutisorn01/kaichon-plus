@@ -7,6 +7,8 @@ export interface IChicken extends Document {
   bloodline: string;
   father: mongoose.Types.ObjectId | null;
   mother: mongoose.Types.ObjectId | null;
+  fatherNameText?: string;
+  motherNameText?: string;
   user?: mongoose.Types.ObjectId;
   originFarm?: mongoose.Types.ObjectId;
   bandNumber?: string;
@@ -14,6 +16,9 @@ export interface IChicken extends Document {
   bandText?: string;
   isApprovedByParent?: boolean;
   image?: string;
+  hatchDate?: Date;
+  status?: string;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,6 +61,14 @@ const chickenSchema = new Schema<IChicken>(
       ref: 'Chicken',
       default: null,
     },
+    fatherNameText: {
+      type: String,
+      trim: true,
+    },
+    motherNameText: {
+      type: String,
+      trim: true,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -83,6 +96,16 @@ const chickenSchema = new Schema<IChicken>(
       default: true,
     },
     image: {
+      type: String,
+    },
+    hatchDate: {
+      type: Date,
+    },
+    status: {
+      type: String,
+      default: 'ปกติ',
+    },
+    notes: {
       type: String,
     },
   },

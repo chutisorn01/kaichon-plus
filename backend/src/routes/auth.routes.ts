@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validation.middleware.js';
 import { protect } from '../middleware/auth.middleware.js';
-import { register, login, getMe } from '../controllers/auth.controller.js';
+import { register, login, getMe, updateProfile } from '../controllers/auth.controller.js';
 
 const router = Router();
 
@@ -21,5 +21,6 @@ const loginSchema = [
 router.post('/register', validate(registrationSchema), register);
 router.post('/login', validate(loginSchema), login);
 router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile);
 
 export default router;
