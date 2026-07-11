@@ -10,12 +10,22 @@ export interface IChick extends Document {
   code: string;
   name: string;
   gender: 'ผู้' | 'เมีย' | 'ยังไม่ระบุ';
+  bloodline?: string;
+  color?: string;
   bandColor?: string;
   bandNumber?: string;
   bandText?: string;
   originFarm?: mongoose.Types.ObjectId;
   isApprovedByParent?: boolean;
   status: string;
+  saleInfo?: {
+    customerName?: string;
+    customerPhone?: string;
+    customerFarm?: string;
+    saleDate?: Date;
+    price?: number;
+    notes?: string;
+  };
   notes?: string;
   image?: string;
   hatchDate?: Date;
@@ -32,6 +42,8 @@ const chickSchema = new Schema<IChick>(
     code: { type: String, required: true, unique: true, uppercase: true, index: true },
     name: { type: String, default: 'ลูกไก่' },
     gender: { type: String, enum: ['ผู้', 'เมีย', 'ยังไม่ระบุ'], default: 'ยังไม่ระบุ' },
+    bloodline: { type: String, trim: true },
+    color: { type: String, trim: true },
     bandColor: { type: String, trim: true },
     bandNumber: { type: String, trim: true, index: true },
     bandText: { type: String, trim: true },
@@ -40,6 +52,14 @@ const chickSchema = new Schema<IChick>(
     status: { type: String, default: 'ปกติ' },
     image: { type: String },
     hatchDate: { type: Date },
+    saleInfo: {
+      customerName: String,
+      customerPhone: String,
+      customerFarm: String,
+      saleDate: Date,
+      price: Number,
+      notes: String,
+    },
     notes: { type: String },
   },
   { timestamps: true }

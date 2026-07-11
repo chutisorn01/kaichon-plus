@@ -26,7 +26,7 @@ export const errorHandler = (
   if (err.code === 11000) {
     statusCode = 400;
     const field = Object.keys(err.keyValue)[0];
-    message = `Duplicate field value entered: ${field}. Please use another value.`;
+    message = `ข้อมูลซ้ำ: มีการใช้ "${field}" นี้ในระบบแล้ว กรุณาเปลี่ยนไปใช้รหัส/ค่าอื่นครับ`;
   }
 
   // Handle Mongoose Validation Error

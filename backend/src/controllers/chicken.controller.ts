@@ -135,9 +135,9 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
     }
 
     let chickens = await Chicken.find(filter)
-      .populate('father', 'code name')
-      .populate('mother', 'code name')
-      .populate('user', 'name farmName farmCode isVerified')
+      .populate('father', 'code name image')
+      .populate('mother', 'code name image')
+      .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -174,15 +174,37 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
       });
 
       const chicks = await Chick.find(chickFilter)
-        .populate('father', 'code name')
-        .populate('mother', 'code name')
-        .populate('user', 'name farmName farmCode isVerified')
+        .populate('father', 'code name image bloodline breed')
+        .populate('mother', 'code name image bloodline breed')
+        .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
         .lean();
 
-      const mappedChicks = chicks.map(c => ({
-        ...c,
-        bloodline: 'ลูกไก่ (กำลังพัฒนา)'
-      }));
+      const mappedChicks = chicks.map(c => {
+        let parentBloodline = (c as any).bloodline || '';
+        if (!(c as any).bloodline) {
+          const f = c.father as any;
+          const m = c.mother as any;
+          const fBlood = f?.bloodline || f?.breed || '';
+          const mBlood = m?.bloodline || m?.breed || '';
+          
+          if (fBlood && mBlood) {
+            if (fBlood === mBlood) {
+              parentBloodline = fBlood;
+            } else {
+              parentBloodline = `${fBlood}-${mBlood}`;
+            }
+          } else if (fBlood || mBlood) {
+            parentBloodline = fBlood || mBlood;
+          } else {
+            parentBloodline = 'กำลังพัฒนา';
+          }
+        }
+
+        return {
+          ...c,
+          bloodline: parentBloodline
+        };
+      });
 
       chickens = [...chickens, ...mappedChicks].sort((a: any, b: any) => {
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -208,46 +230,97 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
 
     if (includeAny === 'true') {
       let data: any = await Chicken.findById(req.params.id)
-        .populate('father', 'code name gender bloodline')
-        .populate('mother', 'code name gender bloodline')
-        .populate('user', 'name farmName farmCode isVerified')
+        .populate('father', 'code name gender bloodline image')
+        .populate('mother', 'code name gender bloodline image')
+        .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
         .lean();
         
       if (data) {
-        return res.status(200).json({ status: 'success', data: { ...data, _sourceCollection: 'chickens' } });
+        let siblingCount = 0;
+        if (data.batch) {
+          siblingCount = await Chick.countDocuments({ batch: data.batch._id || data.batch });
+        } else if (data.father && data.mother) {
+          const fatherId = data.father._id || data.father;
+          const motherId = data.mother._id || data.mother;
+          siblingCount = (await Chick.countDocuments({ father: fatherId, mother: motherId })) + 
+                         (await Chicken.countDocuments({ father: fatherId, mother: motherId }));
+        }
+        return res.status(200).json({ status: 'success', data: { ...data, siblingCount, _sourceCollection: 'chickens' } });
       }
 
-      data = await Father.findById(req.params.id).populate('user', 'name farmName farmCode isVerified').lean();
+      data = await Father.findById(req.params.id).populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText').lean();
       if (data) {
         return res.status(200).json({ status: 'success', data: { ...data, gender: 'male', _sourceCollection: 'fathers' } });
       }
 
-      data = await Mother.findById(req.params.id).populate('user', 'name farmName farmCode isVerified').lean();
+      data = await Mother.findById(req.params.id).populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText').lean();
       if (data) {
         return res.status(200).json({ status: 'success', data: { ...data, gender: 'female', _sourceCollection: 'mothers' } });
       }
 
       data = await Chick.findById(req.params.id)
-        .populate('father', 'code name')
-        .populate('mother', 'code name')
+        .populate('father', 'code name image bloodline breed')
+        .populate('mother', 'code name image bloodline breed')
         .populate('batch')
-        .populate('user', 'name farmName farmCode isVerified')
+        .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
         .lean();
       if (data) {
-        return res.status(200).json({ status: 'success', data: { ...data, _sourceCollection: 'chicks' } });
+        let siblingCount = 0;
+        if (data.batch) {
+          siblingCount = await Chick.countDocuments({ batch: data.batch._id || data.batch });
+        } else if (data.father && data.mother) {
+          const fatherId = data.father._id || data.father;
+          const motherId = data.mother._id || data.mother;
+          siblingCount = (await Chick.countDocuments({ father: fatherId, mother: motherId })) + 
+                         (await Chicken.countDocuments({ father: fatherId, mother: motherId }));
+        }
+
+        let parentBloodline = data.bloodline || '';
+        if (!data.bloodline) {
+          const f = data.father as any;
+          const m = data.mother as any;
+          const fBlood = f?.bloodline || f?.breed || '';
+          const mBlood = m?.bloodline || m?.breed || '';
+          if (fBlood && mBlood) {
+            if (fBlood === mBlood) {
+              parentBloodline = fBlood;
+            } else {
+              parentBloodline = `${fBlood}-${mBlood}`;
+            }
+          } else if (fBlood || mBlood) {
+            parentBloodline = fBlood || mBlood;
+          } else {
+            parentBloodline = 'กำลังพัฒนา';
+          }
+        }
+
+        return res.status(200).json({ status: 'success', data: { ...data, bloodline: parentBloodline, siblingCount, _sourceCollection: 'chicks' } });
       }
 
       return next(new AppError('Chicken not found', 404));
     }
 
     const chicken = await Chicken.findById(req.params.id)
-      .populate('father', 'code name gender bloodline')
-      .populate('mother', 'code name gender bloodline')
-      .populate('user', 'name farmName farmCode isVerified');
+      .populate('father', 'code name gender bloodline image')
+      .populate('mother', 'code name gender bloodline image')
+      .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
+      .lean();
 
     if (!chicken) {
       return next(new AppError('Chicken not found', 404));
     }
+
+    let siblingCount = 0;
+    if ((chicken as any).batch) {
+      siblingCount = await Chick.countDocuments({ batch: ((chicken as any).batch as any)._id || (chicken as any).batch });
+    } else if (chicken.father && chicken.mother) {
+      const fatherId = (chicken.father as any)._id || chicken.father;
+      const motherId = (chicken.mother as any)._id || chicken.mother;
+      const chickSiblings = await Chick.countDocuments({ father: fatherId, mother: motherId });
+      const chickenSiblings = await Chicken.countDocuments({ father: fatherId, mother: motherId });
+      siblingCount = chickSiblings + chickenSiblings;
+    }
+    (chicken as any).siblingCount = siblingCount;
 
     res.status(200).json({
       status: 'success',
@@ -339,9 +412,12 @@ export const registerChicken = async (req: Request, res: Response, next: NextFun
             color: color || 'เพลิง/แดง',
             bandNumber,
             bandColor,
+            bandText,
             fatherNameText,
             motherNameText,
-            records: notes
+            records: notes,
+            hatchDate,
+            image
           },
           { upsert: true, new: true }
         );
@@ -356,8 +432,12 @@ export const registerChicken = async (req: Request, res: Response, next: NextFun
             color: color || 'สา/เหลือง',
             bandNumber,
             bandColor,
+            bandText,
             fatherNameText,
-            motherNameText
+            motherNameText,
+            records: notes,
+            hatchDate,
+            image
           },
           { upsert: true, new: true }
         );
@@ -378,7 +458,7 @@ export const registerChicken = async (req: Request, res: Response, next: NextFun
 // Update existing chicken details
 export const updateChicken = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { code, name, gender, bloodline, breed, color, bandNumber, bandColor, notes, status, hatchDate, father, mother, fatherNameText, motherNameText, image } = req.body;
+    const { code, name, gender, bloodline, breed, color, bandNumber, bandColor, notes, status, hatchDate, father, mother, fatherNameText, motherNameText, image, saleInfo } = req.body;
     const chickenId = req.params.id;
 
     const chicken = await Chicken.findById(chickenId);
@@ -446,6 +526,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
     if (bandColor !== undefined) chicken.bandColor = bandColor;
     if (notes !== undefined) chicken.notes = notes;
     if (status !== undefined) chicken.status = status;
+    if (saleInfo !== undefined) chicken.saleInfo = saleInfo;
     if (image !== undefined) (chicken as any).image = image;
     if (hatchDate !== undefined) chicken.hatchDate = hatchDate;
     chicken.father = father !== undefined ? (father || null) : chicken.father;

@@ -95,7 +95,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
 export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user._id;
-    const { name, farmName, description, phone, lineId, facebook, address, profileImage, coverImage } = req.body;
+    const { name, farmName, description, phone, lineId, facebook, address, profileImage, coverImage, signatureImage, stampText } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -108,7 +108,9 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
         facebook,
         address,
         profileImage,
-        coverImage
+        coverImage,
+        signatureImage,
+        stampText
       },
       { new: true, runValidators: true }
     ).select('-passwordHash -passwordSalt');

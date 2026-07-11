@@ -14,6 +14,8 @@ export interface IUser extends Document {
   parentFarm?: mongoose.Types.ObjectId;
   profileImage?: string;
   coverImage?: string;
+  signatureImage?: string;
+  stampText?: string;
   description?: string;
   phone?: string;
   lineId?: string;
@@ -83,8 +85,10 @@ const userSchema = new Schema<IUser>(
       required: true,
       default: 'admin',
     },
-    profileImage: { type: String, trim: true },
-    coverImage: { type: String, trim: true },
+    profileImage: { type: String },
+    coverImage: { type: String },
+    signatureImage: { type: String },
+    stampText: { type: String, default: 'ORIGINAL BREED' },
     description: { type: String, trim: true },
     phone: { type: String, trim: true },
     lineId: { type: String, trim: true },

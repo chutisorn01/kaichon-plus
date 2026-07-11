@@ -18,6 +18,14 @@ export interface IChicken extends Document {
   image?: string;
   hatchDate?: Date;
   status?: string;
+  saleInfo?: {
+    customerName?: string;
+    customerPhone?: string;
+    customerFarm?: string;
+    saleDate?: Date;
+    price?: number;
+    notes?: string;
+  };
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -107,6 +115,14 @@ const chickenSchema = new Schema<IChicken>(
     },
     notes: {
       type: String,
+    },
+    saleInfo: {
+      customerName: String,
+      customerPhone: String,
+      customerFarm: String,
+      saleDate: Date,
+      price: Number,
+      notes: String,
     },
   },
   {

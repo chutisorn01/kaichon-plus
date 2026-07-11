@@ -13,6 +13,14 @@ export interface IFather extends Document {
   records?: string;
   hatchDate?: Date;
   status: string;
+  saleInfo?: {
+    customerName?: string;
+    customerPhone?: string;
+    customerFarm?: string;
+    saleDate?: Date;
+    price?: number;
+    notes?: string;
+  };
   image?: string;
 }
 
@@ -30,6 +38,14 @@ const fatherSchema = new Schema<IFather>(
     records: { type: String },
     hatchDate: { type: Date },
     status: { type: String, default: 'ปกติ' },
+    saleInfo: {
+      customerName: String,
+      customerPhone: String,
+      customerFarm: String,
+      saleDate: Date,
+      price: Number,
+      notes: String,
+    },
     image: { type: String }
   },
   { timestamps: true }
