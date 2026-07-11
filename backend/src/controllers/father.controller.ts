@@ -4,7 +4,7 @@ import { Chicken } from '../models/chicken.model';
 
 export const getFathers = async (req: any, res: Response) => {
   try {
-    const fathers = await Father.find({ user: req.user.id });
+    const fathers = await Father.find({ user: req.user.id }).populate('user', 'farmName name');
     res.json(fathers);
   } catch (err: any) {
     res.status(500).json({ message: err.message });

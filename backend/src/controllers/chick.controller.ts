@@ -7,6 +7,7 @@ export const getChicks = async (req: any, res: Response, next: NextFunction) => 
       .populate('father', 'name code bloodline breed')
       .populate('mother', 'name code bloodline breed')
       .populate('batch', 'batchCode')
+      .populate('user', 'farmName name')
       .lean();
 
     const mappedChicks = chicks.map(c => {
