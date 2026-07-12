@@ -8,6 +8,7 @@ export interface IMother extends Document {
   color: string;
   bandNumber?: string;
   bandColor?: string;
+  bandText?: string;
   fatherNameText?: string;
   motherNameText?: string;
   records?: string;
@@ -33,6 +34,7 @@ const motherSchema = new Schema<IMother>(
     color: { type: String, required: true },
     bandNumber: { type: String },
     bandColor: { type: String },
+    bandText: { type: String, trim: true },
     fatherNameText: { type: String, trim: true },
     motherNameText: { type: String, trim: true },
     records: { type: String },

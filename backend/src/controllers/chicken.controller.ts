@@ -458,7 +458,7 @@ export const registerChicken = async (req: Request, res: Response, next: NextFun
 // Update existing chicken details
 export const updateChicken = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { code, name, gender, bloodline, breed, color, bandNumber, bandColor, notes, status, hatchDate, father, mother, fatherNameText, motherNameText, image, saleInfo } = req.body;
+    const { code, name, gender, bloodline, breed, color, bandNumber, bandColor, bandText, notes, status, hatchDate, father, mother, fatherNameText, motherNameText, image, saleInfo } = req.body;
     const chickenId = req.params.id;
 
     const chicken = await Chicken.findById(chickenId);
@@ -524,6 +524,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
     if (color) chicken.color = color;
     if (bandNumber !== undefined) chicken.bandNumber = bandNumber;
     if (bandColor !== undefined) chicken.bandColor = bandColor;
+    if (bandText !== undefined) chicken.bandText = bandText;
     if (notes !== undefined) chicken.notes = notes;
     if (status !== undefined) chicken.status = status;
     if (saleInfo !== undefined) chicken.saleInfo = saleInfo;
@@ -548,6 +549,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
             color: updatedChicken.color,
             bandNumber: updatedChicken.bandNumber,
             bandColor: updatedChicken.bandColor,
+            bandText: updatedChicken.bandText,
             hatchDate: updatedChicken.hatchDate,
             records: updatedChicken.notes,
             status: updatedChicken.status,
@@ -567,6 +569,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
             color: updatedChicken.color,
             bandNumber: updatedChicken.bandNumber,
             bandColor: updatedChicken.bandColor,
+            bandText: updatedChicken.bandText,
             hatchDate: updatedChicken.hatchDate,
             records: updatedChicken.notes,
             status: updatedChicken.status,

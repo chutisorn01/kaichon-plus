@@ -81,12 +81,23 @@ export const updateMother = async (req: any, res: Response) => {
       req.body.breed = req.body.bloodline;
     }
 
+    const oldMother = await Mother.findOne({ _id: req.params.id, user: req.user.id });
+
     const updatedMother = await Mother.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
       req.body,
       { new: true }
     );
     if (!updatedMother) return res.status(404).json({ message: 'ไม่พบข้อมูลแม่ไก่' });
+
+    // If code was changed, delete the old orphaned record from Chicken collection
+    if (oldMother && oldMother.code !== updatedMother.code) {
+      try {
+        await Chicken.deleteMany({ code: oldMother.code.toUpperCase(), user: req.user.id });
+      } catch (err) {
+        console.error('Error deleting orphaned Chicken:', err);
+      }
+    }
 
     // Sync update to Chicken collection
     if (updatedMother.code) {
@@ -100,6 +111,7 @@ export const updateMother = async (req: any, res: Response) => {
             bloodline: updatedMother.breed,
             bandNumber: updatedMother.bandNumber,
             bandColor: updatedMother.bandColor,
+            bandText: updatedMother.bandText,
             fatherNameText: updatedMother.fatherNameText,
             motherNameText: updatedMother.motherNameText,
             status: updatedMother.status,
