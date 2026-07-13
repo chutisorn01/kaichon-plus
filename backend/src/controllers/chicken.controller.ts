@@ -85,7 +85,12 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
 
 
     if (search) {
-      const searchStr = search as string;
+      let searchStr = search as string;
+      // Auto-split numbers and text (e.g., "001โกเซ้ม" -> "001 โกเซ้ม")
+      searchStr = searchStr
+        .replace(/([0-9])([a-zA-Zก-ฮเแโใไาีืึุูะัิี])/g, '$1 $2')
+        .replace(/([a-zA-Zก-ฮเแโใไาีืึุูะัิี])([0-9])/g, '$1 $2');
+        
       searchWords = searchStr.trim().split(/\s+/);
       
       const regexPattern = searchWords.join('|');
@@ -199,18 +204,33 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
         const bBand = (b.bandNumber || '').toLowerCase();
         const aName = (a.name || '').toLowerCase();
         const bName = (b.name || '').toLowerCase();
+        const aBandText = (a.bandText || '').toLowerCase();
+        const bBandText = (b.bandText || '').toLowerCase();
+        const aFarm = (a.user?.farmName || '').toLowerCase();
+        const bFarm = (b.user?.farmName || '').toLowerCase();
 
-        let scoreA = 0;
-        let scoreB = 0;
+        const searchWords = searchLower.split(/\s+/);
 
-        // Exact match gets highest score
-        if (aCode === searchLower || aBand === searchLower) scoreA += 100;
-        else if (aCode.includes(searchLower) || aBand.includes(searchLower)) scoreA += 50;
-        if (aName.includes(searchLower)) scoreA += 30;
+        const calculateScore = (band: string, bandText: string, name: string, farm: string, code: string) => {
+          let score = 0;
+          for (const word of searchWords) {
+            // 1. กิ๊ฟสำคัญที่สุด (Band Number & Band Text)
+            if (band === word || bandText === word) score += 100;
+            else if (band.includes(word) || bandText.includes(word)) score += 70;
 
-        if (bCode === searchLower || bBand === searchLower) scoreB += 100;
-        else if (bCode.includes(searchLower) || bBand.includes(searchLower)) scoreB += 50;
-        if (bName.includes(searchLower)) scoreB += 30;
+            // 2. ชื่อไก่ และ ชื่อฟาร์ม สำคัญรองลงมา (Chicken Name & Farm Name)
+            if (name === word || farm === word) score += 80;
+            else if (name.includes(word) || farm.includes(word)) score += 60;
+
+            // 3. รหัสระบบ สำคัญน้อยสุด (System Code)
+            if (code === word) score += 50;
+            else if (code.includes(word)) score += 30;
+          }
+          return score;
+        };
+
+        const scoreA = calculateScore(aBand, aBandText, aName, aFarm, aCode);
+        const scoreB = calculateScore(bBand, bBandText, bName, bFarm, bCode);
 
         // If scores are different, sort by score descending
         if (scoreA !== scoreB) {
