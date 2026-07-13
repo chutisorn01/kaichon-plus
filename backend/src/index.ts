@@ -8,6 +8,8 @@ import breedingBatchRoutes from './routes/breedingBatch.routes.js';
 import fatherRoutes from './routes/father.routes.js';
 import motherRoutes from './routes/mother.routes.js';
 import chickRoutes from './routes/chick.routes.js';
+import breedingBatchRoutes from './routes/breedingBatch.routes.js';
+import statisticsRoutes from './routes/statistics.routes.js';
 import { protect } from './middleware/auth.middleware.js';
 import { errorHandler } from './middleware/error.middleware.js';
 
@@ -25,12 +27,16 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 connectDB();
 
 // Routes
+import vaccineRoutes from './routes/vaccine.routes.js';
+
 app.use('/api/auth', authRoutes);
 app.use('/api/chickens', chickenRoutes);
 app.use('/api/fathers', fatherRoutes);
 app.use('/api/mothers', motherRoutes);
 app.use('/api/chicks', chickRoutes);
 app.use('/api/breeding-batches', breedingBatchRoutes);
+app.use('/api/statistics', statisticsRoutes);
+app.use('/api/vaccines', vaccineRoutes);
 
 // Simple Health Check
 app.get('/api/health', (req, res) => {

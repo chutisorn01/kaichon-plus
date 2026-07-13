@@ -29,6 +29,10 @@ export interface IChick extends Document {
   notes?: string;
   image?: string;
   hatchDate?: Date;
+  completedVaccines?: {
+    vaccineName: string;
+    date: Date;
+  }[];
 }
 
 const chickSchema = new Schema<IChick>(
@@ -61,6 +65,10 @@ const chickSchema = new Schema<IChick>(
       notes: String,
     },
     notes: { type: String },
+    completedVaccines: [{
+      vaccineName: { type: String, required: true },
+      date: { type: Date, required: true }
+    }]
   },
   { timestamps: true }
 );

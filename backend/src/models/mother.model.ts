@@ -23,6 +23,10 @@ export interface IMother extends Document {
     notes?: string;
   };
   image?: string;
+  completedVaccines?: {
+    vaccineName: string;
+    date: Date;
+  }[];
 }
 
 const motherSchema = new Schema<IMother>(
@@ -48,7 +52,11 @@ const motherSchema = new Schema<IMother>(
       price: Number,
       notes: String,
     },
-    image: { type: String }
+    image: { type: String },
+    completedVaccines: [{
+      vaccineName: { type: String, required: true },
+      date: { type: Date, required: true }
+    }]
   },
   { timestamps: true }
 );

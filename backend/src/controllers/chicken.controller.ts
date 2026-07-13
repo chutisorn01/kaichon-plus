@@ -82,7 +82,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
     let parentIds: any[] = [];
     let searchWords: string[] = [];
     let matchingUsers: any[] = [];
-    let matchingParents: any[] = [];
+
 
     if (search) {
       const searchStr = search as string;
@@ -95,13 +95,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
         $or: [{ farmName: anyWordRegex }, { name: anyWordRegex }]
       }).select('_id farmName name').lean();
       
-      // Look up parent IDs that match any of the search words
-      matchingParents = await Chicken.find({
-        $or: [
-          { code: anyWordRegex },
-          { name: anyWordRegex }
-        ]
-      }).select('_id code name').lean();
+
 
       filter.$and = searchWords.map(word => {
         const regex = new RegExp(word, 'i');
@@ -121,14 +115,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           
         if (matchedUserIds.length > 0) conditions.push({ user: { $in: matchedUserIds } });
 
-        const matchedParentIds = matchingParents
-          .filter((p: any) => regex.test(p.code || '') || regex.test(p.name || ''))
-          .map((p: any) => p._id);
 
-        if (matchedParentIds.length > 0) {
-          conditions.push({ father: { $in: matchedParentIds } });
-          conditions.push({ mother: { $in: matchedParentIds } });
-        }
         
         return { $or: conditions };
       });
@@ -161,14 +148,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           
         if (matchedUserIds.length > 0) conditions.push({ user: { $in: matchedUserIds } });
 
-        const matchedParentIds = matchingParents
-          .filter((p: any) => regex.test(p.code || '') || regex.test(p.name || ''))
-          .map((p: any) => p._id);
 
-        if (matchedParentIds.length > 0) {
-          conditions.push({ father: { $in: matchedParentIds } });
-          conditions.push({ mother: { $in: matchedParentIds } });
-        }
         
         return { $or: conditions };
       });
@@ -206,7 +186,44 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
         };
       });
 
-      chickens = [...chickens, ...mappedChicks].sort((a: any, b: any) => {
+      chickens = [...chickens, ...mappedChicks];
+    }
+
+    // Sort the final results
+    if (search) {
+      const searchLower = (search as string).toLowerCase().trim();
+      chickens.sort((a: any, b: any) => {
+        const aCode = (a.code || '').toLowerCase();
+        const bCode = (b.code || '').toLowerCase();
+        const aBand = (a.bandNumber || '').toLowerCase();
+        const bBand = (b.bandNumber || '').toLowerCase();
+        const aName = (a.name || '').toLowerCase();
+        const bName = (b.name || '').toLowerCase();
+
+        let scoreA = 0;
+        let scoreB = 0;
+
+        // Exact match gets highest score
+        if (aCode === searchLower || aBand === searchLower) scoreA += 100;
+        else if (aCode.includes(searchLower) || aBand.includes(searchLower)) scoreA += 50;
+        if (aName.includes(searchLower)) scoreA += 30;
+
+        if (bCode === searchLower || bBand === searchLower) scoreB += 100;
+        else if (bCode.includes(searchLower) || bBand.includes(searchLower)) scoreB += 50;
+        if (bName.includes(searchLower)) scoreB += 30;
+
+        // If scores are different, sort by score descending
+        if (scoreA !== scoreB) {
+          return scoreB - scoreA;
+        }
+
+        // Fallback to createdAt
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+    } else {
+      chickens.sort((a: any, b: any) => {
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return dateB - dateA;

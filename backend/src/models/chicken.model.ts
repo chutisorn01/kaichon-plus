@@ -27,6 +27,10 @@ export interface IChicken extends Document {
     notes?: string;
   };
   notes?: string;
+  completedVaccines?: {
+    vaccineName: string;
+    date: Date;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -124,6 +128,10 @@ const chickenSchema = new Schema<IChicken>(
       price: Number,
       notes: String,
     },
+    completedVaccines: [{
+      vaccineName: { type: String, required: true },
+      date: { type: Date, required: true }
+    }]
   },
   {
     timestamps: true,
