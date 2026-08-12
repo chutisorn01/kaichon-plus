@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, ChevronLeft, Swords, Calendar, Save, Users, History, Trash2, ArrowRight, CheckCircle, Heart, AlertTriangle, Edit, X } from 'lucide-react';
-import { CustomSelect } from '../ui/CustomSelect';
+import { CustomSelect, FormatOptionLabel } from '../ui/CustomSelect';
 
 export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) => void }) {
   const [batches, setBatches] = useState<any[]>([]);
@@ -154,7 +154,22 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
         let chicks = [];
         if (formData.inputMode === 'auto') {
           const maleChicks = Array.from({ length: Number(formData.maleCount) }).map((_, i) => {
-            const bandNum = String(Number(formData.maleStartBand) + i).padStart(formData.maleStartBand.length, '0');
+            const startNumStr = (formData.maleStartBand || '').trim();
+            const match = startNumStr.match(/(\d+)$/);
+            let prefix = startNumStr;
+            let startNum = 0;
+            let numLength = 0;
+            
+            if (match) {
+              prefix = startNumStr.substring(0, startNumStr.length - match[1].length);
+              startNum = parseInt(match[1], 10);
+              numLength = match[1].length;
+            }
+            
+            const bandNum = match 
+              ? prefix + String(startNum + i).padStart(numLength, '0')
+              : startNumStr + (i + 1);
+
             return {
               name: `ไก่เพศผู้ "ยังไม่มีชื่อ"`,
               gender: 'ผู้',
@@ -165,12 +180,26 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
           });
 
           const femaleChicks = Array.from({ length: Number(formData.femaleCount) }).map((_, i) => {
-            const bandNum = String(Number(formData.femaleStartBand.replace(/\D/g, '') || 1) + i).padStart(2, '0');
-            const fullBand = formData.femaleStartBand.replace(/\d+/g, '') + bandNum;
+            const startNumStr = (formData.femaleStartBand || '').trim();
+            const match = startNumStr.match(/(\d+)$/);
+            let prefix = startNumStr;
+            let startNum = 0;
+            let numLength = 0;
+            
+            if (match) {
+              prefix = startNumStr.substring(0, startNumStr.length - match[1].length);
+              startNum = parseInt(match[1], 10);
+              numLength = match[1].length;
+            }
+            
+            const bandNum = match 
+              ? prefix + String(startNum + i).padStart(numLength, '0')
+              : startNumStr + (i + 1);
+
             return {
               name: `ไก่เพศเมีย "ยังไม่มีชื่อ"`,
               gender: 'เมีย',
-              bandNumber: fullBand,
+              bandNumber: bandNum,
               bandColor: formData.femaleBandColor,
               bandText: formData.bandText
             };
@@ -342,7 +371,9 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
                       <div className="text-[10px] text-slate-400 mb-1 uppercase font-bold flex items-center justify-end gap-1">
                         พ่อพันธุ์ <span className="text-red-500">♂</span>
                       </div>
-                      <div className="font-black text-red-600 md:text-lg">{batch.father?.name || 'N/A'}</div>
+                      <div className="font-black text-red-600 md:text-lg">
+                        {batch.father?.name ? <FormatOptionLabel label={batch.father.name} /> : 'N/A'}
+                      </div>
                       <div className="text-[10px] text-slate-500 font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md inline-block mt-1 border border-slate-200/50 dark:border-white/5">
                         {batch.father?.code || '-'}
                       </div>
@@ -354,7 +385,9 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
                       <div className="text-[10px] text-slate-400 mb-1 uppercase font-bold flex items-center justify-start gap-1">
                         <span className="text-pink-500">♀</span> แม่พันธุ์
                       </div>
-                      <div className="font-black text-pink-600 md:text-lg">{batch.mother?.name || 'N/A'}</div>
+                      <div className="font-black text-pink-600 md:text-lg">
+                        {batch.mother?.name ? <FormatOptionLabel label={batch.mother.name} /> : 'N/A'}
+                      </div>
                       <div className="text-[10px] text-slate-500 font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md inline-block mt-1 border border-slate-200/50 dark:border-white/5">
                         {batch.mother?.code || '-'}
                       </div>

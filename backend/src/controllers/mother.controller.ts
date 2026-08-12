@@ -28,15 +28,15 @@ export const createMother = async (req: any, res: Response) => {
       user: req.user.id,
       code,
       name,
-      breed,
-      color,
+      breed: breed || 'ไม่ระบุ',
+      color: color || 'ไม่ระบุ',
       bandNumber,
       bandColor,
       fatherNameText: req.body.fatherNameText,
       motherNameText: req.body.motherNameText,
-      records: req.body.records,
+      records: req.body.records || req.body.notes,
       hatchDate,
-      status,
+      status: status || 'ปกติ',
       image
     });
     const savedMother = await mother.save();

@@ -16,6 +16,67 @@ interface CustomSelectProps {
   buttonClassName?: string;
 }
 
+const renderBloodlineSegment = (text: string) => {
+  const bloodlines = text.split('+').map(b => b.trim()).filter(Boolean);
+  if (bloodlines.length <= 1) {
+    return <span className="font-semibold text-slate-800 dark:text-slate-100">{text}</span>;
+  }
+
+  return (
+    <span className="inline-flex items-center flex-wrap gap-0.5 px-2 py-0.5 bg-slate-100 dark:bg-slate-800/90 rounded-lg border border-slate-200/80 dark:border-slate-700/80 text-xs font-semibold text-slate-800 dark:text-slate-100 my-0.5">
+      {bloodlines.map((blood, bIdx) => (
+        <span key={bIdx} className="inline-flex items-center">
+          {bIdx > 0 && <span className="text-red-500 font-bold text-xs mx-1 select-none">+</span>}
+          <span>{blood}</span>
+        </span>
+      ))}
+    </span>
+  );
+};
+
+export function FormatOptionLabel({ label }: { label: string }) {
+  if (!label) return null;
+  const parts = label.split(' - ');
+  if (parts.length <= 1) {
+    return renderBloodlineSegment(label);
+  }
+
+  return (
+    <span className="inline-flex items-center flex-wrap gap-1.5 min-w-0">
+      {parts.map((part, index) => {
+        // 1. Code part (e.g. M001 or F001 - first part if short)
+        if (index === 0 && (part.length <= 12 || (!part.includes('+') && !part.includes(' ')))) {
+          return (
+            <span key={index} className="font-mono text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-200/80 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-300/50 dark:border-slate-700 shrink-0">
+              {part}
+            </span>
+          );
+        }
+
+        // 2. Farm / Owner Suffix (e.g. กมล, ส.สิบทิศ - last part)
+        if (index === parts.length - 1 && index > 0) {
+          return (
+            <span key={index} className="inline-flex items-center gap-1 shrink-0">
+              <span className="text-slate-400 font-normal text-xs">-</span>
+              <span className="px-1.5 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 rounded-md border border-amber-200/80 dark:border-amber-800/40">
+                {part}
+              </span>
+            </span>
+          );
+        }
+
+        // 3. Main Name / Bloodlines (e.g. ทันใจ+กุมารจีน+มหานคร+แดงเล็ก+ปลาเงิน+ถุงเงิน)
+        return (
+          <span key={index} className="inline-flex items-center gap-1">
+            {index > 0 && <span className="text-slate-400 font-normal text-xs mr-0.5">-</span>}
+            {renderBloodlineSegment(part)}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 export function CustomSelect({
   value,
   onChange,
@@ -64,7 +125,7 @@ export function CustomSelect({
             <span className={`w-3.5 h-3.5 rounded-full border border-black/10 dark:border-white/20 shrink-0 ${selectedOption.colorCode}`} />
           )}
           <span className={selectedOption ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'}>
-            {selectedOption ? selectedOption.label : placeholder}
+            {selectedOption ? <FormatOptionLabel label={selectedOption.label} /> : placeholder}
           </span>
         </div>
         <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -103,13 +164,13 @@ export function CustomSelect({
                       : 'text-slate-700 dark:text-slate-300'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     {opt.colorCode && (
                       <span className={`w-3.5 h-3.5 rounded-full border border-black/10 dark:border-white/20 shrink-0 ${opt.colorCode}`} />
                     )}
-                    <span>{opt.label}</span>
+                    <FormatOptionLabel label={opt.label} />
                   </div>
-                  {value === opt.value && <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
+                  {value === opt.value && <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />}
                 </li>
               ))
             )}

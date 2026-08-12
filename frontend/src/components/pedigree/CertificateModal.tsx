@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { toJpeg } from 'html-to-image';
-import { X, Download, ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle } from 'lucide-react';
+import { X, Download, ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck } from 'lucide-react';
 import { getBandColorCircleClass, getBandTextColorClass, getBandContrastTextClass, getBandBorderColorClass, getBandBgFadedClass } from './ChickenDetail';
 
 interface CertificateModalProps {
@@ -151,10 +151,13 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
               {/* Header */}
               <div className="pt-8 pb-0 text-center relative z-20">
                 <h1 
-                  className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-400 to-amber-100 tracking-widest mb-0 drop-shadow-[0_0_25px_rgba(251,191,36,0.5)] pt-6 pb-2"
+                  className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-400 to-amber-100 tracking-widest mb-0 drop-shadow-[0_0_25px_rgba(251,191,36,0.5)] pt-6 pb-2 inline-flex items-center justify-center gap-3"
                   style={{ fontFamily: "'Charm', cursive", lineHeight: '1.4' }}
                 >
-                  {chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS'}
+                  <span>{chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS'}</span>
+                  {chicken.user?.isVerified === true && (
+                    <BadgeCheck className="w-9 h-9 text-white fill-blue-500 shrink-0 drop-shadow-md" />
+                  )}
                 </h1>
                 <div className="inline-flex items-center justify-center mt-3 relative group">
                   {/* Decorative glowing background */}
@@ -285,7 +288,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                   <div className="bg-slate-800/40 px-2 py-1.5 rounded-xl border border-slate-700/50 flex flex-col justify-center shadow-md">
                     <span className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Breeder / ฟาร์มเพาะพันธุ์</span>
                     <span className="text-sm font-bold text-white flex items-center gap-1.5 truncate">
-                      <ShieldCheck className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                      {chicken.user?.isVerified === true && (
+                        <BadgeCheck className="w-4 h-4 text-white fill-blue-500 shrink-0" />
+                      )}
                       {chicken.user?.farmName || chicken.user?.name || 'ฟาร์มสมาชิก'}
                     </span>
                   </div>

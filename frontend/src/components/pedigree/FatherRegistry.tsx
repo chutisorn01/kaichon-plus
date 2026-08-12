@@ -169,10 +169,11 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any)
           type: 'success'
         });
       } else {
+        const errJson = await res.json().catch(() => ({}));
         setAlertConfig({
           show: true,
           title: '⚠️ บันทึกไม่สำเร็จ',
-          message: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+          message: errJson.message || 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
           type: 'error'
         });
       }

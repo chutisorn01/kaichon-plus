@@ -12,9 +12,9 @@ import {
   Building2,
   Search,
   BadgeCheck,
+  ShieldCheck,
   Tag,
   User,
-  ShieldCheck,
   X,
   ShoppingBag,
   BarChart,
@@ -138,26 +138,74 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
       setSearchResults([]);
       return;
     }
-    const timer = setTimeout(() => {
-      handleSearch(searchQuery);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
-  const handleSearch = async (query: string) => {
-    setIsSearching(true);
-    try {
-      const res = await fetch(`http://localhost:5001/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
-      const data = await res.json();
-      if (data.status === 'success') {
-        setSearchResults(data.data || []);
+    let active = true;
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const query = searchQuery.trim();
+        const res = await fetch(`http://localhost:5001/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
+        const data = await res.json();
+        
+        if (active && data.status === 'success') {
+          const results = data.data || [];
+          const q = query.toLowerCase();
+          const searchWords = q.split(/\s+/);
+
+          // Client-side scoring and sorting to prioritize exact matches
+          const sorted = [...results].sort((a: any, b: any) => {
+            const calculateScore = (item: any) => {
+              let score = 0;
+              const name = (item.name || '').toLowerCase();
+              const code = (item.code || '').toLowerCase();
+              const bandNumber = (item.bandNumber || '').toLowerCase();
+              const bandText = (item.bandText || '').toLowerCase();
+              const farmName = (item.user?.farmName || '').toLowerCase();
+
+              for (const word of searchWords) {
+                // 1. Band Number (กิ๊ฟ) - Most important
+                if (bandNumber === word) score += 100;
+                else if (bandNumber.includes(word)) score += 70;
+
+                // 2. Name, Farm Name, Band Text - Second most important
+                if (name === word || farmName === word || bandText === word) score += 80;
+                else if (name.includes(word) || farmName.includes(word) || bandText.includes(word)) score += 60;
+
+                // 3. System Code - Third most important
+                if (code === word) score += 50;
+                else if (code.includes(word)) score += 30;
+              }
+              return score;
+            };
+
+            const scoreA = calculateScore(a);
+            const scoreB = calculateScore(b);
+
+            if (scoreA !== scoreB) {
+              return scoreB - scoreA; // Descending (highest score first)
+            }
+
+            // Fallback to createdAt descending
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          });
+
+          setSearchResults(sorted);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (active) setIsSearching(false);
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+    }, 500);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans flex flex-col text-slate-900 dark:text-white transition-colors relative w-full">
@@ -218,7 +266,7 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
                     <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-xl text-sm font-black text-white shadow-lg border border-white/20 flex items-center gap-1.5">
                       <Building2 className="w-4 h-4 text-white/90" />
                       {user?.farmName || 'ฟาร์มไก่ชน (ยังไม่ตั้งชื่อ)'}
-                      <BadgeCheck className="w-4 h-4 text-white fill-blue-500 drop-shadow-sm" />
+                      {user?.isVerified === true && <BadgeCheck className="w-4 h-4 text-white fill-blue-500 drop-shadow-xs" />}
                     </div>
                   </div>
                   <span className="text-white/80 text-[11px] sm:text-xs font-medium ml-1">ระบบจัดการสายเลือดและตลาดซื้อ-ขายไก่ชน</span>
@@ -322,6 +370,13 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
                               {chicken.code}
                             </span>
                           </div>
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-300 mt-1 mb-1">
+                            <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="truncate">{chicken.user?.farmName || chicken.user?.name || 'ฟาร์มสมาชิก'}</span>
+                            {chicken.user?.isVerified === true && (
+                              <BadgeCheck className="w-3.5 h-3.5 text-white fill-blue-500 shrink-0 drop-shadow-xs" />
+                            )}
+                          </div>
                           <div className="flex flex-wrap items-center gap-2 text-xs mb-1.5 mt-1">
                             {chicken.bandNumber && (
                               <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 font-bold rounded-lg border min-w-0 max-w-full ${getBandColorClass(chicken.bandColor || 'แดง')}`}>
@@ -424,9 +479,9 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
             </div>
           </div>
 
-          {/* Trading Marketplace Board & Sub-Farm Buttons */}
+          {/* Chick Management & Farm Health Modules */}
           <div className="space-y-3">
-            <h2 className="font-bold text-slate-800 dark:text-slate-200 px-1">ระบบงานลูกไก่ & เครือข่ายฟาร์ม</h2>
+            <h2 className="font-bold text-slate-800 dark:text-slate-200 px-1">ระบบบริหารจัดการลูกไก่ & สุขภาพฟาร์ม</h2>
             
             {/* 1-Month Chick Banding Banner */}
             <div 

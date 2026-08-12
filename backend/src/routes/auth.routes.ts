@@ -6,7 +6,7 @@ import { register, login, getMe, updateProfile } from '../controllers/auth.contr
 const router = Router();
 
 const registrationSchema = [
-  { field: 'username', required: true, type: 'string' as const, message: 'Username is required and must be a string' },
+  { field: 'username', required: true, type: 'string' as const, regex: /^[a-zA-Z0-9_.-]+$/, message: 'Username must contain only English letters, numbers, underscores, dots, or hyphens' },
   { field: 'password', required: true, type: 'string' as const, message: 'Password is required and must be a string' },
   { field: 'name', required: true, type: 'string' as const, message: 'Display name is required and must be a string' },
   { field: 'email', required: true, type: 'string' as const, regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Please provide a valid email address' },

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Swords } from 'lucide-react';
+import { Swords, Eye, EyeOff } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import SuccessModal from './ui/SuccessModal';
 
@@ -9,6 +9,8 @@ export default function Register({ onNavigate }: { onNavigate: (page: any) => vo
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -16,6 +18,10 @@ export default function Register({ onNavigate }: { onNavigate: (page: any) => vo
     e.preventDefault();
     if (!name || !username || !email || !password || !confirmPassword) {
       setError('กรุณากรอกข้อมูลให้ครบถ้วน');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
+      setError('ชื่อผู้ใช้งาน (Username) ต้องเป็นภาษาอังกฤษ ตัวเลข หรือเครื่องหมาย _ . - เท่านั้น');
       return;
     }
     if (password.length < 8) {
@@ -119,14 +125,24 @@ export default function Register({ onNavigate }: { onNavigate: (page: any) => vo
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="username" className="block text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">ชื่อผู้ใช้งาน (Username)</label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="username" className="block text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">
+                  ชื่อผู้ใช้งาน (Username)
+                </label>
+                <span className="text-[11px] text-slate-400 font-normal">ภาษาอังกฤษเท่านั้น</span>
+              </div>
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl blur opacity-0 group-focus-within:opacity-30 transition duration-500"></div>
                 <input
                   id="username" name="username" type="text" required
-                  value={username} onChange={(e) => { setUsername(e.target.value); setError(''); }}
+                  value={username} 
+                  onChange={(e) => { 
+                    const cleanVal = e.target.value.replace(/[^a-zA-Z0-9_.-]/g, '');
+                    setUsername(cleanVal); 
+                    setError(''); 
+                  }}
                   className="relative block w-full px-4 py-2.5 bg-white dark:bg-slate-950/50 border border-slate-300 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all sm:text-sm"
-                  placeholder="somchai99"
+                  placeholder="somchai99 (ภาษาอังกฤษเท่านั้น)"
                 />
               </div>
             </div>
@@ -149,11 +165,19 @@ export default function Register({ onNavigate }: { onNavigate: (page: any) => vo
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl blur opacity-0 group-focus-within:opacity-30 transition duration-500"></div>
                 <input
-                  id="password" name="password" type="password" required
+                  id="password" name="password" type={showPassword ? "text" : "password"} required
                   value={password} onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                  className="relative block w-full px-4 py-2.5 bg-white dark:bg-slate-950/50 border border-slate-300 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all sm:text-sm"
+                  className="relative block w-full pl-4 pr-12 py-2.5 bg-white dark:bg-slate-950/50 border border-slate-300 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all sm:text-sm"
                   placeholder="อย่างน้อย 8 ตัวอักษร"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 z-20 p-1.5 rounded-lg transition-colors cursor-pointer"
+                  title={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 
@@ -162,11 +186,19 @@ export default function Register({ onNavigate }: { onNavigate: (page: any) => vo
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl blur opacity-0 group-focus-within:opacity-30 transition duration-500"></div>
                 <input
-                  id="confirmPassword" name="confirmPassword" type="password" required
+                  id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} required
                   value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
-                  className="relative block w-full px-4 py-2.5 bg-white dark:bg-slate-950/50 border border-slate-300 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all sm:text-sm"
+                  className="relative block w-full pl-4 pr-12 py-2.5 bg-white dark:bg-slate-950/50 border border-slate-300 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all sm:text-sm"
                   placeholder="ยืนยันรหัสผ่านอีกครั้ง"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 z-20 p-1.5 rounded-lg transition-colors cursor-pointer"
+                  title={showConfirmPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 

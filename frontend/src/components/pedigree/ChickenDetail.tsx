@@ -429,9 +429,14 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
       const token = localStorage.getItem('token');
       const headers = { 'Authorization': `Bearer ${token}` };
 
-      await fetch(`http://localhost:5001/api/chickens/${chickenId}`, { method: 'DELETE', headers }).catch(() => null);
-      await fetch(`http://localhost:5001/api/fathers/${chickenId}`, { method: 'DELETE', headers }).catch(() => null);
-      await fetch(`http://localhost:5001/api/mothers/${chickenId}`, { method: 'DELETE', headers }).catch(() => null);
+      const collection = chick?._sourceCollection || 'chickens';
+      const endpoint = `http://localhost:5001/api/${collection}/${chickenId}`;
+
+      const res = await fetch(endpoint, { method: 'DELETE', headers });
+      
+      if (!res.ok) {
+        throw new Error('Delete failed');
+      }
 
       setAlertConfig({
         show: true,

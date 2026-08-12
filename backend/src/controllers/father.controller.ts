@@ -28,13 +28,13 @@ export const createFather = async (req: any, res: Response) => {
       user: req.user.id,
       code,
       name,
-      breed,
-      color,
+      breed: breed || 'ไม่ระบุ',
+      color: color || 'ไม่ระบุ',
       bandNumber,
       bandColor,
-      records,
+      records: records || req.body.notes,
       hatchDate,
-      status,
+      status: status || 'ปกติ',
       image
     });
     const savedFather = await father.save();

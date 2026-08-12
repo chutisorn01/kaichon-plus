@@ -26,7 +26,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
     breed: '',
     color: '',
     bandNumber: '',
-    bandColor: 'เหลือง',
+    bandColor: 'ทอง',
     notes: '',
     status: 'ปกติ',
     image: ''
@@ -64,7 +64,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
 
   const handleOpenAdd = () => {
     setEditingId(null);
-    setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'เหลือง', notes: '', status: 'ปกติ', image: '' });
+    setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'ทอง', notes: '', status: 'ปกติ', image: '' });
     setShowAddForm(true);
   };
 
@@ -76,7 +76,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
       breed: mother.breed || '',
       color: mother.color || '',
       bandNumber: mother.bandNumber || '',
-      bandColor: mother.bandColor || 'เหลือง',
+      bandColor: mother.bandColor || 'ทอง',
       notes: mother.notes || '',
       status: mother.status || 'ปกติ',
       image: mother.image || ''
@@ -106,7 +106,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
         setShowAddForm(false);
         setEditingId(null);
         fetchMothers();
-        setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'เหลือง', notes: '', status: 'ปกติ', image: '' });
+        setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'ทอง', notes: '', status: 'ปกติ', image: '' });
         setAlertConfig({
           show: true,
           title: '🎉 สำเร็จเรียบร้อย',
@@ -114,10 +114,11 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
           type: 'success'
         });
       } else {
+        const errJson = await res.json().catch(() => ({}));
         setAlertConfig({
           show: true,
           title: '⚠️ บันทึกไม่สำเร็จ',
-          message: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+          message: errJson.message || 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
           type: 'error'
         });
       }

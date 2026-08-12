@@ -212,15 +212,22 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
     }
   };
 
-  const filteredChicks = chicks.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
-    c.code.toLowerCase().includes(search.toLowerCase()) ||
-    c.batch?.batchCode?.toLowerCase().includes(search.toLowerCase()) ||
-    c.father?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    c.fatherNameText?.toLowerCase().includes(search.toLowerCase()) ||
-    c.mother?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    c.motherNameText?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredChicks = chicks.filter(c => {
+    const q = search.toLowerCase().trim();
+    if (!q) return true;
+    return (
+      (c.name || '').toLowerCase().includes(q) || 
+      (c.code || '').toLowerCase().includes(q) ||
+      (c.bandNumber || '').toLowerCase().includes(q) ||
+      (c.bandText || '').toLowerCase().includes(q) ||
+      (c.bandColor || '').toLowerCase().includes(q) ||
+      (c.batch?.batchCode || '').toLowerCase().includes(q) ||
+      (c.father?.name || '').toLowerCase().includes(q) ||
+      (c.fatherNameText || '').toLowerCase().includes(q) ||
+      (c.mother?.name || '').toLowerCase().includes(q) ||
+      (c.motherNameText || '').toLowerCase().includes(q)
+    );
+  });
 
   const groupedChicks: Record<string, any[]> = {};
   filteredChicks.forEach(chick => {
@@ -338,12 +345,12 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
                     </div>
                   </div>
                   <div className="text-slate-400">
-                    {expandedBatches[batchCode] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    {(search.trim() ? true : expandedBatches[batchCode]) ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                   </div>
                 </div>
 
                 {/* Chicks List (Expanded) */}
-                {expandedBatches[batchCode] && (
+                {(search.trim() ? true : expandedBatches[batchCode]) && (
                   <div className="p-2 space-y-2 border-t border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-900">
                     {groupedChicks[batchCode].map((chick) => (
                       <div 

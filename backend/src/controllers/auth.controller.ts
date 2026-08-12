@@ -95,7 +95,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
 export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user._id;
-    const { name, farmName, description, phone, lineId, facebook, address, profileImage, coverImage, signatureImage, stampText } = req.body;
+    const { name, farmName, description, phone, lineId, facebook, address, profileImage, coverImage, signatureImage, stampText, isVerified } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -110,7 +110,8 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
         profileImage,
         coverImage,
         signatureImage,
-        stampText
+        stampText,
+        ...(typeof isVerified === 'boolean' && { isVerified })
       },
       { new: true, runValidators: true }
     ).select('-passwordHash -passwordSalt');

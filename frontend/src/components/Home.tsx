@@ -167,7 +167,9 @@ const getBandColorCircleClass = (color: string) => {
                             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mb-1.5 mt-1">
                               <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
                                 {chicken.user?.farmName || chicken.user?.name || 'ฟาร์มสมาชิก'}
-                                <BadgeCheck className="w-4 h-4 text-white fill-blue-500 inline drop-shadow-sm" title="Verified Farm" />
+                                {chicken.user?.isVerified === true && (
+                                  <BadgeCheck className="w-4 h-4 text-white fill-blue-500 inline drop-shadow-sm" title="Verified Farm" />
+                                )}
                               </span>
                               {chicken.bandNumber && (
                                 <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 font-bold rounded-lg border min-w-0 max-w-full ${getBandColorClass(chicken.bandColor || 'แดง')}`}>

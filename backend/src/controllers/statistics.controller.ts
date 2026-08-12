@@ -6,7 +6,7 @@ import { BreedingBatch } from '../models/breedingBatch.model.js';
 
 export const getFarmStatistics = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const userId = (req as any).user?.id || (req as any).user?._id;
 
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -25,7 +25,7 @@ export const getFarmStatistics = async (req: Request, res: Response) => {
       { $match: { user: userId } },
       { $group: { _id: '$father', chickCount: { $sum: 1 } } },
       { $sort: { chickCount: -1 } },
-      { $limit: 3 },
+      { $limit: 5 },
       { $lookup: { from: 'fathers', localField: '_id', foreignField: '_id', as: 'fatherData' } },
       { $unwind: '$fatherData' },
       { $project: { _id: 1, name: '$fatherData.name', code: '$fatherData.code', chickCount: 1 } }
@@ -36,7 +36,7 @@ export const getFarmStatistics = async (req: Request, res: Response) => {
       { $match: { user: userId } },
       { $group: { _id: '$mother', chickCount: { $sum: 1 } } },
       { $sort: { chickCount: -1 } },
-      { $limit: 3 },
+      { $limit: 5 },
       { $lookup: { from: 'mothers', localField: '_id', foreignField: '_id', as: 'motherData' } },
       { $unwind: '$motherData' },
       { $project: { _id: 1, name: '$motherData.name', code: '$motherData.code', chickCount: 1 } }
@@ -73,6 +73,18 @@ export const getFarmStatistics = async (req: Request, res: Response) => {
       };
     });
 
+    // 5. Band Color Distribution
+    const bandColorStats = await Chick.aggregate([
+      { $match: { user: userId, bandColor: { $exists: true, $nin: [null, ''] } } },
+      { $group: { _id: '$bandColor', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // 6. Average Chicks Per Batch
+    const totalBatches = await BreedingBatch.countDocuments({ user: userId });
+    const totalChicks = chicksMale + chicksFemale + chicksUnknown;
+    const avgChicksPerBatch = totalBatches > 0 ? (totalChicks / totalBatches).toFixed(1) : '0';
+
     res.status(200).json({
       success: true,
       data: {
@@ -83,12 +95,15 @@ export const getFarmStatistics = async (req: Request, res: Response) => {
             male: chicksMale,
             female: chicksFemale,
             unknown: chicksUnknown,
-            total: chicksMale + chicksFemale + chicksUnknown
+            total: totalChicks
           }
         },
         topFathers,
         topMothers,
-        monthlyBatches: monthlyData
+        monthlyBatches: monthlyData,
+        bandColorStats: bandColorStats.map(b => ({ color: b._id, count: b.count })),
+        totalBatches,
+        avgChicksPerBatch
       }
     });
 

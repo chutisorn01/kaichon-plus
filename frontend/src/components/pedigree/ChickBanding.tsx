@@ -120,7 +120,22 @@ export default function ChickBanding({ onNavigate }: { onNavigate: (page: any) =
 
       if (formData.inputMode === 'auto') {
         const maleChicks = Array.from({ length: Number(formData.maleCount) }).map((_, i) => {
-          const bandNum = String(Number(formData.maleStartBand) + i).padStart(formData.maleStartBand.length, '0');
+          const startNumStr = (formData.maleStartBand || '').trim();
+          const match = startNumStr.match(/(\d+)$/);
+          let prefix = startNumStr;
+          let startNum = 0;
+          let numLength = 0;
+          
+          if (match) {
+            prefix = startNumStr.substring(0, startNumStr.length - match[1].length);
+            startNum = parseInt(match[1], 10);
+            numLength = match[1].length;
+          }
+          
+          const bandNum = match 
+            ? prefix + String(startNum + i).padStart(numLength, '0')
+            : startNumStr + (i + 1);
+
           return {
             batch: formData.batchId,
             father: fatherId,
@@ -136,8 +151,22 @@ export default function ChickBanding({ onNavigate }: { onNavigate: (page: any) =
         });
 
         const femaleChicks = Array.from({ length: Number(formData.femaleCount) }).map((_, i) => {
-          const bandNum = String(Number(formData.femaleStartBand.replace(/\D/g, '') || 1) + i).padStart(2, '0');
-          const fullBand = formData.femaleStartBand.replace(/\d+/g, '') + bandNum;
+          const startNumStr = (formData.femaleStartBand || '').trim();
+          const match = startNumStr.match(/(\d+)$/);
+          let prefix = startNumStr;
+          let startNum = 0;
+          let numLength = 0;
+          
+          if (match) {
+            prefix = startNumStr.substring(0, startNumStr.length - match[1].length);
+            startNum = parseInt(match[1], 10);
+            numLength = match[1].length;
+          }
+          
+          const bandNum = match 
+            ? prefix + String(startNum + i).padStart(numLength, '0')
+            : startNumStr + (i + 1);
+
           return {
             batch: formData.batchId,
             father: fatherId,
@@ -145,7 +174,7 @@ export default function ChickBanding({ onNavigate }: { onNavigate: (page: any) =
             code: `${batchCode}-F${bandNum}`,
             name: `ไก่เพศเมีย "ยังไม่มีชื่อ"`,
             gender: 'เมีย',
-            bandNumber: fullBand,
+            bandNumber: bandNum,
             bandColor: formData.femaleBandColor,
             bandText: formData.bandText,
             hatchDate: new Date(formData.hatchDate)

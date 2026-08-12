@@ -155,6 +155,54 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
         );
       });
 
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+        const searchWords = q.split(/\s+/);
+        
+        filtered.sort((a: any, b: any) => {
+          const calculateScore = (item: any) => {
+            let score = 0;
+            const name = (item.name || '').toLowerCase();
+            const code = (item.code || '').toLowerCase();
+            const bloodline = (item.bloodline || '').toLowerCase();
+            const bandNumber = (item.bandNumber || '').toLowerCase();
+            const bandText = (item.bandText || '').toLowerCase();
+            const farmName = (item.user?.farmName || '').toLowerCase();
+
+            for (const word of searchWords) {
+              // 1. Band Number (กิ๊ฟ) - Most important
+              if (bandNumber === word) score += 100;
+              else if (bandNumber.includes(word)) score += 70;
+
+              // 2. Name, Farm Name, Band Text - Second most important
+              if (name === word || farmName === word || bandText === word) score += 80;
+              else if (name.includes(word) || farmName.includes(word) || bandText.includes(word)) score += 60;
+
+              // 3. System Code - Third most important
+              if (code === word) score += 50;
+              else if (code.includes(word)) score += 30;
+
+              // 4. Bloodline - Lowest priority
+              if (bloodline === word) score += 20;
+              else if (bloodline.includes(word)) score += 10;
+            }
+            return score;
+          };
+
+          const scoreA = calculateScore(a);
+          const scoreB = calculateScore(b);
+
+          if (scoreA !== scoreB) {
+            return scoreB - scoreA;
+          }
+
+          // Fallback to createdAt descending
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+      }
+
       setChickens(filtered);
     } catch (err) {
       console.error(err);
