@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Swords, Eye, EyeOff } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageToggle } from './LanguageToggle';
 import SuccessModal from './ui/SuccessModal';
 
 export default function Register({ onNavigate }: { onNavigate: (page: any) => void }) {
@@ -65,7 +66,8 @@ export default function Register({ onNavigate }: { onNavigate: (page: any) => vo
         onClose={() => onNavigate('home')} 
         message="สมัครสมาชิกสำเร็จ! เริ่มต้นจัดการประวัติไก่ได้เลย"
       />
-      <div className="absolute top-6 right-4 sm:top-8 sm:right-8 z-50">
+      <div className="absolute top-6 right-4 sm:top-8 sm:right-8 z-50 flex items-center gap-2">
+        <LanguageToggle />
         <ThemeToggle />
       </div>
 

@@ -23,6 +23,7 @@ import {
   Syringe
 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageToggle } from './LanguageToggle';
 import { ChickenIcon } from './ui/ChickenIcon';
 import { getBandColorClass } from './pedigree/FatherRegistry';
 
@@ -219,6 +220,7 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
             <span className="font-bold text-lg">KaiChon Plus</span>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageToggle />
             <ThemeToggle />
             
             {/* Profile Avatar Button */}

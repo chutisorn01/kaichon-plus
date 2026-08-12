@@ -15,6 +15,8 @@ import ChickBanding from './components/pedigree/ChickBanding';
 import Profile from './components/Profile';
 import FarmStatistics from './components/FarmStatistics';
 import VaccineDashboard from './components/vaccine/VaccineDashboard';
+import { LanguageProvider } from './components/LanguageContext';
+
 type Page = 'home' | 'login' | 'register' | 'dashboard' | 'father-registry' | 'mother-registry' | 'breeding-batch' | 'chick-registry' | 'chicken-detail' | 'sub-farms' | 'chicken-list' | 'chicken-add' | 'chick-banding' | 'profile' | 'statistics' | 'vaccine';
 
 function App() {
@@ -69,7 +71,7 @@ function App() {
   };
 
   return (
-    <>
+    <LanguageProvider>
       {currentPage === 'home' && <Home onNavigate={handleNavigate} />}
       {currentPage === 'login' && <Login onNavigate={handleNavigate} />}
       {currentPage === 'register' && <Register onNavigate={handleNavigate} />}
@@ -86,7 +88,7 @@ function App() {
       {currentPage === 'profile' && <Profile onNavigate={handleNavigate} />}
       {currentPage === 'statistics' && <FarmStatistics onNavigate={handleNavigate} />}
       {currentPage === 'vaccine' && <VaccineDashboard onNavigate={handleNavigate} />}
-    </>
+    </LanguageProvider>
   );
 }
 

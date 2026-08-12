@@ -13,7 +13,9 @@ const getBandColorCircleClass = (color: string) => {
     case 'น้ำเงิน': return 'bg-blue-500';
     default: return 'bg-slate-400';
   }
-};export default function Home({ onNavigate }: { onNavigate: (page: any, id?: string) => void }) {
+};import { LanguageToggle } from './LanguageToggle';
+
+export default function Home({ onNavigate }: { onNavigate: (page: any, id?: string) => void }) {
   const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem('home_searchQuery') || '');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -68,7 +70,8 @@ const getBandColorCircleClass = (color: string) => {
                 <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap overflow-hidden">KaiChon Plus</span>
               </div>
             </div>
-            <div className="flex items-center space-x-3 shrink-0 ml-2">
+            <div className="flex items-center space-x-2 shrink-0 ml-2">
+              <LanguageToggle />
               <ThemeToggle />
               <button 
                 onClick={() => onNavigate('login')}
