@@ -80,6 +80,60 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+export const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, name, googleId, profileImage } = req.body;
+
+    if (!email) {
+      return next(new AppError('Email is required for Google login', 400));
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    let user = await User.findOne({ email: cleanEmail });
+
+    if (!user) {
+      const baseUsername = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+      let username = baseUsername || `google_${Date.now()}`;
+      
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        username = `${username}_${Math.floor(100 + Math.random() * 900)}`;
+      }
+
+      const { salt, hash } = hashPassword(`google_${Date.now()}_${Math.random()}`);
+
+      user = await User.create({
+        username,
+        email: cleanEmail,
+        name: name || 'Google User',
+        passwordHash: hash,
+        passwordSalt: salt,
+        role: 'admin',
+        isVerified: false,
+        farmName: `ซุ้ม ${name || 'สมาร์ทฟาร์ม'}`,
+        profileImage: profileImage || ''
+      });
+    }
+
+    const token = createToken({ id: user._id, role: user.role }, getJwtSecret());
+
+    res.status(200).json({
+      status: 'success',
+      token,
+      data: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isVerified: user.isVerified
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = (req as any).user;
