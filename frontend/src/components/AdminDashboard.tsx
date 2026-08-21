@@ -57,7 +57,7 @@ interface PromotionItem {
 
 export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any) => void }) {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'users' | 'promotions'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'promotions' | 'revenue'>('users');
   const [users, setUsers] = useState<UserItem[]>([]);
   const [promotions, setPromotions] = useState<PromotionItem[]>([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -92,17 +92,19 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
 
         // Step 2: Fetch Tab Specific Data
         const headers = { 'Authorization': `Bearer ${token}` };
-        if (activeTab === 'users') {
-          const response = await fetch('http://localhost:5001/api/admin/users', { headers });
-          const data = await response.json();
-          if (!response.ok) throw new Error(data.message || 'Error fetching users');
-          setUsers(data.data || []);
-        } else {
-          const response = await fetch('http://localhost:5001/api/admin/promotions', { headers });
-          const data = await response.json();
-          if (!response.ok) throw new Error(data.message || 'Error fetching promotions');
-          setPromotions(data.data || []);
-        }
+        
+        // Fetch users list
+        const usersResponse = await fetch('http://localhost:5001/api/admin/users', { headers });
+        const usersData = await usersResponse.json();
+        if (!usersResponse.ok) throw new Error(usersData.message || 'Error fetching users');
+        setUsers(usersData.data || []);
+
+        // Fetch promotions list
+        const promosResponse = await fetch('http://localhost:5001/api/admin/promotions', { headers });
+        const promosData = await promosResponse.json();
+        if (!promosResponse.ok) throw new Error(promosData.message || 'Error fetching promotions');
+        setPromotions(promosData.data || []);
+
       } catch (err: any) {
         setError(err.message || 'Something went wrong');
       } finally {
@@ -242,6 +244,18 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                 </span>
               )}
             </button>
+
+            <button
+              onClick={() => setActiveTab('revenue')}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
+                activeTab === 'revenue'
+                  ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <DollarSign className="w-4.5 h-4.5 text-emerald-500" />
+              {t('รายได้ & บัญชี', 'Revenue & Finance')}
+            </button>
           </nav>
         </div>
 
@@ -333,7 +347,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
             </div>
 
             <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/50 dark:border-white/5 shadow-xs flex items-center gap-4 transition-all hover:shadow-md">
-              <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-650 dark:text-emerald-400 rounded-2xl flex items-center justify-center font-bold shadow-inner shrink-0">
+              <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-655 dark:text-emerald-400 rounded-2xl flex items-center justify-center font-bold shadow-inner shrink-0">
                 <DollarSign className="w-5.5 h-5.5" />
               </div>
               <div className="min-w-0">
@@ -344,28 +358,44 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
           </div>
 
           {/* 📱 Mobile Top Tabs switcher (hidden on desktop) */}
-          <div className="flex md:hidden bg-slate-200/60 dark:bg-slate-900 p-1.5 rounded-2xl w-fit border border-slate-200/20">
+          <div className="flex md:hidden bg-slate-200/60 dark:bg-slate-900 p-1.5 rounded-2xl w-fit border border-slate-200/20 max-w-full overflow-x-auto">
             <button
               onClick={() => setActiveTab('users')}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                 activeTab === 'users'
                   ? 'bg-white dark:bg-slate-800 text-slate-950 dark:text-white shadow-sm'
                   : 'text-slate-550 dark:text-slate-400'
               }`}
             >
-              <Users className="w-4 h-4" />
-              {t('จัดการสมาชิก', 'Members')}
+              <Users className="w-3.5 h-3.5" />
+              {t('สมาชิก', 'Members')}
             </button>
             <button
               onClick={() => setActiveTab('promotions')}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0 relative ${
                 activeTab === 'promotions'
                   ? 'bg-white dark:bg-slate-800 text-slate-950 dark:text-white shadow-sm'
                   : 'text-slate-550 dark:text-slate-400'
               }`}
             >
-              <Award className="w-4 h-4" />
+              <Award className="w-3.5 h-3.5" />
               {t('คำขอโปรโมท', 'Promos')}
+              {promotions.filter(p => p.status === 'pending').length > 0 && (
+                <span className="bg-amber-500 text-white rounded-full text-[8px] w-4.5 h-4.5 flex items-center justify-center font-black animate-pulse">
+                  {promotions.filter(p => p.status === 'pending').length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('revenue')}
+              className={`px-3.5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                activeTab === 'revenue'
+                  ? 'bg-white dark:bg-slate-800 text-slate-950 dark:text-white shadow-sm'
+                  : 'text-slate-555 dark:text-slate-400'
+              }`}
+            >
+              <DollarSign className="w-3.5 h-3.5" />
+              {t('รายได้', 'Revenue')}
             </button>
           </div>
 
@@ -403,7 +433,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                 <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/50 dark:border-white/5 shadow-md overflow-hidden overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead>
-                      <tr className="bg-slate-50 dark:bg-slate-850/50 text-slate-450 dark:text-slate-400 font-black text-[10px] uppercase tracking-wider border-b border-slate-150 dark:border-slate-850">
+                      <tr className="bg-slate-50 dark:bg-slate-850/50 text-slate-455 dark:text-slate-400 font-black text-[10px] uppercase tracking-wider border-b border-slate-150 dark:border-slate-850">
                         <th className="py-4 px-6">{t('ซุ้มฟาร์ม', 'Farm Name')}</th>
                         <th className="py-4 px-6">{t('ชื่อผู้ใช้', 'User Details')}</th>
                         <th className="py-4 px-6">{t('บทบาท', 'Role')}</th>
@@ -494,7 +524,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                         {/* Upper details */}
                         <div className="flex items-start justify-between">
                           <div>
-                            <h4 className="font-extrabold text-sm text-slate-950 dark:text-white flex items-center gap-1">
+                            <h4 className="font-extrabold text-sm text-slate-955 dark:text-white flex items-center gap-1">
                               {p.user?.farmName || t('ซุ้มฟาร์มทั่วไป', 'General Farm')}
                               {p.user?.username === 'adminkaichon' && <span className="text-[9px] bg-red-100 dark:bg-red-955 text-red-650 px-1.5 py-0.5 rounded-md font-black">ADMIN</span>}
                             </h4>
@@ -502,10 +532,10 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                           </div>
                           <span className={`px-2.5 py-1 text-[10px] font-black rounded-lg border ${
                             p.status === 'approved' 
-                              ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-450 border-emerald-250/30'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-455 border-emerald-250/30'
                               : p.status === 'rejected' 
                               ? 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-250/30'
-                              : 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-450 border-amber-250/30 animate-pulse'
+                              : 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-455 border-amber-250/30 animate-pulse'
                           }`}>
                             {p.status === 'approved' ? t('อนุมัติแล้ว', 'Approved') : p.status === 'rejected' ? t('ปฏิเสธแล้ว', 'Rejected') : t('รอดำเนินการ', 'Pending Review')}
                           </span>
@@ -530,11 +560,11 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
 
                         {/* Cost & Duration info */}
                         <div className="grid grid-cols-2 gap-4 mt-4 text-[10px] font-black">
-                          <div className="bg-slate-50/50 dark:bg-slate-850/30 p-2.5 rounded-xl border border-slate-150/40 dark:border-slate-800/30">
+                          <div className="bg-slate-50/50 dark:bg-slate-855/30 p-2.5 rounded-xl border border-slate-150/40 dark:border-slate-800/30">
                             <p className="text-slate-400">{t('ระยะเวลาแพ็กเกจ', 'Duration')}</p>
                             <p className="text-xs text-slate-800 dark:text-slate-200 mt-1 font-bold">{p.durationDays} {t('วัน', 'Days')}</p>
                           </div>
-                          <div className="bg-slate-50/50 dark:bg-slate-850/30 p-2.5 rounded-xl border border-slate-150/40 dark:border-slate-800/30">
+                          <div className="bg-slate-50/50 dark:bg-slate-855/30 p-2.5 rounded-xl border border-slate-150/40 dark:border-slate-800/30">
                             <p className="text-slate-400">{t('จำนวนเงินชำระ', 'Amount')}</p>
                             <p className="text-xs text-red-650 dark:text-red-400 mt-1 font-extrabold">{p.amount}.00 ฿</p>
                           </div>
@@ -559,7 +589,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                             </button>
                           </div>
                         ) : (
-                          <div className="p-4 bg-slate-100 dark:bg-slate-850 rounded-2xl text-center text-xs text-slate-450 font-bold">
+                          <div className="p-4 bg-slate-105 dark:bg-slate-850 rounded-2xl text-center text-xs text-slate-450 font-bold">
                             {t('ไม่มีรูปสลิปชำระเงินส่งเข้ามา', 'No slip image found')}
                           </div>
                         )}
@@ -586,6 +616,167 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Tab 3: Revenue & Finance View */}
+          {activeTab === 'revenue' && (
+            <div className="space-y-6 animate-fade-in">
+              
+              {/* Financial breakdown cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-emerald-600 to-teal-650 text-white p-6 rounded-3xl shadow-lg border border-emerald-500/20">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-emerald-100 text-xs font-bold uppercase tracking-wider">{t('รายได้ทั้งหมดสะสม', 'Total Lifetime Revenue')}</p>
+                      <h3 className="text-3xl font-black mt-2 tracking-tight">{totalRevenue.toLocaleString()} ฿</h3>
+                    </div>
+                    <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
+                      <DollarSign className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-emerald-200 mt-4 font-bold">{t('* รายได้จริงจากการอนุมัติโปรโมททั้งหมด', '* Actual earnings from all approved promotions')}</p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/50 dark:border-white/5 shadow-sm space-y-4">
+                  <p className="text-xs text-slate-450 dark:text-slate-550 font-bold uppercase tracking-wider">{t('จำนวนการโฆษณาสำเร็จ', 'Successful Promotions')}</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black">{promotions.filter(p => p.status === 'approved').length}</span>
+                    <span className="text-xs text-slate-400 font-bold">{t('รายการ', 'Transactions')}</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-indigo-650 h-full rounded-full" style={{ width: '100%' }}></div>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/50 dark:border-white/5 shadow-sm space-y-4">
+                  <p className="text-xs text-slate-455 dark:text-slate-550 font-bold uppercase tracking-wider">{t('วิเคราะห์สัดส่วนความนิยมแพ็คเกจ', 'Package Popularity')}</p>
+                  <div className="space-y-2 text-xs font-bold text-slate-650 dark:text-slate-400">
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span>7 {t('วัน', 'Days')} (100฿)</span>
+                        <span>{promotions.filter(p => p.status === 'approved' && p.durationDays === 7).length} {t('ครั้ง', 'times')}</span>
+                      </div>
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-amber-500 h-full rounded-full" 
+                          style={{ 
+                            width: `${(promotions.filter(p => p.status === 'approved').length 
+                              ? (promotions.filter(p => p.status === 'approved' && p.durationDays === 7).length / promotions.filter(p => p.status === 'approved').length) * 100 
+                              : 0)}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span>15 {t('วัน', 'Days')} (200฿)</span>
+                        <span>{promotions.filter(p => p.status === 'approved' && p.durationDays === 15).length} {t('ครั้ง', 'times')}</span>
+                      </div>
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-blue-500 h-full rounded-full" 
+                          style={{ 
+                            width: `${(promotions.filter(p => p.status === 'approved').length 
+                              ? (promotions.filter(p => p.status === 'approved' && p.durationDays === 15).length / promotions.filter(p => p.status === 'approved').length) * 100 
+                              : 0)}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span>30 {t('วัน', 'Days')} (350฿)</span>
+                        <span>{promotions.filter(p => p.status === 'approved' && p.durationDays === 30).length} {t('ครั้ง', 'times')}</span>
+                      </div>
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-rose-500 h-full rounded-full" 
+                          style={{ 
+                            width: `${(promotions.filter(p => p.status === 'approved').length 
+                              ? (promotions.filter(p => p.status === 'approved' && p.durationDays === 30).length / promotions.filter(p => p.status === 'approved').length) * 100 
+                              : 0)}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transactions Ledger Table */}
+              <div className="space-y-3">
+                <h3 className="font-extrabold text-sm text-slate-800 dark:text-slate-200">{t('ประวัติการรับชำระเงิน', 'Payment Transaction Ledger')}</h3>
+                
+                {promotions.filter(p => p.status === 'approved').length === 0 ? (
+                  <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl text-center text-slate-400 font-bold border border-slate-200/50 dark:border-white/5">{t('ยังไม่มีประวัติรายรับในระบบ', 'No earnings history yet')}</div>
+                ) : (
+                  <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/50 dark:border-white/5 shadow-md overflow-hidden overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[700px]">
+                      <thead>
+                        <tr className="bg-slate-50 dark:bg-slate-850/50 text-slate-450 dark:text-slate-400 font-black text-[10px] uppercase tracking-wider border-b border-slate-150 dark:border-slate-850">
+                          <th className="py-4 px-6">{t('วันเวลา', 'Date & Time')}</th>
+                          <th className="py-4 px-6">{t('ซุ้มฟาร์ม', 'Farm Account')}</th>
+                          <th className="py-4 px-6">{t('พ่อพันธุ์ที่โปรโมท', 'Stud Chicken')}</th>
+                          <th className="py-4 px-6">{t('ความยาวโฆษณา', 'Duration')}</th>
+                          <th className="py-4 px-6 text-right">{t('รายรับสุทธิ', 'Revenue')}</th>
+                          <th className="py-4 px-6 text-right">{t('ใบเสร็จ', 'Slip')}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-850 text-xs font-bold text-slate-700 dark:text-slate-350">
+                        {promotions.filter(p => p.status === 'approved').map((p) => (
+                          <tr key={p._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors">
+                            <td className="py-4 px-6">
+                              <span className="text-slate-500 font-semibold">{new Date(p.createdAt).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div>
+                                <p className="font-extrabold text-slate-900 dark:text-white">{p.user?.farmName || t('ซุ้มฟาร์มทั่วไป', 'General Farm')}</p>
+                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{p.user?.name}</p>
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-2">
+                                {p.father?.image ? (
+                                  <img src={p.father.image} className="w-7 h-7 rounded-lg object-cover border border-slate-200/50" alt="" />
+                                ) : (
+                                  <div className="w-7 h-7 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-[10px] border border-slate-200/50">🐓</div>
+                                )}
+                                <div>
+                                  <p className="font-extrabold text-slate-900 dark:text-white">{p.father?.name || '-'}</p>
+                                  <p className="text-[9px] font-mono text-slate-400">{p.father?.code || '-'}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <span className="inline-flex px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-650 dark:text-indigo-400 rounded-md text-[10px] font-black border border-indigo-150/30">
+                                {p.durationDays} {t('วัน', 'Days')}
+                              </span>
+                            </td>
+                            <td className="py-4 px-6 text-right font-extrabold text-emerald-600 dark:text-emerald-450 text-sm">
+                              +{p.amount}.00 ฿
+                            </td>
+                            <td className="py-4 px-6 text-right">
+                              {p.slipImage ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedSlip(p.slipImage)}
+                                  className="px-2.5 py-1 bg-slate-105 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg transition-all font-black text-[10px] cursor-pointer inline-flex items-center gap-1 border border-slate-250/20"
+                                >
+                                  <Eye className="w-3.5 h-3.5 text-indigo-500" />
+                                  {t('ตรวจสอบ', 'View')}
+                                </button>
+                              ) : '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
