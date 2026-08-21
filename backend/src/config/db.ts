@@ -18,13 +18,13 @@ export const connectDB = async () => {
 
 const seedAdmin = async () => {
   try {
-    const adminExists = await User.findOne({ username: 'admin' });
+    const adminExists = await User.findOne({ username: 'adminkaichon' });
     if (!adminExists) {
-      const password = 'admin1234';
+      const password = 'kaichon168';
       const { salt, hash } = hashPassword(password);
       
       await User.create({
-        username: 'admin',
+        username: 'adminkaichon',
         email: 'admin@kaichonplus.com',
         name: 'ผู้ดูแลระบบสูงสุด',
         passwordHash: hash,
@@ -37,8 +37,8 @@ const seedAdmin = async () => {
       
       console.log('--------------------------------------------------');
       console.log('🤖 ADMIN ACCOUNT AUTO-SEEDED SUCCESSFULLY!');
-      console.log('Username: admin');
-      console.log('Password: admin1234');
+      console.log('Username: adminkaichon');
+      console.log('Password: kaichon168');
       console.log('--------------------------------------------------');
     }
   } catch (error) {
