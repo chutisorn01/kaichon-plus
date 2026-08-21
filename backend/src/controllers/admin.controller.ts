@@ -22,6 +22,11 @@ export const verifyUser = async (req: Request, res: Response, next: NextFunction
     const { id } = req.params;
     const { isVerified } = req.body;
 
+    const targetUser = await User.findById(id);
+    if (targetUser && targetUser.username === 'adminkaichon') {
+      return next(new AppError('Cannot modify verification status of the main administrator', 400));
+    }
+
     const user = await User.findByIdAndUpdate(id, { isVerified }, { new: true }).select('-passwordHash -passwordSalt');
     if (!user) {
       return next(new AppError('No user found with that ID', 404));

@@ -273,16 +273,20 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                           </span>
                         </td>
                         <td className="py-4 px-6 text-right">
-                          <button
-                            onClick={() => handleToggleVerify(u._id, !!u.isVerified)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-[0.98] cursor-pointer ${
-                              u.isVerified
-                                ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/10'
-                            }`}
-                          >
-                            {u.isVerified ? t('ยกเลิกการรับรอง', 'Revoke Verify') : t('อนุมัติ Verified', 'Grant Verify')}
-                          </button>
+                          {u.username === 'adminkaichon' ? (
+                            <span className="text-xs text-slate-400 font-bold italic">{t('ผู้ดูแลระบบสูงสุด', 'Primary Admin')}</span>
+                          ) : (
+                            <button
+                              onClick={() => handleToggleVerify(u._id, !!u.isVerified)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-[0.98] cursor-pointer ${
+                                u.isVerified
+                                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/10'
+                              }`}
+                            >
+                              {u.isVerified ? t('ยกเลิกการรับรอง', 'Revoke Verify') : t('อนุมัติ Verified', 'Grant Verify')}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
