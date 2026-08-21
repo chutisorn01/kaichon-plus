@@ -27,7 +27,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       name,
       passwordHash: hash,
       passwordSalt: salt,
-      role: 'admin', // Default role for pedigree management
+      role: 'user',
+      isVerified: false,
     });
 
     const token = createToken({ id: user._id, role: user.role }, getJwtSecret());
@@ -108,7 +109,7 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
         name: name || 'Google User',
         passwordHash: hash,
         passwordSalt: salt,
-        role: 'admin',
+        role: 'user',
         isVerified: false,
         farmName: `ซุ้ม ${name || 'สมาร์ทฟาร์ม'}`,
         profileImage: profileImage || ''

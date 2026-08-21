@@ -1,6 +1,8 @@
-import { Plus, Search, ChevronLeft, Swords, Tag, Heart, ShieldCheck, Trophy, Trash2, Edit, Save, Calendar, CheckCircle, Camera, AlertTriangle } from 'lucide-react';
+import { Plus, Search, ChevronLeft, Swords, Tag, Heart, Trophy, Trash2, Edit, CheckCircle, Camera, AlertTriangle, Rocket } from 'lucide-react';
 import { ChickenIcon } from '../ui/ChickenIcon';
 import { CustomSelect } from '../ui/CustomSelect';
+import { useLanguage } from '../LanguageContext';
+import PromoteModal from '../PromoteModal';
 
 export const getBandColorClass = (color: string) => {
   switch (color) {
@@ -50,12 +52,14 @@ export const getBandColorCircleClass = (color: string) => {
 
 import { useState, useEffect } from 'react';
 
-export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any) => void }) {
+export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any, id?: string) => void }) {
+  const { language } = useLanguage();
   const [fathers, setFathers] = useState<any[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedPromoteFather, setSelectedPromoteFather] = useState<any>(null);
   const [alertConfig, setAlertConfig] = useState<{ 
     show: boolean; 
     title: string; 
@@ -296,10 +300,27 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any)
                   <div>
                     {/* Top Row: Code & Edit/Delete */}
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <span className="font-mono text-[10px] font-black px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg">
-                        {father.code}
-                      </span>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="font-mono text-[10px] font-black px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg truncate">
+                          {father.code}
+                        </span>
+                        {father.isPromoted && (
+                          <span className="font-sans text-[8px] sm:text-[9px] font-extrabold px-1.5 py-0.5 bg-red-650 text-white rounded-lg flex items-center gap-0.5 shrink-0 animate-pulse">
+                            🔥 {language === 'th' ? 'แนะนำ' : 'HOT'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedPromoteFather(father);
+                          }} 
+                          title={language === 'th' ? 'โปรโมทขึ้นหน้าแรก' : 'Promote to Home'}
+                          className={`p-1.5 rounded-xl cursor-pointer transition-colors ${father.isPromoted ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40' : 'text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40'}`}
+                        >
+                          <Rocket className="w-3.5 h-3.5" />
+                        </button>
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
@@ -548,6 +569,13 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any)
             </button>
           </div>
         </div>
+      )}
+      {selectedPromoteFather && (
+        <PromoteModal 
+          father={selectedPromoteFather}
+          onClose={() => setSelectedPromoteFather(null)}
+          onSuccess={fetchFathers}
+        />
       )}
     </div>
   );

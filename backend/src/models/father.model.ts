@@ -27,6 +27,9 @@ export interface IFather extends Document {
     vaccineName: string;
     date: Date;
   }[];
+  isPromoted?: boolean;
+  promotedUntil?: Date;
+  studFee?: number;
 }
 
 const fatherSchema = new Schema<IFather>(
@@ -56,7 +59,10 @@ const fatherSchema = new Schema<IFather>(
     completedVaccines: [{
       vaccineName: { type: String, required: true },
       date: { type: Date, required: true }
-    }]
+    }],
+    isPromoted: { type: Boolean, default: false },
+    promotedUntil: { type: Date },
+    studFee: { type: Number, default: 0 }
   },
   { timestamps: true }
 );

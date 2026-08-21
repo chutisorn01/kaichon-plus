@@ -10,6 +10,8 @@ import chickRoutes from './routes/chick.routes.js';
 import breedingBatchRoutes from './routes/breedingBatch.routes.js';
 import statisticsRoutes from './routes/statistics.routes.js';
 import vaccineRoutes from './routes/vaccine.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import promotionRoutes from './routes/promotion.routes.js';
 import { protect } from './middleware/auth.middleware.js';
 import { errorHandler } from './middleware/error.middleware.js';
 
@@ -35,6 +37,8 @@ app.use('/api/chicks', chickRoutes);
 app.use('/api/breeding-batches', breedingBatchRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/vaccines', vaccineRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/promotions', promotionRoutes);
 
 // Simple Health Check
 app.get('/api/health', (req, res) => {

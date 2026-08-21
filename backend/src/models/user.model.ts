@@ -68,7 +68,7 @@ const userSchema = new Schema<IUser>(
     },
     isVerified: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     farmType: {
       type: String,
@@ -83,7 +83,8 @@ const userSchema = new Schema<IUser>(
     role: {
       type: String,
       required: true,
-      default: 'admin',
+      enum: ['admin', 'user'],
+      default: 'user',
     },
     profileImage: { type: String },
     coverImage: { type: String },

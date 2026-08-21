@@ -144,3 +144,16 @@ export const deleteFather = async (req: any, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getPromotedFathers = async (req: any, res: Response) => {
+  try {
+    const promoted = await Father.find({
+      isPromoted: true,
+      promotedUntil: { $gte: new Date() }
+    }).populate('user', 'farmName name isVerified');
+    
+    res.json(promoted);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};

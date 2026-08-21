@@ -535,6 +535,25 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
               </div>
               <ChevronRight className="w-6 h-6 text-white/80" />
             </div>
+
+            {/* Admin Control Banner */}
+            {user?.role === 'admin' && (
+              <div 
+                onClick={() => onNavigate('admin-dashboard')}
+                className="p-5 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white rounded-[2rem] active:scale-95 transition-all shadow-md shadow-red-600/20 cursor-pointer flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-base font-bold block">ผู้ดูแลระบบ (Admin Panel) 🛡️</span>
+                    <span className="text-xs text-white/80 font-medium font-sans">Verify Farms & Approve Promotions</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-6 h-6 text-white/80" />
+              </div>
+            )}
           </div>
         </div>
         </div>

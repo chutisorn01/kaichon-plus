@@ -1,4 +1,4 @@
-import { Swords, Trophy, Search, Filter, ShieldCheck, Activity, BadgeCheck, Tag, X } from 'lucide-react';
+import { Swords, Trophy, Search, ShieldCheck, Activity, BadgeCheck, Tag, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useState, useEffect } from 'react';
 import { getBandColorClass } from './pedigree/FatherRegistry';
@@ -17,16 +17,33 @@ const getBandColorCircleClass = (color: string) => {
 import { useLanguage } from './LanguageContext';
 
 export default function Home({ onNavigate }: { onNavigate: (page: any, id?: string) => void }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem('home_searchQuery') || '');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [promotedFathers, setPromotedFathers] = useState<any[]>([]);
 
   const topRoosters = [
     { id: 1, name: "แดงเพลิง", bloodline: "พม่า-ง่อน", wins: 5 },
     { id: 2, name: "สายฟ้า", bloodline: "ไซ่ง่อน", wins: 4 },
     { id: 3, name: "เจ้าขุน", bloodline: "พม่า", wins: 3 },
   ];
+
+  useEffect(() => {
+    fetchPromotedFathers();
+  }, []);
+
+  const fetchPromotedFathers = async () => {
+    try {
+      const res = await fetch('http://localhost:5001/api/fathers/promoted');
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setPromotedFathers(data);
+      }
+    } catch (err) {
+      console.error('Error fetching promoted fathers:', err);
+    }
+  };
 
   useEffect(() => {
     sessionStorage.setItem('home_searchQuery', searchQuery);
@@ -173,7 +190,9 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
                               <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
                                 {chicken.user?.farmName || chicken.user?.name || 'ฟาร์มสมาชิก'}
                                 {chicken.user?.isVerified === true && (
-                                  <BadgeCheck className="w-4 h-4 text-white fill-blue-500 inline drop-shadow-sm" title="Verified Farm" />
+                                  <span title="Verified Farm">
+                                    <BadgeCheck className="w-4 h-4 text-white fill-blue-500 inline drop-shadow-sm" />
+                                  </span>
                                 )}
                               </span>
                               {chicken.bandNumber && (
@@ -264,6 +283,91 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
             ))}
           </div>
         </div>
+
+        {promotedFathers.length > 0 && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-4 w-full overflow-x-hidden border-b border-slate-100 dark:border-slate-800/50">
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+                  <span className="text-red-500">🔥</span> {language === 'th' ? 'พ่อพันธุ์แนะนำพิเศษ' : 'Featured Stud Fathers'}
+                </h2>
+                <p className="text-xs text-slate-400 font-semibold mt-1">
+                  {language === 'th' ? 'พ่อพันธุ์ยอดนิยมที่เปิดรับผสมพันธุ์และรับประกันสายเลือดโดยตรง' : 'Top verified stud fathers open for breeding'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
+              {promotedFathers.map((father) => (
+                <div 
+                  key={father._id}
+                  onClick={() => onNavigate('chicken-detail', father._id)}
+                  className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl dark:hover:shadow-red-950/20 transition-all border border-slate-200 dark:border-white/10 group relative transform hover:-translate-y-1 flex flex-col justify-between cursor-pointer"
+                >
+                  <div>
+                    {/* Image Area */}
+                    <div className="h-48 sm:h-56 bg-slate-100 dark:bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                      {father.image ? (
+                        <img 
+                          src={father.image} 
+                          alt={father.name} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <Swords className="w-20 h-20 text-orange-500/30 dark:text-orange-500/50 transform transition-transform group-hover:scale-110" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent z-10"></div>
+                      
+                      <div className="absolute top-3 left-3 bg-red-650 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg z-20 shadow-md">
+                        {language === 'th' ? 'การ์ดแนะนำ' : 'RECOMMENDED'}
+                      </div>
+
+                      <div className="absolute bottom-4 left-4 z-20">
+                        <h3 className="text-xl font-bold text-white drop-shadow-md">{father.name}</h3>
+                        <p className="text-[10px] text-slate-200 font-mono mt-0.5">{father.code}</p>
+                      </div>
+                    </div>
+
+                    {/* Info Area */}
+                    <div className="p-5 space-y-3.5">
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className="text-slate-400 font-semibold">{language === 'th' ? 'ฟาร์มเจ้าของ' : 'Owner Farm'}</span>
+                        <span className="text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                          {father.user?.farmName || father.user?.name || 'ฟาร์มสมาชิก'}
+                          {father.user?.isVerified && (
+                            <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />
+                          )}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className="text-slate-400 font-semibold">{language === 'th' ? 'สายเลือด' : 'Bloodline'}</span>
+                        <span className="text-slate-700 dark:text-slate-300 bg-slate-105 px-2.5 py-0.5 rounded-lg border border-slate-200/50 dark:border-slate-800 font-semibold truncate max-w-[150px]">
+                          {father.breed || 'ไม่ระบุ'}
+                        </span>
+                      </div>
+
+                      {father.studFee !== undefined && father.studFee > 0 ? (
+                        <div className="flex justify-between items-center text-xs font-bold">
+                          <span className="text-slate-400 font-semibold">{language === 'th' ? 'ค่าทับ/เปิดผสม' : 'Breeding Fee'}</span>
+                          <span className="text-red-600 dark:text-red-400 font-black text-sm">
+                            {father.studFee.toLocaleString()} ฿
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                  
+                  <div className="px-5 pb-5 pt-1">
+                    <button className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl text-xs font-bold active:scale-95 transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                      {language === 'th' ? 'ดูใบประวัติสายเลือด' : 'View Pedigree Certificate'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-4 sm:pt-8 w-full overflow-x-hidden">
           <div className="mb-10 flex items-center justify-between">

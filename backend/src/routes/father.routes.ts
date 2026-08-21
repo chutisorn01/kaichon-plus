@@ -4,11 +4,14 @@ import {
   getFatherById, 
   createFather, 
   updateFather, 
-  deleteFather 
-} from '../controllers/father.controller';
-import { protect } from '../middleware/auth.middleware';
+  deleteFather,
+  getPromotedFathers
+} from '../controllers/father.controller.js';
+import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
+
+router.get('/promoted', getPromotedFathers);
 
 router.use(protect);
 
