@@ -592,6 +592,16 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
           <Settings className="w-5 h-5" />
           <span className="text-[10px]">โปรไฟล์</span>
         </button>
+
+        {user?.role === 'admin' && (
+          <button 
+            onClick={() => onNavigate('admin-dashboard')}
+            className="flex flex-col items-center gap-1 flex-1 py-1 transition-all text-slate-405 hover:text-indigo-600 cursor-pointer"
+          >
+            <ShieldCheck className="w-5 h-5 text-indigo-500 hover:scale-110 transition-transform" />
+            <span className="text-[10px] text-indigo-500 font-black">แอดมิน</span>
+          </button>
+        )}
       </nav>
 
 
