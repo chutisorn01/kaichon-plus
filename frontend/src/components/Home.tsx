@@ -14,8 +14,10 @@ const getBandColorCircleClass = (color: string) => {
     default: return 'bg-slate-400';
   }
 };import { LanguageToggle } from './LanguageToggle';
+import { useLanguage } from './LanguageContext';
 
 export default function Home({ onNavigate }: { onNavigate: (page: any, id?: string) => void }) {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem('home_searchQuery') || '');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -75,9 +77,9 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
               <ThemeToggle />
               <button 
                 onClick={() => onNavigate('login')}
-                className="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-all active:scale-[0.98] whitespace-nowrap"
+                className="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-all active:scale-[0.98] whitespace-nowrap cursor-pointer shadow-md shadow-red-600/20"
               >
-                เข้าสู่ระบบ
+                {t('login')}
               </button>
             </div>
           </div>
@@ -89,10 +91,10 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
         <div className="pt-8 pb-8 sm:pt-16 sm:pb-12 lg:pt-20 lg:pb-16 w-full px-4">
           <div className="max-w-7xl mx-auto text-center">
             <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 text-slate-900 dark:text-white leading-tight">
-              ระบบบันทึกประวัติไก่ชน
+              {t('appName')}
             </h1>
-            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-8 leading-relaxed">
-              จัดการประวัติสายพันธุ์ ตรวจสอบใบรับรองดิจิทัล และค้นหาไก่จากฟาร์มมาตรฐานได้ทั่วประเทศ
+            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
+              {t('appSub')}
             </p>
 
             {/* Global Search UI */}
@@ -103,7 +105,7 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
                 </div>
                 <input
                   type="text"
-                  placeholder="ค้นหาด้วยเลขกิ๊ฟ, รหัสสากล (เช่น KCP-001), หรือชื่อฟาร์ม..."
+                  placeholder={t('searchPlaceholder')}
                   className="block w-full pl-11 pr-12 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:focus:ring-red-500/50 transition-all text-sm sm:text-base outline-none"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
