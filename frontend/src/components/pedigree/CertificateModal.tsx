@@ -149,33 +149,39 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-slate-900/40 to-transparent pointer-events-none z-[5]"></div>
 
               {/* Header */}
-              <div className="pt-8 pb-0 text-center relative z-20">
+              <div className="pt-10 pb-2 text-center relative z-20">
                 <h1 
-                  className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-400 to-amber-100 tracking-widest mb-0 drop-shadow-[0_0_25px_rgba(251,191,36,0.5)] pt-6 pb-2 inline-flex items-center justify-center gap-3"
-                  style={{ fontFamily: "'Charm', cursive", lineHeight: '1.4' }}
+                  className={`text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-400 to-amber-100 tracking-widest mb-0 drop-shadow-[0_0_25px_rgba(251,191,36,0.5)] pt-4 pb-3 flex flex-wrap items-center justify-center gap-3 px-8 text-center leading-tight ${
+                    (chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS').length > 15 
+                      ? 'text-4xl' 
+                      : (chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS').length > 8 
+                      ? 'text-5xl' 
+                      : 'text-6xl'
+                  }`}
+                  style={{ fontFamily: "'Charm', cursive" }}
                 >
                   <span>{chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS'}</span>
                   {chicken.user?.isVerified === true && (
-                    <BadgeCheck className="w-9 h-9 text-white fill-blue-500 shrink-0 drop-shadow-md" />
+                    <BadgeCheck className="w-8 h-8 text-white fill-blue-500 shrink-0 drop-shadow-md" />
                   )}
                 </h1>
-                <div className="inline-flex items-center justify-center mt-3 relative group">
+                <div className="inline-flex items-center justify-center mt-5 relative group">
                   {/* Decorative glowing background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 blur-md rounded-full"></div>
                   
                   {/* Main Pill */}
-                  <div className="relative px-8 py-1.5 rounded-full bg-gradient-to-r from-slate-800/80 via-slate-800/90 to-slate-800/80 border border-amber-500/30 shadow-inner overflow-hidden">
+                  <div className="relative px-8 py-2 rounded-full bg-gradient-to-r from-slate-800/80 via-slate-800/90 to-slate-800/80 border border-amber-500/30 shadow-inner overflow-hidden">
                     {/* Shine effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
                     
-                    <h2 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-400 tracking-[0.2em] relative z-10 drop-shadow-sm">
+                    <h2 className="text-xs sm:text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-400 tracking-[0.25em] relative z-10 drop-shadow-sm">
                       ใบประวัติรับรองสายพันธุ์
                     </h2>
                   </div>
                 </div>
-                <div className="flex items-center justify-center mt-2">
+                <div className="flex items-center justify-center mt-4">
                   <div className="h-[1px] w-32 bg-gradient-to-r from-transparent to-amber-500/50"></div>
-                  <Award className="w-6 h-6 text-amber-400 mx-4" />
+                  <Award className="w-5 h-5 text-amber-400 mx-4" />
                   <div className="h-[1px] w-32 bg-gradient-to-l from-transparent to-amber-500/50"></div>
                 </div>
               </div>
