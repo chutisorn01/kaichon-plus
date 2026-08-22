@@ -326,8 +326,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                     {/* Parents Row */}
                     <div className="flex w-full justify-center gap-28 relative z-10">
                       
-                      {/* Horizontal Connection Line */}
-                      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 w-28 h-[2px] bg-gradient-to-r from-blue-500/50 via-amber-500/50 to-pink-500/50 z-0">
+                      {/* Horizontal Connection Line (Spans 332px from Sire center to Dam center) */}
+                      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 w-[332px] h-[2px] bg-gradient-to-r from-blue-500/50 via-amber-500/50 to-pink-500/50 z-0">
                         {/* Center Dot */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-amber-500 border-2 border-amber-500 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.5)]"></div>
                       </div>
@@ -350,11 +350,11 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                             <Trophy className="w-6 h-6 text-blue-400/50" />
                           </div>
                         )}
-                        <div className="text-lg font-black text-white mb-0 truncate drop-shadow-md">
+                        <div className="text-base font-black text-white mb-0 leading-snug break-words px-1 drop-shadow-md line-clamp-2">
                           {chicken.father?.name || chicken.fatherNameText || 'ไม่ระบุ'}
                         </div>
                         {chicken.father?.code && (
-                          <div className="text-[9px] text-blue-200/50 font-mono mt-0.5 tracking-widest">
+                          <div className="text-[9px] text-blue-200/50 font-mono mt-0.5 tracking-wider break-all max-w-full px-2">
                             ID: {chicken.father.code}
                           </div>
                         )}
@@ -375,11 +375,11 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                             <Heart className="w-6 h-6 text-pink-400/50" />
                           </div>
                         )}
-                        <div className="text-lg font-black text-white mb-0 truncate drop-shadow-md">
+                        <div className="text-base font-black text-white mb-0 leading-snug break-words px-1 drop-shadow-md line-clamp-2">
                           {chicken.mother?.name || chicken.motherNameText || 'ไม่ระบุ'}
                         </div>
                         {chicken.mother?.code && (
-                          <div className="text-[9px] text-pink-200/50 font-mono mt-0.5 tracking-widest">
+                          <div className="text-[9px] text-pink-200/50 font-mono mt-0.5 tracking-wider break-all max-w-full px-2">
                             ID: {chicken.mother.code}
                           </div>
                         )}
@@ -392,10 +392,10 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-lg">
                         Subject
                       </div>
-                      <div className="text-xl font-black text-white mb-0 truncate drop-shadow-md">
+                      <div className="text-lg font-black text-white mb-0 leading-snug break-words px-1 drop-shadow-md line-clamp-2">
                         {chicken.name}
                       </div>
-                      <div className="text-[10px] text-amber-200/50 font-mono mt-0.5 tracking-widest">
+                      <div className="text-[10px] text-amber-200/50 font-mono mt-0.5 tracking-wider break-all max-w-full px-2">
                         ID: {chicken.code}
                       </div>
                       {chicken.siblingCount > 0 && (
