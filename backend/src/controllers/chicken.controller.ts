@@ -5,6 +5,7 @@ import { Mother } from '../models/mother.model.js';
 import { Chick } from '../models/chick.model.js';
 import { AppError } from '../middleware/error.middleware.js';
 import { User } from '../models/user.model.js';
+import { verifyToken } from '../config/crypto.js';
 
 // Recursive helper to build pedigree tree
 const buildPedigreeTree = async (chickenId: any, depth = 1, maxDepth = 3): Promise<any> => {
@@ -78,32 +79,133 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
       filter.gender = gender;
     }
 
-    let userIds: any[] = [];
-    let parentIds: any[] = [];
+    let certNoChickenIds: any[] = [];
+    let certNoChickIds: any[] = [];
     let searchWords: string[] = [];
     let matchingUsers: any[] = [];
 
+    // Optional Auth: If Authorization header exists, decode it to filter by user.
+    let userId: string | null = null;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      const token = req.headers.authorization.split(' ')[1];
+      if (token && token !== 'null') {
+        const secret = process.env.JWT_SECRET || 'kaichon-plus-super-secret-key-12345';
+        try {
+          const decoded = verifyToken(token, secret);
+          if (decoded && decoded.id) {
+            userId = decoded.id;
+          }
+        } catch (jwtErr) {
+          console.error('Optional JWT parsing error:', jwtErr);
+        }
+      }
+    }
+
+    if (userId) {
+      filter.user = userId;
+    }
 
     if (search) {
       let searchStr = search as string;
-      // Auto-split numbers and text (e.g., "001โกเซ้ม" -> "001 โกเซ้ม")
-      searchStr = searchStr
-        .replace(/([0-9])([a-zA-Zก-ฮเแโใไาีืึุูะัิี])/g, '$1 $2')
-        .replace(/([a-zA-Zก-ฮเแโใไาีืึุูะัิี])([0-9])/g, '$1 $2');
-        
-      searchWords = searchStr.trim().split(/\s+/);
+      const rawWords = searchStr.trim().split(/\s+/);
       
-      const regexPattern = searchWords.join('|');
+      searchWords = [];
+      for (const word of rawWords) {
+        const isWordCertNo = /^(?:KP-)?([0-9a-fA-F]{6})-?([0-9a-fA-F]{6})$/i.test(word) 
+                          || /^(?:KP-)?([0-9a-fA-F]{12})$/i.test(word);
+        if (isWordCertNo) {
+          searchWords.push(word);
+        } else {
+          // Auto-split numbers and text (e.g., "001โกเซ้ม" -> "001 โกเซ้ม")
+          const splitWord = word
+            .replace(/([0-9])([a-zA-Zก-ฮเแโใไาีืึุูะัิี])/g, '$1 $2')
+            .replace(/([a-zA-Zก-ฮเแโใไาีืึุูะัิี])([0-9])/g, '$1 $2');
+          
+          searchWords.push(...splitWord.split(/\s+/));
+        }
+      }
+      
+      // Escape special regex characters in searchStr for matching users
+      const regexPattern = searchWords.map(w => w.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
       const anyWordRegex = new RegExp(regexPattern, 'i');
 
       matchingUsers = await User.find({
         $or: [{ farmName: anyWordRegex }, { name: anyWordRegex }]
       }).select('_id farmName name').lean();
       
+      // Pre-fetch any document IDs matching certificate number suffixes
+      for (const word of searchWords) {
+        const kpMatch = word.match(/^(?:KP-)?([0-9a-fA-F]{6})-?([0-9a-fA-F]{6})$/i) 
+                     || word.match(/^(?:KP-)?([0-9a-fA-F]{12})$/i);
+        if (kpMatch) {
+          const hexSuffix = (kpMatch[1] + (kpMatch[2] || '')).toLowerCase();
+          if (hexSuffix.length === 12) {
+            // 1. Find directly in Chicken collection
+            const matchedChickens = await Chicken.find({
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: "$_id" },
+                  regex: `${hexSuffix}$`,
+                  options: "i"
+                }
+              }
+            }).select('_id').lean();
+            certNoChickenIds = [...certNoChickenIds, ...matchedChickens.map(c => c._id)];
 
+            // 2. Find directly in Chick collection
+            const matchedChicks = await Chick.find({
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: "$_id" },
+                  regex: `${hexSuffix}$`,
+                  options: "i"
+                }
+              }
+            }).select('_id').lean();
+            certNoChickIds = [...certNoChickIds, ...matchedChicks.map(c => c._id)];
+
+            // 3. Find in Father collection, then find synced Chickens
+            const matchedFathers = await Father.find({
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: "$_id" },
+                  regex: `${hexSuffix}$`,
+                  options: "i"
+                }
+              }
+            }).select('code').lean();
+            if (matchedFathers.length > 0) {
+              const fatherCodes = matchedFathers.map(f => f.code.toUpperCase());
+              const syncedChickens = await Chicken.find({ code: { $in: fatherCodes } }).select('_id').lean();
+              certNoChickenIds = [...certNoChickenIds, ...syncedChickens.map(c => c._id)];
+            }
+
+            // 4. Find in Mother collection, then find synced Chickens
+            const matchedMothers = await Mother.find({
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: "$_id" },
+                  regex: `${hexSuffix}$`,
+                  options: "i"
+                }
+              }
+            }).select('code').lean();
+            if (matchedMothers.length > 0) {
+              const motherCodes = matchedMothers.map(m => m.code.toUpperCase());
+              const syncedChickens = await Chicken.find({ code: { $in: motherCodes } }).select('_id').lean();
+              certNoChickenIds = [...certNoChickenIds, ...syncedChickens.map(c => c._id)];
+            }
+          }
+        }
+      }
 
       filter.$and = searchWords.map(word => {
-        const regex = new RegExp(word, 'i');
+        // Escape special regex characters
+        const escapedWord = word.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(escapedWord, 'i');
         const conditions: any[] = [
           { code: regex },
           { name: regex },
@@ -113,14 +215,22 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           { fatherNameText: regex },
           { motherNameText: regex }
         ];
+
+        // Match full 24-character ObjectId
+        if (/^[0-9a-fA-F]{24}$/.test(word)) {
+          conditions.push({ _id: word });
+        }
+
+        // Match pre-fetched certificate IDs
+        if (certNoChickenIds.length > 0) {
+          conditions.push({ _id: { $in: certNoChickenIds } });
+        }
         
         const matchedUserIds = matchingUsers
           .filter((u: any) => regex.test(u.farmName || '') || regex.test(u.name || ''))
           .map((u: any) => u._id);
           
         if (matchedUserIds.length > 0) conditions.push({ user: { $in: matchedUserIds } });
-
-
         
         return { $or: conditions };
       });
@@ -135,9 +245,14 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
 
     if (includeChicks === 'true' && search) {
       const chickFilter: any = {};
+      if (userId) {
+        chickFilter.user = userId;
+      }
       
       chickFilter.$and = searchWords.map(word => {
-        const regex = new RegExp(word, 'i');
+        // Escape special regex characters
+        const escapedWord = word.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(escapedWord, 'i');
         const conditions: any[] = [
           { code: regex },
           { name: regex },
@@ -146,14 +261,22 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           { fatherNameText: regex },
           { motherNameText: regex }
         ];
+
+        // Match full 24-character ObjectId
+        if (/^[0-9a-fA-F]{24}$/.test(word)) {
+          conditions.push({ _id: word });
+        }
+
+        // Match pre-fetched certificate IDs for chicks
+        if (certNoChickIds.length > 0) {
+          conditions.push({ _id: { $in: certNoChickIds } });
+        }
         
         const matchedUserIds = matchingUsers
           .filter((u: any) => regex.test(u.farmName || '') || regex.test(u.name || ''))
           .map((u: any) => u._id);
           
         if (matchedUserIds.length > 0) conditions.push({ user: { $in: matchedUserIds } });
-
-
         
         return { $or: conditions };
       });
@@ -497,10 +620,16 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
   try {
     const { code, name, gender, bloodline, breed, color, bandNumber, bandColor, bandText, notes, status, hatchDate, father, mother, fatherNameText, motherNameText, image, saleInfo } = req.body;
     const chickenId = req.params.id;
+    const user = (req as any).user;
 
     const chicken = await Chicken.findById(chickenId);
     if (!chicken) {
       return next(new AppError('Chicken not found', 404));
+    }
+
+    // Owner check: Allow only the owner or an admin
+    if (chicken.user && chicken.user.toString() !== user.id && user.role !== 'admin') {
+      return next(new AppError('You are not authorized to edit this chicken', 403));
     }
 
     // Prevent changing gender if chicken is already a parent of others
@@ -578,7 +707,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
     try {
       if (updatedChicken.gender === 'male') {
         await Father.findOneAndUpdate(
-          { code: oldCode },
+          { code: oldCode, user: updatedChicken.user },
           {
             code: updatedChicken.code,
             name: updatedChicken.name,
@@ -598,7 +727,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
         );
       } else if (updatedChicken.gender === 'female') {
         await Mother.findOneAndUpdate(
-          { code: oldCode },
+          { code: oldCode, user: updatedChicken.user },
           {
             code: updatedChicken.code,
             name: updatedChicken.name,
@@ -634,10 +763,20 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
 export const deleteChicken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const chickenId = req.params.id;
+    const user = (req as any).user;
 
     const chicken = await Chicken.findById(chickenId);
     if (!chicken) {
-      // Also try finding by Father or Mother ID just in case
+      // Also try finding by Father or Mother ID just in case, checking permissions
+      const father = await Father.findById(chickenId);
+      if (father && father.user && father.user.toString() !== user.id && user.role !== 'admin') {
+        return next(new AppError('You are not authorized to delete this chicken', 403));
+      }
+      const mother = await Mother.findById(chickenId);
+      if (mother && mother.user && mother.user.toString() !== user.id && user.role !== 'admin') {
+        return next(new AppError('You are not authorized to delete this chicken', 403));
+      }
+
       await Father.findByIdAndDelete(chickenId);
       await Mother.findByIdAndDelete(chickenId);
       return res.status(200).json({
@@ -646,10 +785,15 @@ export const deleteChicken = async (req: Request, res: Response, next: NextFunct
       });
     }
 
-    // Cross-delete in Father or Mother collections if matching code
-    if (chicken.code) {
-      await Father.deleteMany({ code: chicken.code });
-      await Mother.deleteMany({ code: chicken.code });
+    // Owner check: Allow only the owner or an admin
+    if (chicken.user && chicken.user.toString() !== user.id && user.role !== 'admin') {
+      return next(new AppError('You are not authorized to delete this chicken', 403));
+    }
+
+    // Cross-delete in Father or Mother collections if matching code (restricted to the same owner)
+    if (chicken.code && chicken.user) {
+      await Father.deleteMany({ code: chicken.code, user: chicken.user });
+      await Mother.deleteMany({ code: chicken.code, user: chicken.user });
     }
 
     await Chicken.findByIdAndDelete(chickenId);

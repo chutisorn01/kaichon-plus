@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, Swords, Calendar, Tag, User, Users, Info, ArrowUpRight, Share2, Heart, Edit, Trash2, Save, CheckCircle, Camera, AlertTriangle, Activity, Archive, XCircle, BadgeCheck, Award } from 'lucide-react';
+import { ChevronLeft, Swords, Calendar, Tag, User, Users, Info, ArrowUpRight, Share2, Heart, Edit, Trash2, Save, CheckCircle, Camera, AlertTriangle, Activity, Archive, XCircle, BadgeCheck, Award, Phone, MessageCircle, MapPin } from 'lucide-react';
 import { ChickenIcon } from '../ui/ChickenIcon';
 import { CustomSelect } from '../ui/CustomSelect';
 import { getBandColorClass } from './FatherRegistry';
@@ -617,11 +617,10 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1 border-t border-slate-50 dark:border-white/5">
               {chick.user && (
                 <span className="text-[11px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2.5 py-1.5 rounded-xl flex items-center gap-1 border border-blue-200 dark:border-blue-800/50 shadow-sm">
-                  <BadgeCheck className="w-3.5 h-3.5 text-blue-500 fill-blue-500/20" />
                   {chick.user.farmName || chick.user.name || 'ฟาร์มสมาชิก'}
                 </span>
               )}
-              <span className="text-[11px] font-black bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50 px-2.5 py-1.5 rounded-xl uppercase tracking-wider shadow-sm">
+              <span className="text-[11px] font-black bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50 px-2.5 py-1.5 rounded-xl uppercase tracking-wider shadow-sm break-all max-w-full">
                 {chick.code}
               </span>
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0 inline-flex items-center shadow-sm">
@@ -646,31 +645,31 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
           
           {/* Parents Section (Minimal) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-2xl shadow-sm">
+            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-2xl shadow-sm min-w-0">
               <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-xl flex items-center justify-center font-black shadow-sm shrink-0">
                 พ่อ
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">สายพ่อพันธุ์</div>
-                <div className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                <div className="font-bold text-sm text-slate-900 dark:text-white break-words leading-tight">
                   {chick.father?.name || chick.fatherNameText || 'ไม่ระบุสายพ่อ'}
                 </div>
-                <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                <div className="text-[10px] text-slate-500 break-all leading-normal mt-0.5">
                   {chick.father ? `${chick.father.code || '-'} • ${chick.father.breed || 'พม่า-ง่อน'}` : (chick.fatherNameText ? 'สายเลือดนอก' : '-')}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-2xl shadow-sm">
+            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-2xl shadow-sm min-w-0">
               <div className="w-10 h-10 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 rounded-xl flex items-center justify-center font-black shadow-sm shrink-0">
                 แม่
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">สายแม่พันธุ์</div>
-                <div className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                <div className="font-bold text-sm text-slate-900 dark:text-white break-words leading-tight">
                   {chick.mother?.name || chick.motherNameText || 'ไม่ระบุสายแม่'}
                 </div>
-                <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                <div className="text-[10px] text-slate-500 break-all leading-normal mt-0.5">
                   {chick.mother ? `${chick.mother.code || '-'} • ${chick.mother.breed || 'แม่พันธุ์สืบสาย'}` : (chick.motherNameText ? 'สายเลือดนอก' : '-')}
                 </div>
               </div>
@@ -691,6 +690,31 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
               <div className="font-black text-sm text-slate-700 dark:text-slate-300 flex items-center gap-1 truncate">
                 <Calendar className="w-4 h-4 shrink-0" /> <span className="truncate">{chick.hatchDate ? new Date(chick.hatchDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) : 'ไม่ระบุ'}</span>
               </div>
+            </div>
+          </div>
+
+          {/* Registration Certificate Number */}
+          <div className="mt-3 p-4 bg-amber-500/5 dark:bg-amber-500/5 border border-amber-500/20 rounded-2xl flex items-center justify-between gap-3 shadow-[0_2px_12px_rgba(251,191,36,0.05)] relative overflow-hidden text-left">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-amber-500/10 rounded-full blur-xl pointer-events-none"></div>
+            
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                <Award className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
+                  เลขทะเบียนใบรับรองระบบดิจิทัล
+                </div>
+                <div className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                  Digital Certificate Register No.
+                </div>
+              </div>
+            </div>
+
+            <div className="shrink-0 text-right">
+              <span className="inline-block font-mono font-black text-sm text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl shadow-sm tracking-wide select-all whitespace-nowrap">
+                KP-{chick._id.substring(12, 18).toUpperCase()}-{chick._id.substring(18, 24).toUpperCase()}
+              </span>
             </div>
           </div>
 
@@ -728,6 +752,96 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
               {chick.notes || chick.records || 'ยังไม่มีบันทึกเพิ่มเติม กดปุ่ม "แก้ไข" ด้านบนเพื่อบันทึกประวัติชัยชนะหรือลักษณะเด่น'}
             </p>
           </div>
+
+          {/* Owner Farm Contact Card (Only display if at least one contact info is available) */}
+          {chick.user && (chick.user.phone || chick.user.lineId || chick.user.facebook || chick.user.address) && (
+            <div className="p-5 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50 rounded-2xl space-y-3.5 shadow-sm relative overflow-hidden text-left">
+              
+              <div className="flex items-center gap-2 border-b border-slate-200/60 dark:border-slate-700/50 pb-2">
+                <Phone className="w-4 h-4 text-red-600 dark:text-amber-400" />
+                <span className="text-xs font-black text-slate-800 dark:text-amber-400/90 uppercase tracking-wider">
+                  ข้อมูลการติดต่อเจ้าของฟาร์ม / ผู้เพาะพันธุ์
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                {/* Farm Name */}
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">ฟาร์มเพาะพันธุ์</div>
+                    <div className="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1 mt-0.5">
+                      {chick.user.farmName || chick.user.name || 'ฟาร์มสมาชิก'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phone */}
+                {chick.user.phone && (
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center shrink-0">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">เบอร์โทรศัพท์</div>
+                      <a href={`tel:${chick.user.phone}`} className="text-xs font-bold text-red-600 dark:text-amber-300 hover:underline transition-colors inline-block mt-0.5">
+                        {chick.user.phone}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* Line ID */}
+                {chick.user.lineId && (
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center shrink-0">
+                      <MessageCircle className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Line ID</div>
+                      <div className="text-xs font-bold text-slate-800 dark:text-white mt-0.5 select-all">
+                        {chick.user.lineId}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Facebook */}
+                {chick.user.facebook && (
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center shrink-0">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Facebook</div>
+                      <div className="text-xs font-bold text-slate-800 dark:text-white mt-0.5 break-all">
+                        {chick.user.facebook}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Address */}
+                {chick.user.address && (
+                  <div className="flex items-start gap-2.5 sm:col-span-2">
+                    <div className="w-8 h-8 rounded-lg bg-slate-500/10 border border-slate-500/20 text-slate-500 flex items-center justify-center shrink-0">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">ที่อยู่ฟาร์ม / สถานที่ติดต่อ</div>
+                      <div className="text-xs font-medium text-slate-700 dark:text-slate-300 mt-0.5 leading-relaxed">
+                        {chick.user.address}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

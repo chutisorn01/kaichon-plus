@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Home from './components/Home';
+import Home from './components/HomeView';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
@@ -34,7 +34,7 @@ function App() {
       const id = parts[1] ? decodeURIComponent(parts[1]) : '';
       const token = localStorage.getItem('token');
 
-      const protectedPages = ['dashboard', 'father-registry', 'mother-registry', 'breeding-batch', 'chick-registry', 'sub-farms', 'chicken-list', 'chicken-add', 'chick-banding', 'profile', 'chicken-detail', 'statistics', 'vaccine', 'admin-dashboard'];
+      const protectedPages = ['dashboard', 'father-registry', 'mother-registry', 'breeding-batch', 'chick-registry', 'sub-farms', 'chicken-list', 'chicken-add', 'chick-banding', 'profile', 'statistics', 'vaccine', 'admin-dashboard'];
       if (protectedPages.includes(page) && !token) {
         handleNavigate('login');
         return;

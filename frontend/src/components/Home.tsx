@@ -195,6 +195,9 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
                                   </span>
                                 )}
                               </span>
+                              <span className="text-[9px] px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-mono font-bold rounded-full whitespace-nowrap">
+                                KP-{chicken._id.substring(12, 18).toUpperCase()}-{chicken._id.substring(18, 24).toUpperCase()}
+                              </span>
                               {chicken.bandNumber && (
                                 <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 font-bold rounded-lg border min-w-0 max-w-full ${getBandColorClass(chicken.bandColor || 'แดง')}`}>
                                   <Tag className="w-2.5 h-2.5 shrink-0" /> 
@@ -286,19 +289,7 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
 
         {promotedFathers.length > 0 && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-4 w-full overflow-x-hidden border-b border-slate-100 dark:border-slate-800/50">
-            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-                  <span className="text-red-500">🔥</span> {language === 'th' ? 'พ่อพันธุ์แนะนำพิเศษ' : 'Featured Stud Fathers'}
-                </h2>
-                <p className="text-xs text-slate-400 font-semibold mt-1">
-                  {language === 'th' ? 'พ่อพันธุ์ยอดนิยมที่เปิดรับผสมพันธุ์และรับประกันสายเลือดโดยตรง' : 'Top verified stud fathers open for breeding'}
-                </p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
-              {promotedFathers.map((father) => (
+                      {promotedFathers.map((father, index) => (
                 <div 
                   key={father._id}
                   onClick={() => onNavigate('chicken-detail', father._id)}
@@ -322,16 +313,42 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
                         {language === 'th' ? 'การ์ดแนะนำ' : 'RECOMMENDED'}
                       </div>
 
+                      <div className="absolute top-3 right-3 bg-amber-500 text-white text-[10px] font-black px-2.5 py-1 rounded-lg z-20 shadow-md flex items-center gap-1 border border-amber-400/30">
+                        <span>🏆</span>
+                        <span>{language === 'th' ? `อันดับ ${index + 1}` : `Rank ${index + 1}`}</span>
+                      </div>
+ 
                       <div className="absolute bottom-4 left-4 z-20">
                         <h3 className="text-xl font-bold text-white drop-shadow-md">{father.name}</h3>
                         <p className="text-[10px] text-slate-200 font-mono mt-0.5">{father.code}</p>
                       </div>
                     </div>
-
+ 
                     {/* Info Area */}
                     <div className="p-5 space-y-3.5">
                       <div className="flex justify-between items-center text-xs font-bold">
                         <span className="text-slate-400 font-semibold">{language === 'th' ? 'ฟาร์มเจ้าของ' : 'Owner Farm'}</span>
+                        <span className="text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                          {father.user?.farmName || father.user?.name || 'ฟาร์มสมาชิก'}
+                          {father.user?.isVerified && (
+                            <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />
+                          )}
+                        </span>
+                      </div>
+ 
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className="text-slate-400 font-semibold">{language === 'th' ? 'สายเลือด' : 'Bloodline'}</span>
+                        <span className="text-slate-700 dark:text-slate-300 bg-slate-105 px-2.5 py-0.5 rounded-lg border border-slate-200/50 dark:border-slate-800 font-semibold truncate max-w-[150px]">
+                          {father.breed || 'ไม่ระบุ'}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className="text-slate-400 font-semibold">{language === 'th' ? 'ความนิยม' : 'Popularity'}</span>
+                        <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-black">
+                          👑 {language === 'th' ? 'พ่อไก่ติดอันดับยอดนิยม' : 'Top Popular Stud'}
+                        </span>
+                      </div>�ง' : 'Owner Farm'}</span>
                         <span className="text-slate-800 dark:text-slate-200 flex items-center gap-1">
                           {father.user?.farmName || father.user?.name || 'ฟาร์มสมาชิก'}
                           {father.user?.isVerified && (

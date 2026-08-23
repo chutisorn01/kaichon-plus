@@ -103,3 +103,34 @@ export const rejectPromotion = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 };
+
+export const promoteFather = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { isPromoted, promotionTier, durationDays } = req.body;
+
+    const father = await Father.findById(id);
+    if (!father) {
+      return next(new AppError('No father found with that ID', 404));
+    }
+
+    const promotedUntil = durationDays 
+      ? new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000) 
+      : (father.promotedUntil || null);
+
+    father.isPromoted = isPromoted !== undefined ? isPromoted : father.isPromoted;
+    father.promotionTier = promotionTier || father.promotionTier;
+    if (promotedUntil) {
+      father.promotedUntil = promotedUntil;
+    }
+
+    await father.save();
+
+    res.status(200).json({
+      status: 'success',
+      data: father
+    });
+  } catch (error) {
+    next(error);
+  }
+};

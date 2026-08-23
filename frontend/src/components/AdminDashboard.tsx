@@ -15,8 +15,12 @@ import {
   ArrowLeftRight, 
   DollarSign, 
   Clock,
-  LogOut
+  LogOut,
+  Megaphone,
+  Crown
 } from 'lucide-react';
+import AdminBanners from './AdminBanners';
+import AdminVipStuds from './AdminVipStuds';
 
 interface UserItem {
   _id: string;
@@ -57,7 +61,7 @@ interface PromotionItem {
 
 export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any) => void }) {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'users' | 'promotions' | 'revenue'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'promotions' | 'banners' | 'vip' | 'revenue'>('users');
   const [users, setUsers] = useState<UserItem[]>([]);
   const [promotions, setPromotions] = useState<PromotionItem[]>([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -243,6 +247,30 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                   {promotions.filter(p => p.status === 'pending').length}
                 </span>
               )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('banners')}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
+                activeTab === 'banners'
+                  ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Megaphone className="w-4.5 h-4.5 text-pink-500" />
+              {t('จัดการแบนเนอร์โฆษณา', 'Banner Ads')}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('vip')}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
+                activeTab === 'vip'
+                  ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Crown className="w-4.5 h-4.5 text-amber-500" />
+              {t('ตั้งค่าพ่อพันธุ์ VIP', 'VIP Studs')}
             </button>
 
             <button
@@ -620,6 +648,9 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
           )}
 
           {/* Tab 3: Revenue & Finance View */}
+          {activeTab === 'banners' && <AdminBanners />}
+          {activeTab === 'vip' && <AdminVipStuds />}
+          
           {activeTab === 'revenue' && (
             <div className="space-y-6 animate-fade-in">
               

@@ -42,7 +42,7 @@ export const createFather = async (req: any, res: Response) => {
     // Sync to Chicken collection for global pedigree linkage
     try {
       await Chicken.findOneAndUpdate(
-        { code: code.toUpperCase() },
+        { code: code.toUpperCase(), user: req.user.id },
         {
           code: code.toUpperCase(),
           name,
@@ -101,7 +101,7 @@ export const updateFather = async (req: any, res: Response) => {
     if (updatedFather.code) {
       try {
         await Chicken.findOneAndUpdate(
-          { code: updatedFather.code.toUpperCase() },
+          { code: updatedFather.code.toUpperCase(), user: req.user.id },
           {
             code: updatedFather.code.toUpperCase(),
             name: updatedFather.name,
@@ -136,7 +136,7 @@ export const deleteFather = async (req: any, res: Response) => {
     if (!deletedFather) return res.status(404).json({ message: 'ไม่พบข้อมูลพ่อไก่' });
 
     if (deletedFather.code) {
-      await Chicken.deleteMany({ code: deletedFather.code.toUpperCase() });
+      await Chicken.deleteMany({ code: deletedFather.code.toUpperCase(), user: req.user.id });
     }
 
     res.json({ message: 'ลบข้อมูลพ่อไก่เรียบร้อยแล้ว' });
@@ -152,7 +152,18 @@ export const getPromotedFathers = async (req: any, res: Response) => {
       promotedUntil: { $gte: new Date() }
     }).populate('user', 'farmName name isVerified');
     
-    res.json(promoted);
+    // Separate into VIP and Standard
+    const vips = promoted.filter(f => f.promotionTier === 'vip');
+    const standards = promoted.filter(f => f.promotionTier !== 'vip');
+
+    // Fair Rotation (Shuffle arrays randomly)
+    const shuffledVips = vips.sort(() => 0.5 - Math.random());
+    const shuffledStandards = standards.sort(() => 0.5 - Math.random());
+    
+    // Combine them (VIPs always on top)
+    const sorted = [...shuffledVips, ...shuffledStandards];
+    
+    res.json(sorted);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

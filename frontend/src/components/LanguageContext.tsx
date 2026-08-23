@@ -50,6 +50,29 @@ const translations = {
     
     // Search Box
     searchPlaceholder: 'ค้นหาด้วยเลขกิ๊ฟ, รหัสสากล (เช่น KCP-001), หรือชื่อฟาร์ม...',
+    popularSearches: 'คำค้นยอดนิยม:',
+
+    // Buttons & Features
+    btnStart: 'เริ่มต้นใช้งานฟรี',
+    btnFeatures: 'ดูฟีเจอร์ทั้งหมด',
+    featuredStuds: 'พ่อพันธุ์แนะนำพิเศษ',
+    featuredStudsSub: 'พ่อพันธุ์ยอดนิยมที่เปิดรับผสมพันธุ์และรับประกันสายเลือดโดยตรง',
+    recommendedCard: 'การ์ดแนะนำ',
+    ownerFarm: 'ฟาร์มสมาชิก',
+    bloodline: 'สายเลือด',
+    studFee: 'ค่าผสมพันธุ์',
+    viewPedigree: 'ดูใบประวัติสายเลือด',
+
+    // Dot notation aliases
+    'nav.login': 'เข้าสู่ระบบ',
+    'nav.register': 'ลงทะเบียน',
+    'home.title': 'ระบบบันทึกประวัติไก่ชน',
+    'home.subtitle': 'จัดการประวัติสายพันธุ์ ประวัติการแข่งขัน และการฉีดวัคซีนได้อย่างมืออาชีพ ค้นหาง่าย ใช้งานสะดวกบนทุกอุปกรณ์ ด้วยดีไซน์พรีเมียม',
+    'home.searchPlaceholder': 'ค้นหาด้วยเลขกิ๊ฟ, รหัสสากล (เช่น KCP-001), หรือชื่อฟาร์ม...',
+    'home.btnStart': 'เริ่มต้นใช้งานฟรี',
+    'home.btnFeatures': 'ดูฟีเจอร์ทั้งหมด',
+    'home.featuredStuds': 'พ่อพันธุ์แนะนำพิเศษ',
+    'home.featuredStudsSub': 'พ่อพันธุ์ยอดนิยมที่เปิดรับผสมพันธุ์และรับประกันสายเลือดโดยตรง',
   },
   en: {
     // Brand & App
@@ -98,6 +121,29 @@ const translations = {
     
     // Search Box
     searchPlaceholder: 'Search by wing band #, code (e.g. KCP-001), or farm name...',
+    popularSearches: 'Popular Searches:',
+
+    // Buttons & Features
+    btnStart: 'Start for Free',
+    btnFeatures: 'View All Features',
+    featuredStuds: 'Featured Studs',
+    featuredStudsSub: 'Popular stud roosters open for breeding and directly guaranteed pedigree',
+    recommendedCard: 'RECOMMENDED',
+    ownerFarm: 'Owner Farm',
+    bloodline: 'Bloodline',
+    studFee: 'Stud Fee',
+    viewPedigree: 'View Pedigree Certificate',
+
+    // Dot notation aliases
+    'nav.login': 'Sign In',
+    'nav.register': 'Register',
+    'home.title': 'Fighting Rooster Record System',
+    'home.subtitle': 'Manage bloodlines, match records, and vaccination history professionally. Easy to search, accessible on all devices with a premium design.',
+    'home.searchPlaceholder': 'Search by wing band #, code (e.g. KCP-001), or farm name...',
+    'home.btnStart': 'Start for Free',
+    'home.btnFeatures': 'View All Features',
+    'home.featuredStuds': 'Featured Studs',
+    'home.featuredStudsSub': 'Popular stud roosters open for breeding and directly guaranteed pedigree',
   }
 };
 

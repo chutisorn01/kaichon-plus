@@ -28,6 +28,7 @@ export interface IFather extends Document {
     date: Date;
   }[];
   isPromoted?: boolean;
+  promotionTier?: 'vip' | 'standard';
   promotedUntil?: Date;
   studFee?: number;
 }
@@ -61,6 +62,7 @@ const fatherSchema = new Schema<IFather>(
       date: { type: Date, required: true }
     }],
     isPromoted: { type: Boolean, default: false },
+    promotionTier: { type: String, enum: ['vip', 'standard'], default: 'standard' },
     promotedUntil: { type: Date },
     studFee: { type: Number, default: 0 }
   },

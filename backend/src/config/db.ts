@@ -8,6 +8,21 @@ export const connectDB = async () => {
     const conn = await mongoose.connect(connUri);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     
+    // Drop unique index on code in chickens collection if it exists
+    try {
+      const db = mongoose.connection.db;
+      if (db) {
+        const collections = await db.listCollections({ name: 'chickens' }).toArray();
+        if (collections.length > 0) {
+          await db.collection('chickens').dropIndex('code_1').catch(() => {
+            // Ignore error if index doesn't exist
+          });
+        }
+      }
+    } catch (indexErr) {
+      console.error('Error dropping code_1 index:', indexErr);
+    }
+
     // Auto seed admin user
     await seedAdmin();
   } catch (error) {

@@ -149,39 +149,30 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-slate-900/40 to-transparent pointer-events-none z-[5]"></div>
 
               {/* Header */}
-              <div className="pt-10 pb-2 text-center relative z-20">
+              <div className="pt-8 pb-0 text-center relative z-20">
                 <h1 
-                  className={`text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-400 to-amber-100 tracking-widest mb-0 drop-shadow-[0_0_25px_rgba(251,191,36,0.5)] pt-4 pb-3 flex flex-wrap items-center justify-center gap-3 px-8 text-center leading-tight ${
-                    (chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS').length > 15 
-                      ? 'text-4xl' 
-                      : (chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS').length > 8 
-                      ? 'text-5xl' 
-                      : 'text-6xl'
-                  }`}
-                  style={{ fontFamily: "'Charm', cursive" }}
+                  className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-400 to-amber-100 tracking-widest mb-0 drop-shadow-[0_0_25px_rgba(251,191,36,0.5)] pt-6 pb-2"
+                  style={{ fontFamily: "'Charm', cursive", lineHeight: '1.4' }}
                 >
-                  <span>{chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS'}</span>
-                  {chicken.user?.isVerified === true && (
-                    <BadgeCheck className="w-8 h-8 text-white fill-blue-500 shrink-0 drop-shadow-md" />
-                  )}
+                  {chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS'}
                 </h1>
-                <div className="inline-flex items-center justify-center mt-5 relative group">
+                <div className="inline-flex items-center justify-center mt-3 relative group">
                   {/* Decorative glowing background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 blur-md rounded-full"></div>
                   
                   {/* Main Pill */}
-                  <div className="relative px-8 py-2 rounded-full bg-gradient-to-r from-slate-800/80 via-slate-800/90 to-slate-800/80 border border-amber-500/30 shadow-inner overflow-hidden">
+                  <div className="relative px-8 py-1.5 rounded-full bg-gradient-to-r from-slate-800/80 via-slate-800/90 to-slate-800/80 border border-amber-500/30 shadow-inner overflow-hidden">
                     {/* Shine effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
                     
-                    <h2 className="text-xs sm:text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-400 tracking-[0.25em] relative z-10 drop-shadow-sm">
+                    <h2 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-400 tracking-[0.2em] relative z-10 drop-shadow-sm">
                       ใบประวัติรับรองสายพันธุ์
                     </h2>
                   </div>
                 </div>
-                <div className="flex items-center justify-center mt-4">
+                <div className="flex items-center justify-center mt-2">
                   <div className="h-[1px] w-32 bg-gradient-to-r from-transparent to-amber-500/50"></div>
-                  <Award className="w-5 h-5 text-amber-400 mx-4" />
+                  <Award className="w-6 h-6 text-amber-400 mx-4" />
                   <div className="h-[1px] w-32 bg-gradient-to-l from-transparent to-amber-500/50"></div>
                 </div>
               </div>
@@ -232,6 +223,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                     <div className="w-40 h-[1px] bg-gradient-to-r from-transparent via-amber-500/80 to-transparent mb-1"></div>
                     <div className="text-[9px] text-amber-500/90 uppercase tracking-widest font-bold">
                       Authorized Signature
+                    </div>
+                    <div className="mt-1 text-[10px] font-mono font-bold text-amber-400/90 tracking-wider bg-slate-950/70 px-2.5 py-0.5 rounded border border-amber-500/30 shadow-sm whitespace-nowrap z-20">
+                      KP-{chicken._id.substring(12, 18).toUpperCase()}-{chicken._id.substring(18, 24).toUpperCase()}
                     </div>
                     
                     {/* Fake Stamp Background */}
@@ -332,15 +326,14 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                     {/* Parents Row */}
                     <div className="flex w-full justify-center gap-28 relative z-10">
                       
-                      {/* Horizontal Connection Line (Spans 332px from Sire center to Dam center) */}
-                      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 w-[332px] h-[2px] bg-gradient-to-r from-blue-500/50 via-amber-500/50 to-pink-500/50 z-0">
+                      {/* Horizontal Connection Line (Spans only the gap, touching box edges) */}
+                      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 w-28 h-[2px] bg-gradient-to-r from-blue-500/50 via-amber-500/50 to-pink-500/50 z-0">
                         {/* Center Dot */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-amber-500 border-2 border-amber-500 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.5)]"></div>
                       </div>
                       
-                      {/* Vertical Drop Line */}
-                      {/* Vertical Drop Line */}
-                      <div className="absolute top-[45%] left-1/2 h-[calc(55%+1rem)] w-[2px] bg-gradient-to-b from-amber-500/50 to-amber-500/10 z-0"></div>
+                      {/* Vertical Drop Line (Reaches exactly the top edge of Subject card) */}
+                      <div className="absolute top-[45%] left-1/2 h-[calc(55%+8px)] w-[2px] bg-gradient-to-b from-amber-500/50 to-amber-500/10 z-0"></div>
 
                       {/* Sire (Father) */}
                       <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-blue-900/40 to-slate-900/90 border border-blue-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-[0_0_20px_rgba(59,130,246,0.15)] relative z-10 text-center">
@@ -421,10 +414,10 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                   <div className="flex items-center justify-center w-full px-16">
                     {/* Slogan */}
                     <div className="flex flex-col items-center justify-center text-center relative max-w-full">
-                      <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-orange-500 drop-shadow-sm tracking-wide z-10 px-4 leading-snug" style={{ fontFamily: "'Charm', cursive" }}>
+                      <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-orange-500 drop-shadow-sm tracking-wide z-10 px-4 py-1.5 leading-normal" style={{ fontFamily: "'Charm', cursive" }}>
                         {chicken.user?.description || 'พันธุกรรมโคตรเบอร์แข้ง สายเลือดมังกร'}
                       </div>
-                      <div className="text-[11px] text-slate-500 uppercase tracking-widest mt-1 font-bold">
+                      <div className="text-[9px] text-slate-500/80 uppercase tracking-widest mt-1 font-bold">
                         Premium Quality Guaranteed
                       </div>
                     </div>
@@ -479,19 +472,21 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                   {/* Right Block: Verification */}
                   <div className="flex items-center justify-end relative z-10 shrink-0 gap-5 text-right pl-6 border-l border-amber-500/10">
                     <div className="flex flex-col items-end justify-center">
-                      <div className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest mb-1.5">
+                      <div className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest mb-1">
                         Scan to Verify
                       </div>
-                      <div className="text-[10px] text-slate-400 max-w-[130px] mb-3 leading-tight">
-                        สแกนเพื่อตรวจสอบประวัติสายเลือดฉบับออนไลน์
+                      <div className="text-[9px] text-slate-400 max-w-[130px] mb-2 leading-tight">
+                        สแกนเพื่อตรวจสอบประวัติสายเลือดออนไลน์
                       </div>
-                      <div className="text-[9px] text-amber-600/70 font-bold tracking-widest uppercase">
+                      <div className="text-[8px] text-amber-600/70 font-bold tracking-widest uppercase">
                         Powered by Kaichon Plus
                       </div>
                     </div>
 
-                    <div className="bg-white p-2 rounded-lg shadow-[0_0_20px_rgba(251,191,36,0.2)] shrink-0 w-[74px] h-[74px] flex items-center justify-center">
-                      <img crossOrigin="anonymous" src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain rounded-sm" />
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className="bg-white p-1.5 rounded-lg shadow-[0_0_15px_rgba(251,191,36,0.15)] w-[70px] h-[70px] flex items-center justify-center">
+                        <img crossOrigin="anonymous" src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain rounded-sm" />
+                      </div>
                     </div>
                   </div>
                   

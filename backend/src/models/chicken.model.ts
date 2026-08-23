@@ -40,7 +40,6 @@ const chickenSchema = new Schema<IChicken>(
     code: {
       type: String,
       required: [true, 'Chicken code is required'],
-      unique: true,
       trim: true,
       uppercase: true,
       index: true,
@@ -137,5 +136,7 @@ const chickenSchema = new Schema<IChicken>(
     timestamps: true,
   }
 );
+
+chickenSchema.index({ code: 1, user: 1 }, { unique: true });
 
 export const Chicken = mongoose.model<IChicken>('Chicken', chickenSchema);

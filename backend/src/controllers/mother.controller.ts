@@ -44,7 +44,7 @@ export const createMother = async (req: any, res: Response) => {
     // Sync to Chicken collection for global pedigree linkage
     try {
       await Chicken.findOneAndUpdate(
-        { code: code.toUpperCase() },
+        { code: code.toUpperCase(), user: req.user.id },
         {
           code: code.toUpperCase(),
           name,
@@ -103,7 +103,7 @@ export const updateMother = async (req: any, res: Response) => {
     if (updatedMother.code) {
       try {
         await Chicken.findOneAndUpdate(
-          { code: updatedMother.code.toUpperCase() },
+          { code: updatedMother.code.toUpperCase(), user: req.user.id },
           {
             code: updatedMother.code.toUpperCase(),
             name: updatedMother.name,
@@ -138,7 +138,7 @@ export const deleteMother = async (req: any, res: Response) => {
     if (!deletedMother) return res.status(404).json({ message: 'ไม่พบข้อมูลแม่ไก่' });
 
     if (deletedMother.code) {
-      await Chicken.deleteMany({ code: deletedMother.code.toUpperCase() });
+      await Chicken.deleteMany({ code: deletedMother.code.toUpperCase(), user: req.user.id });
     }
 
     res.json({ message: 'ลบข้อมูลแม่ไก่เรียบร้อยแล้ว' });
