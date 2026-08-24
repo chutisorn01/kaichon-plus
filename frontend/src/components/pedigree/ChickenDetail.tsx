@@ -607,7 +607,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
                     <span className="shrink-0">{chick.bandNumber}</span>
                     {(() => {
                       const farmText = chick.bandText || (chick.user ? (chick.user.farmName || chick.user.name) : null);
-                      return farmText ? <span className="opacity-90 ml-0.5 truncate">[{farmText}]</span> : null;
+                      return farmText ? <span className="opacity-90 ml-0.5 truncate leading-normal pt-0.5">[{farmText}]</span> : null;
                     })()}
                   </span>
                 )}
@@ -617,6 +617,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1 border-t border-slate-50 dark:border-white/5">
               {chick.user && (
                 <span className="text-[11px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2.5 py-1.5 rounded-xl flex items-center gap-1 border border-blue-200 dark:border-blue-800/50 shadow-sm">
+                  {chick.user.isVerified && <BadgeCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
                   {chick.user.farmName || chick.user.name || 'ฟาร์มสมาชิก'}
                 </span>
               )}
@@ -774,6 +775,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
                     <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">ฟาร์มเพาะพันธุ์</div>
                     <div className="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1 mt-0.5">
                       {chick.user.farmName || chick.user.name || 'ฟาร์มสมาชิก'}
+                      {chick.user.isVerified && <BadgeCheck className="w-4 h-4 text-blue-500" title="ฟาร์มที่ได้รับการยืนยัน" />}
                     </div>
                   </div>
                 </div>

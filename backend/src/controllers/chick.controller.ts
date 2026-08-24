@@ -7,7 +7,7 @@ export const getChicks = async (req: any, res: Response, next: NextFunction) => 
       .populate('father', 'name code bloodline breed')
       .populate('mother', 'name code bloodline breed')
       .populate('batch', 'batchCode')
-      .populate('user', 'farmName name')
+      .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description')
       .lean();
 
     const mappedChicks = chicks.map(c => {

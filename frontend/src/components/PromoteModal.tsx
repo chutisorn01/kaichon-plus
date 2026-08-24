@@ -163,51 +163,25 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
                 <span className="text-[#eab308] text-lg font-extrabold">pay</span>
               </div>
 
-              {/* Simulated QR Code SVG */}
+              {/* Real QR Code Image */}
               <div className="bg-white p-4 rounded-2xl inline-block shadow-md border border-slate-100 mb-4">
-                <svg className="w-40 h-40 mx-auto text-slate-950" viewBox="0 0 100 100" fill="currentColor">
-                  {/* Outer Frame */}
-                  <path d="M 0,0 H 30 V 10 H 10 V 30 H 0 Z" />
-                  <path d="M 100,0 H 70 V 10 H 90 V 30 H 100 Z" />
-                  <path d="M 0,100 H 30 V 90 H 10 V 70 H 0 Z" />
-                  {/* Position detection markers */}
-                  <path d="M 5,5 H 25 V 25 H 5 Z M 9,9 H 21 V 21 H 9 Z" />
-                  <path d="M 75,5 H 95 V 25 H 75 Z M 79,9 H 91 V 21 H 79 Z" />
-                  <path d="M 5,75 H 25 V 95 H 5 Z M 9,79 H 21 V 91 H 9 Z" />
-                  {/* Fake QR pattern dots */}
-                  <rect x="35" y="10" width="10" height="5" />
-                  <rect x="50" y="5" width="5" height="15" />
-                  <rect x="60" y="15" width="10" height="5" />
-                  <rect x="35" y="25" width="15" height="5" />
-                  <rect x="55" y="25" width="5" height="10" />
-                  <rect x="10" y="35" width="5" height="10" />
-                  <rect x="20" y="35" width="20" height="5" />
-                  <rect x="45" y="40" width="10" height="10" />
-                  <rect x="60" y="35" width="5" height="5" />
-                  <rect x="70" y="35" width="10" height="15" />
-                  <rect x="85" y="35" width="5" height="10" />
-                  {/* Bottom rights and centers */}
-                  <rect x="35" y="55" width="10" height="5" />
-                  <rect x="35" y="65" width="5" height="15" />
-                  <rect x="45" y="75" width="15" height="5" />
-                  <rect x="50" y="60" width="5" height="10" />
-                  <rect x="65" y="55" width="15" height="5" />
-                  <rect x="75" y="65" width="5" height="15" />
-                  <rect x="65" y="75" width="5" height="5" />
-                  <rect x="65" y="85" width="20" height="5" />
-                  <rect x="90" y="75" width="5" height="15" />
-                  {/* Center branding box */}
-                  <rect x="42" y="42" width="16" height="16" fill="white" />
-                  <circle cx="50" cy="50" r="5" fill="#1e3a8a" />
-                </svg>
+                <img 
+                  src="/promptpay-qr.JPG" 
+                  alt="QR Code" 
+                  className="w-60 h-60 sm:w-64 sm:h-64 mx-auto rounded-xl object-contain"
+                />
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs text-slate-400">{t('บัญชีรับเงิน (พร้อมเพย์)', 'Recipient Account (PromptPay)')}</p>
-                <p className="text-base font-bold text-slate-800 dark:text-slate-100">098-XXX-XXXX</p>
-                <p className="text-lg font-extrabold text-red-600 dark:text-red-400 mt-2">
-                  {t('ยอดโอน:', 'Amount:')} {getPrice(duration)}.00 ฿
-                </p>
+                <p className="text-xs text-slate-400">{t('บัญชีรับเงิน', 'Recipient Account')}</p>
+                <p className="text-base font-bold text-slate-800 dark:text-slate-100">ธนาคารกสิกรไทย (KBank)</p>
+                <p className="text-lg font-black text-slate-900 dark:text-white">187-1-38250-2</p>
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mt-1">ชื่อบัญชี: ชุติศรณ์ สุตะพันธ์</p>
+                <div className="pt-3 mt-3 border-t border-slate-200 dark:border-slate-800">
+                  <p className="text-lg font-extrabold text-red-600 dark:text-red-400">
+                    {t('ยอดโอน:', 'Amount:')} {getPrice(duration)}.00 ฿
+                  </p>
+                </div>
               </div>
             </div>
 

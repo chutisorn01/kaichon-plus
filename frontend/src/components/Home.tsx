@@ -348,7 +348,7 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
                         <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-black">
                           👑 {language === 'th' ? 'พ่อไก่ติดอันดับยอดนิยม' : 'Top Popular Stud'}
                         </span>
-                      </div>�ง' : 'Owner Farm'}</span>
+                      </div>�ง' : 'Owner Farm'}</span>
                         <span className="text-slate-800 dark:text-slate-200 flex items-center gap-1">
                           {father.user?.farmName || father.user?.name || 'ฟาร์มสมาชิก'}
                           {father.user?.isVerified && (

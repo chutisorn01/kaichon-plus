@@ -633,7 +633,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                             </button>
                             <button
                               onClick={() => handleApprovePromotion(p._id)}
-                              className="flex-1 bg-indigo-650 hover:bg-indigo-700 text-white py-3 rounded-2xl text-[11px] font-black transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1 shadow-lg shadow-indigo-650/20"
+                              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-[11px] font-black transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1 shadow-lg shadow-emerald-600/20"
                             >
                               <CheckCircle2 className="w-4.5 h-4.5" /> {t('อนุมัติโปรโมท', 'Approve')}
                             </button>

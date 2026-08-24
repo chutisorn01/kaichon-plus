@@ -3,7 +3,12 @@ import { User } from '../models/user.model.js';
 import { hashPassword, verifyPassword, createToken } from '../config/crypto.js';
 import { AppError } from '../middleware/error.middleware.js';
 
-const getJwtSecret = () => process.env.JWT_SECRET || 'kaichon-plus-super-secret-key-12345';
+const getJwtSecret = () => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
+  }
+  return process.env.JWT_SECRET;
+};
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {

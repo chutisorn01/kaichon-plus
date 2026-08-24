@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
@@ -21,10 +23,30 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Middlewares
+// 1. CORS should be the very first middleware so preflight OPTIONS requests are handled
+// before they hit the rate limiter or helmet.
 app.use(cors());
+
+// 2. Standard Middlewares
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// 3. Security Middlewares
+app.use(helmet());
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 200 : 5000, // Much higher limit for dev
+  standardHeaders: true, 
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'Too many requests from this IP, please try again after 15 minutes'
+    });
+  }
+});
+app.use('/api/', apiLimiter);
 
 // Connect Database
 connectDB();

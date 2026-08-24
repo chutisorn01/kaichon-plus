@@ -4,7 +4,7 @@ import { Chicken } from '../models/chicken.model';
 
 export const getFathers = async (req: any, res: Response) => {
   try {
-    const fathers = await Father.find({ user: req.user.id }).populate('user', 'farmName name');
+    const fathers = await Father.find({ user: req.user.id }).populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description');
     res.json(fathers);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -150,7 +150,7 @@ export const getPromotedFathers = async (req: any, res: Response) => {
     const promoted = await Father.find({
       isPromoted: true,
       promotedUntil: { $gte: new Date() }
-    }).populate('user', 'farmName name isVerified');
+    }).populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description');
     
     // Separate into VIP and Standard
     const vips = promoted.filter(f => f.promotionTier === 'vip');

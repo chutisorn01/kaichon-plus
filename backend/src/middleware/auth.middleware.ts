@@ -18,7 +18,10 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       return next(new AppError('Access denied: Please authenticate to access this endpoint', 401));
     }
 
-    const secret = process.env.JWT_SECRET || 'kaichon-plus-super-secret-key-12345';
+    if (!process.env.JWT_SECRET) {
+      return next(new AppError('Server configuration error: JWT_SECRET is missing', 500));
+    }
+    const secret = process.env.JWT_SECRET;
     const decoded = verifyToken(token, secret);
 
     if (!decoded) {

@@ -253,15 +253,15 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                         <>
                           <div className={`w-1.5 h-1.5 rounded-full shrink-0 shadow-sm ${getBandColorCircleClass(chicken.bandColor || 'แดง')}`}></div>
                           
-                          <span className={`text-[14px] font-black text-white tracking-widest leading-none shrink-0 drop-shadow-sm`}>
+                          <span className={`text-[14px] font-black text-white tracking-widest leading-normal shrink-0 drop-shadow-sm`}>
                             {chicken.bandNumber}
                           </span>
                           
-                          <span className={`text-[12px] font-bold text-white border-l border-white/30 pl-2 ml-0.5 truncate flex-1 tracking-wide leading-none drop-shadow-sm`}>
+                          <span className={`text-[12px] font-bold text-white border-l border-white/30 pl-2 ml-0.5 truncate flex-1 tracking-wide leading-normal drop-shadow-sm pb-1`}>
                             {chicken.bandText || chicken.user?.farmName || chicken.user?.name || 'ฟาร์ม'}
                           </span>
                           
-                          <span className={`text-[9px] font-bold ${getBandTextColorClass(chicken.bandColor || 'แดง')} opacity-80 shrink-0 leading-none`}>
+                          <span className={`text-[9px] font-bold ${getBandTextColorClass(chicken.bandColor || 'แดง')} opacity-80 shrink-0 leading-normal pb-1`}>
                             (กิ๊ฟสี{chicken.bandColor || 'แดง'})
                           </span>
                         </>
@@ -414,7 +414,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
                   <div className="flex items-center justify-center w-full px-16">
                     {/* Slogan */}
                     <div className="flex flex-col items-center justify-center text-center relative max-w-full">
-                      <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-orange-500 drop-shadow-sm tracking-wide z-10 px-4 py-1.5 leading-normal" style={{ fontFamily: "'Charm', cursive" }}>
+                      <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-orange-500 drop-shadow-sm tracking-wide z-10 px-4 pt-2 pb-1 leading-loose" style={{ fontFamily: "'Charm', cursive" }}>
                         {chicken.user?.description || 'พันธุกรรมโคตรเบอร์แข้ง สายเลือดมังกร'}
                       </div>
                       <div className="text-[9px] text-slate-500/80 uppercase tracking-widest mt-1 font-bold">
