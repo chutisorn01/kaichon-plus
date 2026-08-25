@@ -83,7 +83,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
 
       try {
         // Step 1: Security Authorization Check (Admin Only)
-        const authResponse = await fetch('http://localhost:5001/api/auth/me', {
+        const authResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const authData = await authResponse.json();
@@ -98,13 +98,13 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
         const headers = { 'Authorization': `Bearer ${token}` };
         
         // Fetch users list
-        const usersResponse = await fetch('http://localhost:5001/api/admin/users', { headers });
+        const usersResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users`, { headers });
         const usersData = await usersResponse.json();
         if (!usersResponse.ok) throw new Error(usersData.message || 'Error fetching users');
         setUsers(usersData.data || []);
 
         // Fetch promotions list
-        const promosResponse = await fetch('http://localhost:5001/api/admin/promotions', { headers });
+        const promosResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/promotions`, { headers });
         const promosData = await promosResponse.json();
         if (!promosResponse.ok) throw new Error(promosData.message || 'Error fetching promotions');
         setPromotions(promosData.data || []);
@@ -123,7 +123,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
   const handleToggleVerify = async (userId: string, currentStatus: boolean) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:5001/api/admin/users/${userId}/verify`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/verify`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
     if (!window.confirm(language === 'th' ? 'ยืนยันอนุมัติการโปรโมทนี้?' : 'Confirm approval for this promotion?')) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:5001/api/admin/promotions/${promoId}/approve`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/promotions/${promoId}/approve`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -165,7 +165,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
     if (!window.confirm(language === 'th' ? 'ยืนยันปฏิเสธการโปรโมทนี้?' : 'Confirm rejection for this promotion?')) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:5001/api/admin/promotions/${promoId}/reject`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/promotions/${promoId}/reject`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

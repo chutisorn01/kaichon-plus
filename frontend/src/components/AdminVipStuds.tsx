@@ -15,7 +15,7 @@ export default function AdminVipStuds() {
     
     setIsSearching(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/chickens?search=${encodeURIComponent(searchQuery)}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(searchQuery)}`);
       const data = await res.json();
       if (res.ok) {
         // Handle both direct array and object with data array
@@ -38,7 +38,7 @@ export default function AdminVipStuds() {
     setProcessingId(id);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5001/api/admin/fathers/${id}/promote`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/fathers/${id}/promote`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export default function AdminVipStuds() {
     setProcessingId(id);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5001/api/admin/fathers/${id}/promote`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/fathers/${id}/promote`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

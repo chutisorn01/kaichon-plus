@@ -42,7 +42,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
   const fetchChicks = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/chicks', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chicks`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -58,7 +58,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
     if (!confirm('ยืนยันหน้าการลบข้อมูลลูกไก่?')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5001/api/chicks/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -96,7 +96,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
     try {
       const token = localStorage.getItem('token');
       await Promise.all(Array.from(selectedChicks).map(id => 
-        fetch(`http://localhost:5001/api/chicks/${id}`, {
+        fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${id}`, {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -113,7 +113,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
     try {
       const token = localStorage.getItem('token');
       await Promise.all(Array.from(selectedChicks).map(id => 
-        fetch(`http://localhost:5001/api/chicks/${id}`, {
+        fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${id}`, {
           method: 'PUT',
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -156,7 +156,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           newBandNumber = prefix + String(startNum + index).padStart(numLength, '0');
         }
         
-        return fetch(`http://localhost:5001/api/chicks/${chick._id}`, {
+        return fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${chick._id}`, {
           method: 'PUT',
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -193,7 +193,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           newName = `${newName} ${index + 1}`;
         }
         
-        return fetch(`http://localhost:5001/api/chicks/${chick._id}`, {
+        return fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${chick._id}`, {
           method: 'PUT',
           headers: { 
             'Authorization': `Bearer ${token}`,

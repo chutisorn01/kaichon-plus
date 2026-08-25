@@ -49,7 +49,7 @@ export default function VaccineDashboard({ onNavigate }: { onNavigate: (page: st
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/vaccines/schedule', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/vaccines/schedule`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -74,7 +74,7 @@ export default function VaccineDashboard({ onNavigate }: { onNavigate: (page: st
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/vaccines/mark-completed', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/vaccines/mark-completed`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

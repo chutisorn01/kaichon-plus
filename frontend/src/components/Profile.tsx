@@ -20,7 +20,7 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/auth/me', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -52,7 +52,7 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
     setSaving(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/auth/profile', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
         method: 'PUT',
         headers: { 
           'Authorization': `Bearer ${token}`,

@@ -66,12 +66,12 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
       const headers = { 'Authorization': `Bearer ${token}` };
 
       const [chickensRes, fathersRes, mothersRes, batchesRes, chicksRes, userRes] = await Promise.all([
-        fetch('http://localhost:5001/api/chickens', { headers }).catch(() => null),
-        fetch('http://localhost:5001/api/fathers', { headers }).catch(() => null),
-        fetch('http://localhost:5001/api/mothers', { headers }).catch(() => null),
-        fetch('http://localhost:5001/api/breeding-batches', { headers }).catch(() => null),
-        fetch('http://localhost:5001/api/chicks', { headers }).catch(() => null),
-        fetch('http://localhost:5001/api/auth/me', { headers }).catch(() => null)
+        fetch(`${import.meta.env.VITE_API_URL}/api/chickens`, { headers }).catch(() => null),
+        fetch(`${import.meta.env.VITE_API_URL}/api/fathers`, { headers }).catch(() => null),
+        fetch(`${import.meta.env.VITE_API_URL}/api/mothers`, { headers }).catch(() => null),
+        fetch(`${import.meta.env.VITE_API_URL}/api/breeding-batches`, { headers }).catch(() => null),
+        fetch(`${import.meta.env.VITE_API_URL}/api/chicks`, { headers }).catch(() => null),
+        fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, { headers }).catch(() => null)
       ]);
 
       if (userRes && userRes.ok) {
@@ -146,7 +146,7 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
       setIsSearching(true);
       try {
         const query = searchQuery.trim();
-        const res = await fetch(`http://localhost:5001/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
         const data = await res.json();
         
         if (active && data.status === 'success') {

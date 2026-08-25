@@ -86,10 +86,10 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
     try {
       const token = localStorage.getItem('token');
       const [batchRes, fatherRes, motherRes, profileRes] = await Promise.all([
-        fetch('http://localhost:5001/api/breeding-batches', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:5001/api/fathers', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:5001/api/mothers', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:5001/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${import.meta.env.VITE_API_URL}/api/breeding-batches`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${import.meta.env.VITE_API_URL}/api/fathers`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${import.meta.env.VITE_API_URL}/api/mothers`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       
       setBatches(await batchRes.json());
@@ -138,8 +138,8 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
     try {
       const token = localStorage.getItem('token');
       const url = editingId 
-        ? `http://localhost:5001/api/breeding-batches/${editingId}`
-        : 'http://localhost:5001/api/breeding-batches';
+        ? `${import.meta.env.VITE_API_URL}/api/breeding-batches/${editingId}`
+        : `${import.meta.env.VITE_API_URL}/api/breeding-batches`;
       const method = editingId ? 'PUT' : 'POST';
 
       let bodyPayload: any = {
@@ -276,7 +276,7 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
     if (!confirm('ยืนยันการลบชุดการผสม? ลูกไก่ในชุดนี้จะถูกลบออกทั้งหมด')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5001/api/breeding-batches/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/breeding-batches/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

@@ -37,10 +37,10 @@ export default function ChickBanding({ onNavigate }: { onNavigate: (page: any) =
     try {
       const token = localStorage.getItem('token');
       const [res, profileRes] = await Promise.all([
-        fetch('http://localhost:5001/api/breeding-batches', {
+        fetch(`${import.meta.env.VITE_API_URL}/api/breeding-batches`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:5001/api/auth/me', {
+        fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -66,7 +66,7 @@ export default function ChickBanding({ onNavigate }: { onNavigate: (page: any) =
       const fetchBatchChicks = async () => {
         try {
           const token = localStorage.getItem('token');
-          const res = await fetch('http://localhost:5001/api/chicks', {
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chicks`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {
@@ -202,7 +202,7 @@ export default function ChickBanding({ onNavigate }: { onNavigate: (page: any) =
 
       const token = localStorage.getItem('token');
       const results = await Promise.all(allNewChicks.map(chick => 
-        fetch('http://localhost:5001/api/chicks', {
+        fetch(`${import.meta.env.VITE_API_URL}/api/chicks`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',

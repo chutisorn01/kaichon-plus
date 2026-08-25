@@ -17,7 +17,7 @@ export default function AdminBanners() {
   const fetchBanners = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/banners', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/banners`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -37,7 +37,7 @@ export default function AdminBanners() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const url = editId ? `http://localhost:5001/api/banners/${editId}` : 'http://localhost:5001/api/banners';
+      const url = editId ? `${import.meta.env.VITE_API_URL}/api/banners/${editId}` : `${import.meta.env.VITE_API_URL}/api/banners`;
       const method = editId ? 'PUT' : 'POST';
       
       const res = await fetch(url, {
@@ -65,7 +65,7 @@ export default function AdminBanners() {
     if (!window.confirm('Delete this banner?')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5001/api/banners/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/banners/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

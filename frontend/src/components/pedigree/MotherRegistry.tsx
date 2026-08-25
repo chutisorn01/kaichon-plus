@@ -50,7 +50,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
   const fetchMothers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/mothers', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mothers`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -89,8 +89,8 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
     try {
       const token = localStorage.getItem('token');
       const url = editingId 
-        ? `http://localhost:5001/api/mothers/${editingId}`
-        : 'http://localhost:5001/api/mothers';
+        ? `${import.meta.env.VITE_API_URL}/api/mothers/${editingId}`
+        : `${import.meta.env.VITE_API_URL}/api/mothers`;
       const method = editingId ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -137,7 +137,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
     if (!confirm('ยืนยันการลบข้อมูลแม่ไก่?')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5001/api/mothers/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/mothers/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

@@ -31,7 +31,7 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
       const token = localStorage.getItem('token');
       const headers = { 'Authorization': `Bearer ${token}` };
 
-      let url = `http://localhost:5001/api/chickens?search=${encodeURIComponent(search)}`;
+      let url = `${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(search)}`;
       if (genderFilter === 'male' || genderFilter === 'female') {
         url += `&gender=${genderFilter}`;
       }
@@ -40,9 +40,9 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
       // Fetch from all 4 endpoints in parallel (chickens, fathers, mothers, chicks)
       const [chickensRes, fathersRes, mothersRes, chicksRes] = await Promise.all([
         fetch(url, { headers }),
-        fetch(`http://localhost:5001/api/fathers?${cacheBuster}`, { headers }).catch(() => null),
-        fetch(`http://localhost:5001/api/mothers?${cacheBuster}`, { headers }).catch(() => null),
-        fetch(`http://localhost:5001/api/chicks?${cacheBuster}`, { headers }).catch(() => null)
+        fetch(`${import.meta.env.VITE_API_URL}/api/fathers?${cacheBuster}`, { headers }).catch(() => null),
+        fetch(`${import.meta.env.VITE_API_URL}/api/mothers?${cacheBuster}`, { headers }).catch(() => null),
+        fetch(`${import.meta.env.VITE_API_URL}/api/chicks?${cacheBuster}`, { headers }).catch(() => null)
       ]);
 
       const chickensData = await chickensRes.json();
@@ -230,11 +230,11 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
       const token = localStorage.getItem('token');
       const headers = { 'Authorization': `Bearer ${token}` };
 
-      let endpoint = `http://localhost:5001/api/chickens/${chicken._id}`;
+      let endpoint = `${import.meta.env.VITE_API_URL}/api/chickens/${chicken._id}`;
       if (chicken.isFatherRegistry) {
-        endpoint = `http://localhost:5001/api/fathers/${chicken._id}`;
+        endpoint = `${import.meta.env.VITE_API_URL}/api/fathers/${chicken._id}`;
       } else if (chicken.isMotherRegistry) {
-        endpoint = `http://localhost:5001/api/mothers/${chicken._id}`;
+        endpoint = `${import.meta.env.VITE_API_URL}/api/mothers/${chicken._id}`;
       }
 
       const res = await fetch(endpoint, {

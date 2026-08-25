@@ -32,7 +32,7 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
 
   const fetchBanners = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/banners/active');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/banners/active`);
       if (res.ok) {
         const data = await res.json();
         setBanners(data.data || []);
@@ -44,7 +44,7 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
 
   const fetchPromotedFathers = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/fathers/promoted');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/fathers/promoted`);
       if (res.ok) {
         const data = await res.json();
         setPromotedFathers(Array.isArray(data) ? data : (data.data || []));
@@ -70,7 +70,7 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
       if (res.ok) {
         const json = await res.json();
         // Handle both direct array and object with data array { status: 'success', data: [...] }

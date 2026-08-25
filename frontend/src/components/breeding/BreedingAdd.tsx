@@ -20,7 +20,7 @@ export default function BreedingAdd({ onNavigate }: { onNavigate: (page: any) =>
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch('http://localhost:5001/api/breeding-batches', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/breeding-batches`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ ...formData, chicks })

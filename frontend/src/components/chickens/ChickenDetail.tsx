@@ -9,7 +9,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
     const fetchDetail = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:5001/api/chickens/${chickenId}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens/${chickenId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const json = await res.json();

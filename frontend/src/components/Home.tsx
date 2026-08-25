@@ -35,7 +35,7 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
 
   const fetchPromotedFathers = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/fathers/promoted');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/fathers/promoted`);
       const data = await res.json();
       if (Array.isArray(data)) {
         setPromotedFathers(data);
@@ -61,7 +61,7 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
   const handleSearch = async (query: string) => {
     setIsSearching(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
       const data = await res.json();
       if (data.status === 'success') {
         setSearchResults(data.data || []);

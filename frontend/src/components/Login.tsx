@@ -16,7 +16,7 @@ export default function Login({ onNavigate }: { onNavigate: (page: any) => void 
 
   const handleGoogleAuth = async (email: string, name: string) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/google', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, name })
@@ -44,7 +44,7 @@ export default function Login({ onNavigate }: { onNavigate: (page: any) => void 
     }
     
     try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })

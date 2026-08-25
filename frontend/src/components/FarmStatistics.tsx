@@ -62,7 +62,7 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/statistics', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/statistics`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();

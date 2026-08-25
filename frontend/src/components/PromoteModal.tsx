@@ -50,7 +50,7 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/promotions', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/promotions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

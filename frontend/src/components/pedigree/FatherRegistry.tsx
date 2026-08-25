@@ -107,7 +107,7 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
   const fetchFathers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/fathers', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/fathers`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -148,8 +148,8 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
     try {
       const token = localStorage.getItem('token');
       const url = editingId 
-        ? `http://localhost:5001/api/fathers/${editingId}`
-        : 'http://localhost:5001/api/fathers';
+        ? `${import.meta.env.VITE_API_URL}/api/fathers/${editingId}`
+        : `${import.meta.env.VITE_API_URL}/api/fathers`;
       const method = editingId ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -196,7 +196,7 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
     if (!confirm('ยืนยันการลบข้อมูลพ่อไก่?')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5001/api/fathers/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/fathers/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

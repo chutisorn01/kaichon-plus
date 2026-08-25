@@ -55,7 +55,7 @@ export default function ChickenAdd({ onNavigate }: { onNavigate: (page: any) => 
         bloodline: formData.breed || 'พม่า-ง่อน'
       };
 
-      const res = await fetch('http://localhost:5001/api/chickens', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

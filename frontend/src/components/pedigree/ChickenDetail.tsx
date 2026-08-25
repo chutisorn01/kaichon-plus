@@ -230,7 +230,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
         const base64Image = reader.result as string;
         try {
           const token = localStorage.getItem('token');
-          const endpoint = `http://localhost:5001/api/${chick._sourceCollection || 'chickens'}/${chickenId}`;
+          const endpoint = `${import.meta.env.VITE_API_URL}/api/${chick._sourceCollection || 'chickens'}/${chickenId}`;
           const res = await fetch(endpoint, {
             method: 'PUT',
             headers: { 
@@ -267,7 +267,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
       const headers = { 'Authorization': `Bearer ${token}` };
 
       // Fetch using the unified includeAny endpoint with cache buster
-      let res = await fetch(`http://localhost:5001/api/chickens/${chickenId}?includeAny=true&t=${Date.now()}`, { headers }).catch(() => null);
+      let res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens/${chickenId}?includeAny=true&t=${Date.now()}`, { headers }).catch(() => null);
       
       let data: any = null;
       let sourceCollection = 'chickens';
@@ -304,7 +304,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
       // Fetch siblings if batch exists
       if (data?.batch?._id || data?.batch) {
         const bId = data.batch._id || data.batch;
-        const sibRes = await fetch(`http://localhost:5001/api/chicks/${chickenId}/siblings?t=${Date.now()}`, { headers }).catch(() => null);
+        const sibRes = await fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${chickenId}/siblings?t=${Date.now()}`, { headers }).catch(() => null);
         if (sibRes && sibRes.ok) {
           setSiblings(await sibRes.json());
         }
@@ -326,7 +326,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
         'Authorization': `Bearer ${token}` 
       };
 
-      const endpoint = `http://localhost:5001/api/${chick._sourceCollection || 'chickens'}/${chickenId}`;
+      const endpoint = `${import.meta.env.VITE_API_URL}/api/${chick._sourceCollection || 'chickens'}/${chickenId}`;
 
       const payload = { ...editForm };
       if (payload.bloodline !== undefined) {
@@ -381,7 +381,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
         'Authorization': `Bearer ${token}` 
       };
 
-      const endpoint = `http://localhost:5001/api/${chick._sourceCollection || 'chickens'}/${chickenId}`;
+      const endpoint = `${import.meta.env.VITE_API_URL}/api/${chick._sourceCollection || 'chickens'}/${chickenId}`;
 
       const payload = { 
         status: 'ขายแล้ว',
@@ -430,7 +430,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
       const headers = { 'Authorization': `Bearer ${token}` };
 
       const collection = chick?._sourceCollection || 'chickens';
-      const endpoint = `http://localhost:5001/api/${collection}/${chickenId}`;
+      const endpoint = `${import.meta.env.VITE_API_URL}/api/${collection}/${chickenId}`;
 
       const res = await fetch(endpoint, { method: 'DELETE', headers });
       
