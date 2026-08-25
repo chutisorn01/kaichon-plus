@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, ChevronLeft, Swords, Calendar, Save, Users, History, Trash2, ArrowRight, CheckCircle, Heart, AlertTriangle, Edit, X } from 'lucide-react';
+import { Plus, ChevronLeft, Swords, Calendar, Save, Users, History, Trash2, ArrowRight, CheckCircle, Heart, AlertTriangle, Edit, X, Hash } from 'lucide-react';
 import { CustomSelect, FormatOptionLabel } from '../ui/CustomSelect';
 
 export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) => void }) {
@@ -348,12 +348,15 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
             {filteredBatches.map((batch) => (
               <div key={batch._id} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-md hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300">
                 <div className="bg-slate-50 dark:bg-slate-800/80 px-4 py-3 flex justify-between items-center border-b border-slate-200 dark:border-slate-700/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 shadow-md shadow-blue-500/20 rounded-xl flex items-center justify-center text-white text-xs font-black">
-                      {/^[a-fA-F0-9]{24}$/.test(batch.batchCode || '') ? 'เก่า' : batch.batchCode}
+                  <div className="flex items-center gap-2">
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 border border-blue-500 text-xs font-black px-3.5 py-1.5 rounded-xl flex items-center gap-1.5">
+                      <Hash className="w-4 h-4 text-blue-200" /> 
+                      <span className="text-sm tracking-wide">
+                        {/^[a-fA-F0-9]{24}$/.test(batch.batchCode || '') ? 'ชุดเก่า' : batch.batchCode}
+                      </span>
                     </div>
-                    <span className="text-xs font-bold text-slate-500 uppercase">
-                      ชุดการผสม {/^[a-fA-F0-9]{24}$/.test(batch.batchCode || '') ? '(เก่า)' : ''}
+                    <span className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg hidden sm:block">
+                      ชุดการผสม
                     </span>
                   </div>
                   <div className="flex items-center gap-1">

@@ -10,6 +10,7 @@ export interface IUser extends Document {
   farmName?: string;
   farmCode?: string;
   isVerified?: boolean;
+  isVIP?: boolean;
   farmType?: 'main' | 'sub';
   parentFarm?: mongoose.Types.ObjectId;
   profileImage?: string;
@@ -67,6 +68,10 @@ const userSchema = new Schema<IUser>(
       uppercase: true,
     },
     isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isVIP: {
       type: Boolean,
       default: false,
     },

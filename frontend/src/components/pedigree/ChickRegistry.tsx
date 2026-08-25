@@ -35,6 +35,9 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
   const [bulkNamePrefix, setBulkNamePrefix] = useState('');
   const [bulkNameAddNumber, setBulkNameAddNumber] = useState(true);
 
+  const [showBulkGenderModal, setShowBulkGenderModal] = useState(false);
+  const [bulkGender, setBulkGender] = useState('');
+
   useEffect(() => {
     fetchChicks();
   }, []);
@@ -205,6 +208,29 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
       
       setShowBulkNameModal(false);
       setBulkNamePrefix('');
+      setSelectedChicks(new Set());
+      fetchChicks();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleBulkUpdateGender = async () => {
+    if (!bulkGender) return alert('กรุณาเลือกเพศ');
+    try {
+      const token = localStorage.getItem('token');
+      await Promise.all(Array.from(selectedChicks).map(id => 
+        fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${id}`, {
+          method: 'PUT',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ gender: bulkGender })
+        })
+      ));
+      setShowBulkGenderModal(false);
+      setBulkGender('');
       setSelectedChicks(new Set());
       fetchChicks();
     } catch (err) {
@@ -449,6 +475,12 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
               ตั้งชื่อชุด
             </button>
             <button 
+              onClick={() => setShowBulkGenderModal(true)}
+              className="px-4 py-2 bg-pink-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:bg-pink-600"
+            >
+              ระบุเพศ
+            </button>
+            <button 
               onClick={() => setShowBulkBandModal(true)}
               className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:bg-amber-600"
             >
@@ -614,6 +646,48 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           </div>
         </div>
       )}
+
+      {/* Bulk Gender Modal */}
+      {showBulkGenderModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="font-bold mb-4">ระบุเพศลูกไก่ (ทีละหลายตัว)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">เลือกเพศ</label>
+                <CustomSelect
+                  value={bulkGender}
+                  onChange={(val) => setBulkGender(val)}
+                  options={[
+                    { value: '', label: '-- เลือกเพศ --' },
+                    { value: 'ผู้', label: 'ตัวผู้' },
+                    { value: 'เมีย', label: 'ตัวเมีย' },
+                    { value: 'ยังไม่ระบุ', label: 'ยังไม่ระบุ' }
+                  ]}
+                  buttonClassName="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:border-pink-500 flex items-center justify-between"
+                  placeholder="-- เลือกเพศ --"
+                />
+              </div>
+              
+              <div className="flex gap-2 mt-6">
+                <button 
+                  onClick={() => setShowBulkGenderModal(false)}
+                  className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-sm cursor-pointer hover:bg-slate-200"
+                >
+                  ยกเลิก
+                </button>
+                <button 
+                  onClick={handleBulkUpdateGender}
+                  className="flex-1 py-3 rounded-xl bg-pink-600 text-white font-bold text-sm shadow-md cursor-pointer shadow-pink-500/20 active:scale-95 transition-all hover:bg-pink-700"
+                >
+                  บันทึก
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

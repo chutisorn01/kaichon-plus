@@ -4,9 +4,11 @@ import {
   getBreedingBatches, 
   getBreedingBatchById, 
   deleteBreedingBatch,
-  updateBreedingBatch
-} from '../controllers/breedingBatch.controller';
-import { protect } from '../middleware/auth.middleware';
+  updateBreedingBatch,
+  updateEggStatus,
+  updateHatchStatus
+} from '../controllers/breedingBatch.controller.js';
+import { protect } from '../middleware/auth.middleware.js';
 
 const router = Router();
 

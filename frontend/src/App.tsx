@@ -17,8 +17,9 @@ import FarmStatistics from './components/FarmStatistics';
 import VaccineDashboard from './components/vaccine/VaccineDashboard';
 import { LanguageProvider } from './components/LanguageContext';
 import AdminDashboard from './components/AdminDashboard';
+import VipBreedingDashboard from './components/vip/VipBreedingDashboard';
 
-type Page = 'home' | 'login' | 'register' | 'dashboard' | 'father-registry' | 'mother-registry' | 'breeding-batch' | 'chick-registry' | 'chicken-detail' | 'sub-farms' | 'chicken-list' | 'chicken-add' | 'chick-banding' | 'profile' | 'statistics' | 'vaccine' | 'admin-dashboard';
+type Page = 'home' | 'login' | 'register' | 'dashboard' | 'father-registry' | 'mother-registry' | 'breeding-batch' | 'chick-registry' | 'chicken-detail' | 'sub-farms' | 'chicken-list' | 'chicken-add' | 'chick-banding' | 'profile' | 'statistics' | 'vaccine' | 'admin-dashboard' | 'vip-breeding';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -34,7 +35,7 @@ function App() {
       const id = parts[1] ? decodeURIComponent(parts[1]) : '';
       const token = localStorage.getItem('token');
 
-      const protectedPages = ['dashboard', 'father-registry', 'mother-registry', 'breeding-batch', 'chick-registry', 'sub-farms', 'chicken-list', 'chicken-add', 'chick-banding', 'profile', 'statistics', 'vaccine', 'admin-dashboard'];
+      const protectedPages = ['dashboard', 'father-registry', 'mother-registry', 'breeding-batch', 'chick-registry', 'sub-farms', 'chicken-list', 'chicken-add', 'chick-banding', 'profile', 'statistics', 'vaccine', 'admin-dashboard', 'vip-breeding'];
       if (protectedPages.includes(page) && !token) {
         handleNavigate('login');
         return;
@@ -90,6 +91,7 @@ function App() {
       {currentPage === 'statistics' && <FarmStatistics onNavigate={handleNavigate} />}
       {currentPage === 'vaccine' && <VaccineDashboard onNavigate={handleNavigate} />}
       {currentPage === 'admin-dashboard' && <AdminDashboard onNavigate={handleNavigate} />}
+      {currentPage === 'vip-breeding' && <VipBreedingDashboard user={user} onNavigate={handleNavigate} />}
     </LanguageProvider>
   );
 }

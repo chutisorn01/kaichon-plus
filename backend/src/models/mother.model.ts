@@ -14,6 +14,7 @@ export interface IMother extends Document {
   records?: string;
   hatchDate?: Date;
   status: string;
+  source?: string;
   saleInfo?: {
     customerName?: string;
     customerPhone?: string;
@@ -44,6 +45,7 @@ const motherSchema = new Schema<IMother>(
     records: { type: String },
     hatchDate: { type: Date },
     status: { type: String, default: 'ปกติ' },
+    source: { type: String, default: 'ไก่ฟาร์มตัวเอง' },
     saleInfo: {
       customerName: String,
       customerPhone: String,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, Edit, Save, LogOut, Share2, MapPin, Phone, Globe, Camera, UserCircle2, CheckCircle, Info, Image as ImageIcon, Map, MessageCircle, BadgeCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Save, LogOut, Share2, MapPin, Phone, Globe, Camera, UserCircle2, CheckCircle, Info, Image as ImageIcon, Map, MessageCircle, BadgeCheck, Crown } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
 import SignaturePad from './SignaturePad';
@@ -219,6 +219,25 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
                 >
                   <Share2 className="w-4 h-4" /> แชร์ลิงก์
                 </button>
+              </div>
+
+              {/* VIP Banner */}
+              <div className="mt-6 w-full max-w-sm mx-auto">
+                <div 
+                  onClick={() => onNavigate('vip-breeding')}
+                  className="p-4 bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-900 rounded-2xl active:scale-95 transition-all shadow-md shadow-amber-500/30 cursor-pointer flex items-center justify-between group border border-yellow-400/50"
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform">
+                      <Crown className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-black block">🌟 บริการฝากผสม VIP</span>
+                      <span className="text-[10px] text-slate-800/80 font-bold font-sans">จัดการประวัติกักโรคและฟักไข่ละเอียด</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-800/80 group-hover:translate-x-1 transition-transform" />
+                </div>
               </div>
             </div>
           ) : (

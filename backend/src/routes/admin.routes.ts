@@ -1,6 +1,16 @@
 import { Router } from 'express';
 import { protect, restrictTo } from '../middleware/auth.middleware.js';
-import { getUsers, verifyUser, getPromotions, approvePromotion, rejectPromotion, promoteFather } from '../controllers/admin.controller.js';
+import { 
+  getUsers, 
+  verifyUser, 
+  getPromotions, 
+  approvePromotion, 
+  rejectPromotion, 
+  promoteFather,
+  getVipSubscriptions,
+  approveVipSubscription,
+  rejectVipSubscription
+} from '../controllers/admin.controller.js';
 
 const router = Router();
 
@@ -14,5 +24,9 @@ router.get('/promotions', getPromotions);
 router.put('/promotions/:id/approve', approvePromotion);
 router.put('/promotions/:id/reject', rejectPromotion);
 router.put('/fathers/:id/promote', promoteFather);
+
+router.get('/vip-subscriptions', getVipSubscriptions);
+router.put('/vip-subscriptions/:id/approve', approveVipSubscription);
+router.put('/vip-subscriptions/:id/reject', rejectVipSubscription);
 
 export default router;

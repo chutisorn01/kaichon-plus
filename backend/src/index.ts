@@ -15,6 +15,8 @@ import vaccineRoutes from './routes/vaccine.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import promotionRoutes from './routes/promotion.routes.js';
 import bannerRoutes from './routes/banner.routes.js';
+import vipBreedingRoutes from './routes/vipBreeding.routes.js';
+import vipSubscriptionRoutes from './routes/vipSubscription.routes.js';
 import { protect } from './middleware/auth.middleware.js';
 import { errorHandler } from './middleware/error.middleware.js';
 
@@ -63,6 +65,8 @@ app.use('/api/vaccines', vaccineRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/banners', bannerRoutes);
+app.use('/api/vip-breeding', vipBreedingRoutes);
+app.use('/api/vip-subscriptions', vipSubscriptionRoutes);
 
 // Simple Health Check
 app.get('/api/health', (req, res) => {

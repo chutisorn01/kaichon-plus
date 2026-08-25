@@ -20,7 +20,13 @@ import {
   BarChart,
   Award,
   TrendingUp,
-  Syringe
+  Syringe,
+  MapPin,
+  Edit3,
+  Info,
+  Sparkles,
+  AlertCircle,
+  Crown
 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
@@ -517,6 +523,23 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
                 </div>
               </div>
               <ChevronRight className="w-6 h-6 text-white/80" />
+            </div>
+
+            {/* VIP Mating System Banner */}
+            <div 
+              onClick={() => onNavigate('vip-breeding')}
+              className="p-5 bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-900 rounded-[2rem] active:scale-95 transition-all shadow-md shadow-amber-500/30 cursor-pointer flex items-center justify-between group border border-yellow-400"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform">
+                  <Crown className="w-6 h-6" />
+                </div>
+                <div className="text-left">
+                  <span className="text-base font-black block">🌟 ระบบรับฝากผสม VIP</span>
+                  <span className="text-xs text-slate-800/80 font-bold font-sans">VIP Breeder Deposit & Tracking System</span>
+                </div>
+              </div>
+              <ChevronRight className="w-6 h-6 text-slate-800/80 group-hover:translate-x-1 transition-transform" />
             </div>
 
             {/* Vaccine Notification Banner */}

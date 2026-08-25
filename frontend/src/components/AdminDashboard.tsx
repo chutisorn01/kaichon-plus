@@ -59,11 +59,28 @@ interface PromotionItem {
   createdAt: string;
 }
 
+interface VipSubscriptionItem {
+  _id: string;
+  user: {
+    _id: string;
+    name: string;
+    farmName: string;
+    email: string;
+    username: string;
+    isVIP: boolean;
+  };
+  amount: number;
+  slipImage: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
 export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any) => void }) {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'users' | 'promotions' | 'banners' | 'vip' | 'revenue'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'promotions' | 'banners' | 'vip' | 'vip-subscriptions' | 'revenue'>('users');
   const [users, setUsers] = useState<UserItem[]>([]);
   const [promotions, setPromotions] = useState<PromotionItem[]>([]);
+  const [vipSubscriptions, setVipSubscriptions] = useState<VipSubscriptionItem[]>([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -108,6 +125,12 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
         const promosData = await promosResponse.json();
         if (!promosResponse.ok) throw new Error(promosData.message || 'Error fetching promotions');
         setPromotions(promosData.data || []);
+
+        // Fetch VIP Subscriptions
+        const vipResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/vip-subscriptions`, { headers });
+        const vipData = await vipResponse.json();
+        if (!vipResponse.ok) throw new Error(vipData.message || 'Error fetching VIP subscriptions');
+        setVipSubscriptions(vipData.data || []);
 
       } catch (err: any) {
         setError(err.message || 'Something went wrong');
@@ -175,6 +198,42 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
       if (!response.ok) throw new Error(data.message || 'Failed to reject');
 
       setPromotions(promotions.map(p => p._id === promoId ? { ...p, status: 'rejected' as const } : p));
+    } catch (err: any) {
+      alert(err.message || 'Error rejecting request');
+    }
+  };
+
+  // Approve VIP Subscription
+  const handleApproveVip = async (subId: string) => {
+    if (!window.confirm(language === 'th' ? 'ยืนยันอนุมัติการสมัคร VIP นี้?' : 'Confirm approval for VIP?')) return;
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/vip-subscriptions/${subId}/approve`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to approve');
+
+      setVipSubscriptions(vipSubscriptions.map(s => s._id === subId ? { ...s, status: 'approved' as const } : s));
+    } catch (err: any) {
+      alert(err.message || 'Error approving request');
+    }
+  };
+
+  // Reject VIP Subscription
+  const handleRejectVip = async (subId: string) => {
+    if (!window.confirm(language === 'th' ? 'ยืนยันปฏิเสธการสมัคร VIP นี้?' : 'Confirm rejection for VIP?')) return;
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/vip-subscriptions/${subId}/reject`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to reject');
+
+      setVipSubscriptions(vipSubscriptions.map(s => s._id === subId ? { ...s, status: 'rejected' as const } : s));
     } catch (err: any) {
       alert(err.message || 'Error rejecting request');
     }
@@ -271,6 +330,23 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
             >
               <Crown className="w-4.5 h-4.5 text-amber-500" />
               {t('ตั้งค่าพ่อพันธุ์ VIP', 'VIP Studs')}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('vip-subscriptions')}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-xs font-black transition-all cursor-pointer relative ${
+                activeTab === 'vip-subscriptions'
+                  ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <FileText className="w-4.5 h-4.5 text-emerald-500" />
+              {t('คำขออัปเกรด VIP', 'VIP Upgrades')}
+              {vipSubscriptions.filter(s => s.status === 'pending').length > 0 && (
+                <span className="absolute right-3.5 bg-amber-500 text-white rounded-full text-[9px] w-5 h-5 flex items-center justify-center font-black animate-pulse">
+                  {vipSubscriptions.filter(s => s.status === 'pending').length}
+                </span>
+              )}
             </button>
 
             <button
@@ -650,6 +726,91 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
           {/* Tab 3: Revenue & Finance View */}
           {activeTab === 'banners' && <AdminBanners />}
           {activeTab === 'vip' && <AdminVipStuds />}
+
+          {/* VIP Subscriptions Tab */}
+          {activeTab === 'vip-subscriptions' && (
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 shadow-xs border border-slate-200/50 dark:border-white/5 space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+                <div>
+                  <h2 className="text-xl font-black text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                    <FileText className="w-6 h-6 text-emerald-500" />
+                    {t('คำขออัปเกรดเป็น VIP', 'VIP Upgrade Requests')}
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">{t('ตรวจสอบสลิปโอนเงิน 500 บาท สำหรับระบบฝากผสม VIP', 'Review 500 THB slips for VIP Mating System')}</p>
+                </div>
+              </div>
+
+              {vipSubscriptions.length === 0 ? (
+                <div className="text-center py-16 text-slate-400 font-bold bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                  {t('ยังไม่มีรายการขออัปเกรด VIP', 'No VIP upgrade requests found')}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {vipSubscriptions.map(sub => (
+                    <div key={sub._id} className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 overflow-hidden flex flex-col group hover:border-emerald-400/50 transition-all">
+                      <div className="p-4 flex-1">
+                        <div className="flex justify-between items-start mb-3">
+                          <span className={`px-2.5 py-1 text-[10px] font-black rounded-lg ${
+                            sub.status === 'pending' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' :
+                            sub.status === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                            'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                          }`}>
+                            {sub.status.toUpperCase()}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-bold">
+                            {new Date(sub.createdAt).toLocaleDateString('th-TH')}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-lg">
+                            {sub.user?.name ? sub.user.name.charAt(0).toUpperCase() : '?'}
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-900 dark:text-white text-sm">{sub.user?.name}</div>
+                            <div className="text-xs text-slate-500">{sub.user?.farmName || 'No Farm'}</div>
+                          </div>
+                        </div>
+
+                        <div className="bg-white dark:bg-slate-900/50 rounded-xl p-3 border border-slate-200 dark:border-slate-800/60">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] text-slate-500 font-bold">จำนวนเงิน (Amount)</span>
+                            <span className="text-sm font-black text-slate-900 dark:text-white">{sub.amount} ฿</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-2 bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700/60 flex flex-col gap-2">
+                        <button 
+                          onClick={() => setSelectedSlip(sub.slipImage)}
+                          className="w-full bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors border border-slate-200 dark:border-slate-700"
+                        >
+                          <Eye className="w-4 h-4" /> ดูสลิป (View Slip)
+                        </button>
+                        
+                        {sub.status === 'pending' && (
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => handleRejectVip(sub._id)}
+                              className="flex-1 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 font-black py-2 rounded-xl text-xs transition-colors"
+                            >
+                              ไม่อนุมัติ
+                            </button>
+                            <button 
+                              onClick={() => handleApproveVip(sub._id)}
+                              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-2 rounded-xl text-xs shadow-md shadow-emerald-500/20 transition-colors"
+                            >
+                              อนุมัติ VIP
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           
           {activeTab === 'revenue' && (
             <div className="space-y-6 animate-fade-in">

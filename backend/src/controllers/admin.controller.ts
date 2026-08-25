@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/user.model.js';
 import { Father } from '../models/father.model.js';
 import { Promotion } from '../models/promotion.model.js';
+import { VipSubscription } from '../models/vipSubscription.model.js';
 import { AppError } from '../middleware/error.middleware.js';
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
@@ -134,3 +135,60 @@ export const promoteFather = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
+
+export const getVipSubscriptions = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const subscriptions = await VipSubscription.find()
+      .populate('user', 'name farmName email username isVIP')
+      .sort({ createdAt: -1 });
+    res.status(200).json({
+      status: 'success',
+      results: subscriptions.length,
+      data: subscriptions
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const approveVipSubscription = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    const subscription = await VipSubscription.findById(id);
+    if (!subscription) {
+      return next(new AppError('No VIP subscription request found', 404));
+    }
+
+    subscription.status = 'approved';
+    await subscription.save();
+
+    await User.findByIdAndUpdate(subscription.user, { isVIP: true });
+
+    res.status(200).json({
+      status: 'success',
+      data: subscription
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const rejectVipSubscription = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    const subscription = await VipSubscription.findByIdAndUpdate(id, { status: 'rejected' }, { new: true });
+    if (!subscription) {
+      return next(new AppError('No VIP subscription request found', 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: subscription
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

@@ -1,4 +1,4 @@
-import { Plus, Search, Trash2, Edit, ChevronLeft, Heart, Tag, Camera, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Trash2, Edit, ChevronLeft, Heart, Tag, Camera, CheckCircle, AlertTriangle, Layers, Home, Crown } from 'lucide-react';
 import { ChickenIcon } from '../ui/ChickenIcon';
 import { CustomSelect } from '../ui/CustomSelect';
 import { getBandColorClass, getBandColorCircleClass } from './FatherRegistry';
@@ -10,6 +10,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [filterSource, setFilterSource] = useState<'all' | 'farm' | 'vip'>('farm');
   const [loading, setLoading] = useState(true);
   const [alertConfig, setAlertConfig] = useState<{ 
     show: boolean; 
@@ -147,11 +148,19 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
     }
   };
 
-  const filteredMothers = mothers.filter(m => 
-    m.name?.toLowerCase().includes(search.toLowerCase()) || 
-    m.code?.toLowerCase().includes(search.toLowerCase()) ||
-    m.bandNumber?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredMothers = mothers.filter(m => {
+    const matchesSearch = 
+      m.name?.toLowerCase().includes(search.toLowerCase()) || 
+      m.code?.toLowerCase().includes(search.toLowerCase()) ||
+      m.bandNumber?.toLowerCase().includes(search.toLowerCase());
+      
+    if (!matchesSearch) return false;
+    
+    if (filterSource === 'farm') return m.source !== 'ไก่ฟาร์มอื่น (ลูกค้า VIP)';
+    if (filterSource === 'vip') return m.source === 'ไก่ฟาร์มอื่น (ลูกค้า VIP)';
+    
+    return true;
+  });
 
   const inputClass = "w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-pink-500 text-sm font-bold transition-all";
 
@@ -199,11 +208,33 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
           {search && (
             <button 
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl transition-colors active:scale-95"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
             >
               ล้าง
             </button>
           )}
+        </div>
+        
+        {/* Filter Source Tabs */}
+        <div className="flex bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-sm border border-slate-200 dark:border-white/10 overflow-x-auto hide-scrollbar gap-1 mb-2">
+          <button 
+            onClick={() => setFilterSource('all')}
+            className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-black rounded-xl transition-all duration-300 whitespace-nowrap flex items-center justify-center gap-2 ${filterSource === 'all' ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+          >
+            <Layers className="w-4 h-4" /> ทั้งหมด
+          </button>
+          <button 
+            onClick={() => setFilterSource('farm')}
+            className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-black rounded-xl transition-all duration-300 whitespace-nowrap flex items-center justify-center gap-2 ${filterSource === 'farm' ? 'bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-md shadow-purple-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+          >
+            <Home className="w-4 h-4" /> ไก่ในฟาร์ม
+          </button>
+          <button 
+            onClick={() => setFilterSource('vip')}
+            className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-black rounded-xl transition-all duration-300 whitespace-nowrap flex items-center justify-center gap-2 ${filterSource === 'vip' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white shadow-md shadow-yellow-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+          >
+            <Crown className="w-4 h-4" /> ไก่ฝากผสม VIP
+          </button>
         </div>
 
         {loading ? (
