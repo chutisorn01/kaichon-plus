@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Search, ChevronLeft, Trash2, Edit, Swords, Tag, User, Users, ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { Search, ChevronLeft, Trash2, Edit, Swords, Tag, User, Users, ChevronDown, ChevronUp, Plus, Download, Loader2, X, CheckCircle } from 'lucide-react'; // Trigger HMR
+import JSZip from 'jszip';
+import { toJpeg } from 'html-to-image';
+import jsPDF from 'jspdf';
 import { CustomSelect } from '../ui/CustomSelect';
 import { getBandColorClass } from './FatherRegistry';
+import { CertificateDocument } from './CertificateDocument';
 
 const getBandColorCircleClass = (color: string) => {
   switch (color) {
@@ -37,6 +41,12 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
 
   const [showBulkGenderModal, setShowBulkGenderModal] = useState(false);
   const [bulkGender, setBulkGender] = useState('');
+
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'png' | 'pdf'>('png');
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportingCurrentIndex, setExportingCurrentIndex] = useState(0);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   useEffect(() => {
     fetchChicks();
@@ -108,6 +118,106 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
       fetchChicks();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+
+  const handleBulkDeleteClick = () => setShowBulkDeleteConfirm(true);
+
+  const confirmBulkDelete = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await Promise.all(Array.from(selectedChicks).map(id => 
+        fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ));
+      setSelectedChicks(new Set());
+      setShowBulkDeleteConfirm(false);
+      fetchChicks();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const confirmBatchExport = async () => {
+    setIsExporting(true);
+    const sortedSelectedChicks = chicks.filter(c => selectedChicks.has(c._id));
+    
+    try {
+      if (exportFormat === 'pdf') {
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        
+        for (let i = 0; i < sortedSelectedChicks.length; i++) {
+          // 1. Trigger React to render ONLY this chick's certificate
+          setExportingCurrentIndex(i + 1);
+          
+          // 2. Wait for DOM to mount and external images to load
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const chick = sortedSelectedChicks[i];
+          const element = document.getElementById(`cert-${chick._id}`);
+          if (element) {
+            const dataUrl = await toJpeg(element, { 
+              quality: 0.95, 
+              backgroundColor: '#0f172a',
+              width: 794,
+              height: 1123,
+              pixelRatio: 1
+            });
+            
+            if (i > 0) pdf.addPage();
+            pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, (1123 * pdfWidth) / 794);
+          }
+        }
+        
+        pdf.save(`Kaichon_Pedigree_Batch_${new Date().getTime()}.pdf`);
+      } else {
+        // JPG (ZIP export)
+        const zip = new JSZip();
+        
+        for (let i = 0; i < sortedSelectedChicks.length; i++) {
+          setExportingCurrentIndex(i + 1);
+          
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const chick = sortedSelectedChicks[i];
+          const element = document.getElementById(`cert-${chick._id}`);
+          if (element) {
+            const dataUrl = await toJpeg(element, { 
+              quality: 0.95, 
+              backgroundColor: '#0f172a',
+              width: 794,
+              height: 1123,
+              pixelRatio: 1
+            });
+            
+            // Add image to zip
+            const base64Data = dataUrl.split(',')[1];
+            zip.file(`Pedigree_${chick.name || chick.code || 'Chick'}.jpg`, base64Data, { base64: true });
+          }
+        }
+        
+        // Generate and download zip
+        const content = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(content);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Kaichon_Pedigree_Batch_${new Date().getTime()}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      }
+    } catch (error) {
+      console.error("Batch export error:", error);
+      alert("เกิดข้อผิดพลาดในการโหลดใบประวัติ (กรุณาลองใหม่อีกครั้ง หรือโหลดทีละน้อยๆ)");
+    } finally {
+      setIsExporting(false);
+      setShowExportModal(false);
+      setExportingCurrentIndex(0);
     }
   };
 
@@ -370,8 +480,21 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
                       </div>
                     </div>
                   </div>
-                  <div className="text-slate-400">
-                    {(search.trim() ? true : expandedBatches[batchCode]) ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  <div className="flex items-center gap-4">
+                    <button
+                      title="ออกใบเซอร์ทั้งชุด"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedChicks(new Set(groupedChicks[batchCode].map((c: any) => c._id)));
+                        setShowExportModal(true);
+                      }}
+                      className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors border border-indigo-200 dark:border-indigo-800 shadow-sm active:scale-95"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <div className="text-slate-400 border-l border-slate-200 dark:border-slate-700 pl-4">
+                      {(search.trim() ? true : expandedBatches[batchCode]) ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    </div>
                   </div>
                 </div>
 
@@ -493,7 +616,14 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
               แก้วันที่ฟัก
             </button>
             <button 
-              onClick={handleBulkDelete}
+              onClick={() => setShowExportModal(true)}
+              className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:from-indigo-600 hover:to-purple-600 flex items-center gap-1.5"
+            >
+              <Download className="w-3.5 h-3.5" />
+              ออกใบเซอร์ชุด
+            </button>
+            <button 
+              onClick={handleBulkDeleteClick}
               className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-red-600 rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm hover:bg-red-50 cursor-pointer"
             >
               ลบทั้งหมด
@@ -501,6 +631,111 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           </div>
         </div>
       )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center">
+            <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-8 h-8" />
+            </div>
+            <h3 className="font-black text-xl mb-2">ยืนยันการลบ?</h3>
+            <p className="text-sm text-slate-500 mb-6">คุณกำลังจะลบรายการที่เลือกจำนวน {selectedChicks.size} รายการ การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setShowBulkDeleteConfirm(false)}
+                className="flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-bold text-sm cursor-pointer hover:bg-slate-200"
+              >
+                ยกเลิก
+              </button>
+              <button 
+                onClick={confirmBulkDelete}
+                className="flex-1 py-3 rounded-xl bg-red-600 text-white font-bold text-sm shadow-md cursor-pointer shadow-red-500/20 active:scale-95 transition-all hover:bg-red-700"
+              >
+                ยืนยันการลบ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col relative overflow-hidden">
+            
+            {/* 
+              HIDDEN RENDERING AREA (Memory Optimized):
+              Only renders the specific certificate currently being exported, one by one.
+              Kept inside the modal viewport to prevent browser optimization culling.
+            */}
+            <div className="absolute top-0 left-0 opacity-0 pointer-events-none z-[-1]" aria-hidden="true">
+              {chicks.filter(c => selectedChicks.has(c._id)).map((chick, index) => (
+                (isExporting && exportingCurrentIndex === index + 1) && (
+                  <div key={`cert-${chick._id}`} id={`cert-${chick._id}`} className="w-[794px] h-[1123px] relative bg-slate-900 shrink-0">
+                    <CertificateDocument chicken={chick} scale={1} />
+                  </div>
+                )
+              ))}
+            </div>
+
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-black flex items-center gap-2">
+                <Download className="w-6 h-6 text-indigo-500" />
+                ออกเอกสารใบประวัติ (Batch Export)
+              </h2>
+              {!isExporting && (
+                <button onClick={() => setShowExportModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+              )}
+            </div>
+            
+            {isExporting ? (
+              <div className="py-12 flex flex-col items-center justify-center text-center">
+                <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+                <h3 className="text-xl font-black mb-2">กำลังสร้างเอกสาร...</h3>
+                <p className="text-slate-500 dark:text-slate-400 font-bold mb-4">
+                  {exportingCurrentIndex} / {selectedChicks.size} รายการ
+                </p>
+                <div className="w-full max-w-xs bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-indigo-500 transition-all duration-300"
+                    style={{ width: `${(exportingCurrentIndex / selectedChicks.size) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-500 mb-3">เลือกรูปแบบไฟล์ (Format)</label>
+                    <div className="flex gap-3">
+                      <button onClick={() => setExportFormat('png')} className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportFormat === 'png' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                        <div className="font-black text-xl">JPG</div>
+                        <div className="text-xs">รูปภาพแยกทีละไฟล์</div>
+                      </button>
+                      <button onClick={() => setExportFormat('pdf')} className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportFormat === 'pdf' ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                        <div className="font-black text-xl">PDF</div>
+                        <div className="text-xs">รวมทุกหน้าในไฟล์เดียว</div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={confirmBatchExport}
+                  className="w-full mt-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-black text-lg shadow-xl shadow-indigo-500/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <Download className="w-5 h-5" /> ยืนยันการดาวน์โหลด
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+
 
       {/* Bulk Date Modal */}
       {showBulkDateModal && (

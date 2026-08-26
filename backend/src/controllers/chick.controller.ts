@@ -5,9 +5,9 @@ export const getChicks = async (req: any, res: Response, next: NextFunction) => 
   try {
     const chicks = await Chick.find({ user: req.user.id })
       .populate('father', 'name code bloodline breed')
-      .populate('mother', 'name code bloodline breed')
+      .populate('mother', 'name code bloodline breed source')
       .populate('batch', 'batchCode')
-      .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description')
+      .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
       .lean();
 
     const mappedChicks = chicks.map(c => {

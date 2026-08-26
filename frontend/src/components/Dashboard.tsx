@@ -265,8 +265,13 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
               <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
               
               <div className="relative z-10">
-                <h1 className="text-lg sm:text-xl font-bold mb-3 text-white/90">
-                  สวัสดีครับ! <span className="text-white font-black">{user?.name ? `คุณ${user.name}` : 'คุณนกยูง'}</span>
+                <h1 className="text-lg sm:text-xl font-bold mb-3 text-white/90 flex items-center flex-wrap gap-2">
+                  <span>สวัสดีครับ! <span className="text-white font-black">{user?.name ? `คุณ${user.name}` : 'คุณนกยูง'}</span></span>
+                  {user?.isVIP && (
+                    <span className="bg-gradient-to-r from-yellow-300 to-yellow-500 text-yellow-900 text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm border border-yellow-200/50">
+                      <Crown className="w-3 h-3" /> VIP
+                    </span>
+                  )}
                 </h1>
                 
                 <div className="flex flex-col gap-1.5 mb-6">

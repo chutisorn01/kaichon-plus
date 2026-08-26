@@ -1,98 +1,13 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { toJpeg } from 'html-to-image';
-import jsPDF from 'jspdf';
-import { X, Download, ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck, FileText, Image as ImageIcon } from 'lucide-react';
+import React from 'react';
+import { ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck } from 'lucide-react';
 import { getBandColorCircleClass, getBandTextColorClass, getBandContrastTextClass, getBandBorderColorClass, getBandBgFadedClass } from './ChickenDetail';
 
-interface CertificateModalProps {
+interface CertificateDocumentProps {
   chicken: any;
-  onClose: () => void;
+  scale?: number;
 }
 
-export default function CertificateModal({ chicken, onClose }: CertificateModalProps) {
-  const certificateRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [downloading, setDownloading] = useState(false);
-  const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const updateScale = () => {
-      if (containerRef.current) {
-        // Leave some padding (e.g. 32px)
-        const containerWidth = containerRef.current.offsetWidth - 32;
-        if (containerWidth < 794) {
-          setScale(containerWidth / 794);
-        } else {
-          setScale(1);
-        }
-      }
-    };
-    updateScale();
-    window.addEventListener('resize', updateScale);
-    return () => window.removeEventListener('resize', updateScale);
-  }, []);
-
-  const handleDownload = async () => {
-    if (!certificateRef.current) return;
-    
-    try {
-      setDownloading(true);
-      setDownloadSuccess(false);
-      
-      const image = await toJpeg(certificateRef.current, {
-        quality: 0.95,
-        backgroundColor: '#0f172a',
-        width: 794,
-        height: 1123,
-        pixelRatio: 2 // High quality
-      });
-      
-      const link = document.createElement('a');
-      link.href = image;
-      link.download = `Certificate_${chicken.code || 'Kaichon'}.jpg`;
-      link.click();
-      
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 3000);
-    } catch (error) {
-      console.error('Error generating certificate:', error);
-      alert('เกิดข้อผิดพลาดในการสร้างใบเซอร์ กรุณาลองใหม่อีกครั้ง');
-    } finally {
-      setDownloading(false);
-    }
-  };
-
-  const handleDownloadPdf = async () => {
-    if (!certificateRef.current) return;
-    
-    try {
-      setDownloading(true);
-      setDownloadSuccess(false);
-      
-      const image = await toJpeg(certificateRef.current, {
-        quality: 0.95,
-        backgroundColor: '#0f172a',
-        width: 794,
-        height: 1123,
-        pixelRatio: 2
-      });
-      
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      pdf.addImage(image, 'JPEG', 0, 0, pdfWidth, (1123 * pdfWidth) / 794);
-      pdf.save(`Certificate_${chicken.code || 'Kaichon'}.pdf`);
-      
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 3000);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('เกิดข้อผิดพลาดในการสร้างใบเซอร์ กรุณาลองใหม่อีกครั้ง');
-    } finally {
-      setDownloading(false);
-    }
-  };
-
+export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateDocumentProps>(({ chicken, scale = 1 }, ref) => {
   const getGenderText = (gender: string) => {
     if (gender === 'male' || gender === 'ผู้') return 'เพศผู้';
     if (gender === 'female' || gender === 'เมีย') return 'เพศเมีย';
@@ -100,74 +15,12 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
   };
 
   const certUrl = `http://localhost:5173/chicken-detail/${chicken._id}`;
-  // Use a reliable API for QR code to bypass any React rendering issues
   const qrCodeUrl = `https://quickchart.io/qr?size=150&text=${encodeURIComponent(certUrl)}`;
   const certDate = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4  animate-in fade-in duration-300">
-      <div className="relative w-full max-w-3xl flex flex-col items-center h-full">
-        {/* Controls */}
-        <div className="w-full flex justify-between items-center mb-4 shrink-0">
-          <button 
-            onClick={onClose}
-            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors "
-          >
-            <X className="w-6 h-6" />
-          </button>
-          
-          <div className="flex gap-2">
-            <button 
-              onClick={handleDownload}
-              disabled={downloading}
-              className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                downloadSuccess 
-                  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
-                  : 'bg-white text-slate-800 hover:bg-slate-100 shadow-white/20'
-              }`}
-            >
-              {downloadSuccess ? (
-                <CheckCircle className="w-5 h-5 text-emerald-50" />
-              ) : downloading ? (
-                <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <ImageIcon className="w-5 h-5" />
-              )}
-              {downloadSuccess ? 'สำเร็จ!' : 'บันทึก JPG'}
-            </button>
-            <button 
-              onClick={handleDownloadPdf}
-              disabled={downloading}
-              className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                downloadSuccess 
-                  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
-                  : 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white shadow-red-500/20'
-              }`}
-            >
-              {downloadSuccess ? (
-                <CheckCircle className="w-5 h-5" />
-              ) : downloading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <FileText className="w-5 h-5" />
-              )}
-              {downloadSuccess ? 'สำเร็จ!' : 'บันทึก PDF'}
-            </button>
-          </div>
-        </div>
-
-        {/* Certificate Preview Wrapper - Scaled perfectly for screen */}
-        <div 
-          ref={containerRef}
-          className="w-full flex-1 flex justify-center items-start overflow-auto custom-scrollbar pb-10"
-        >
-          {/* Scaled Container Height placeholder so it doesn't overflow its wrapper incorrectly */}
-          <div style={{ height: `${1123 * scale}px`, width: `${794 * scale}px`, position: 'relative' }}>
-            {/* WRAPPER FOR SCALING (so the actual certificate is unscaled for html-to-image) */}
-            <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', position: 'absolute', top: 0, left: 0 }}>
-              {/* THE ACTUAL CERTIFICATE (A4 Portrait 794 x 1123 px) */}
               <div 
-                ref={certificateRef}
+                ref={ref}
                 className="w-[794px] h-[1123px] bg-slate-900 relative overflow-hidden rounded-sm shadow-2xl flex flex-col border-[12px] border-slate-800 origin-top-left"
                 style={{ 
                   backgroundImage: 'radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%)',
@@ -542,10 +395,5 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
               </div>
 
             </div>
-          </div>
-        </div>
-        </div>
-      </div>
-    </div>
   );
-}
+});

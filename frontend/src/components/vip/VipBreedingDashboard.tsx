@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, CheckCircle, Crown, Plus, X, Loader2, Sparkles, AlertCircle, ChevronLeft, Edit, Trash2, Download, Hash, Calendar, Hourglass, Layers } from 'lucide-react';
+import { Camera, CheckCircle, Crown, Plus, X, Loader2, Sparkles, AlertCircle, ChevronLeft, Edit, Trash2, Download, Hash, Calendar, Hourglass, Layers, ShieldCheck, Phone, MessageCircle, Globe } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
 
@@ -22,6 +22,12 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
   const [editingId, setEditingId] = useState<string | null>(null);
   const [exportingRecord, setExportingRecord] = useState<any | null>(null);
   const [filterStatus, setFilterStatus] = useState<'all' | 'progress' | 'completed'>('progress');
+
+  // Export States
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportCandidate, setExportCandidate] = useState<any>(null);
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'png'>('png');
+  const [exportTheme, setExportTheme] = useState<'classic' | 'premium' | 'dark'>('premium');
   const [fathers, setFathers] = useState<any[]>([]);
   const [alert, setAlert] = useState<{show: boolean, type: 'success' | 'error', message: string}>({show: false, type: 'success', message: ''});
 
@@ -271,7 +277,13 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
   };
 
   const downloadRecord = (record: any) => {
-    setExportingRecord(record);
+    setExportCandidate(record);
+    setShowExportModal(true);
+  };
+
+  const confirmExport = () => {
+    setExportingRecord(exportCandidate);
+    setShowExportModal(false);
   };
 
   useEffect(() => {
@@ -280,12 +292,9 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
       if (exportElement) {
         // Wait a bit for rendering
         setTimeout(() => {
-          toPng(exportElement, { quality: 1.0, backgroundColor: '#ffffff' })
+          toPng(exportElement, { quality: 1.0, backgroundColor: exportTheme === 'dark' ? '#0f172a' : '#ffffff' })
             .then((dataUrl) => {
-              // Ask user for format
-              const format = window.confirm('ต้องการดาวน์โหลดเป็น PDF หรือไม่? (Cancel = ดาวน์โหลดเป็นรูปภาพ PNG)') ? 'pdf' : 'png';
-              
-              if (format === 'pdf') {
+              if (exportFormat === 'pdf') {
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (exportElement.offsetHeight * pdfWidth) / exportElement.offsetWidth;
@@ -307,7 +316,7 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
         }, 500);
       }
     }
-  }, [exportingRecord]);
+  }, [exportingRecord, exportFormat, exportTheme]);
 
   const resetForm = () => {
     setEditingId(null);
@@ -445,21 +454,26 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
       <div className="flex bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-sm border border-slate-200 dark:border-slate-800 overflow-x-auto hide-scrollbar mb-6 gap-1">
         <button 
           onClick={() => setFilterStatus('all')}
-          className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-black rounded-xl transition-all duration-300 whitespace-nowrap flex items-center justify-center gap-2 ${filterStatus === 'all' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white shadow-md shadow-yellow-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+          className={`flex-1 min-w-[100px] px-4 py-3 text-sm font-black rounded-xl transition-all duration-300 whitespace-nowrap flex items-center justify-center gap-2 ${filterStatus === 'all' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white shadow-md shadow-yellow-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
         >
-          <Layers className="w-4 h-4" /> ทั้งหมด
+          <Layers className="w-4 h-4" /> 
+          ทั้งหมด
         </button>
         <button 
           onClick={() => setFilterStatus('progress')}
           className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-black rounded-xl transition-all duration-300 whitespace-nowrap flex items-center justify-center gap-2 ${filterStatus === 'progress' ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
         >
-          <Hourglass className="w-4 h-4" /> อยู่ระหว่างดำเนินการ
+          <Hourglass className="w-4 h-4" /> 
+          <span className="hidden sm:inline">อยู่ระหว่างดำเนินการ</span>
+          <span className="sm:hidden">กำลังทำ</span>
         </button>
         <button 
           onClick={() => setFilterStatus('completed')}
           className={`flex-1 min-w-[120px] px-4 py-3 text-sm font-black rounded-xl transition-all duration-300 whitespace-nowrap flex items-center justify-center gap-2 ${filterStatus === 'completed' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md shadow-green-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
         >
-          <CheckCircle className="w-4 h-4" /> ดึงลูกไก่เข้าคลังแล้ว
+          <CheckCircle className="w-4 h-4" /> 
+          <span className="hidden sm:inline">ดึงลูกไก่เข้าคลังแล้ว</span>
+          <span className="sm:hidden">เข้าคลังแล้ว</span>
         </button>
       </div>
 
@@ -754,87 +768,196 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
       )}
       {showForm && renderForm()}
       
+      {/* Export Selection Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-white/10 pb-4 mb-6">
+              <h3 className="font-black text-lg flex items-center gap-2">
+                <Download className="w-5 h-5 text-blue-500" /> ดาวน์โหลดใบประวัติ VIP
+              </h3>
+              <button onClick={() => setShowExportModal(false)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-500 mb-3">1. เลือกรูปแบบไฟล์ (Format)</label>
+                <div className="flex gap-3">
+                  <button onClick={() => setExportFormat('png')} className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportFormat === 'png' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                    <div className="font-black text-xl">PNG</div>
+                    <div className="text-xs">รูปภาพความละเอียดสูง</div>
+                  </button>
+                  <button onClick={() => setExportFormat('pdf')} className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportFormat === 'pdf' ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                    <div className="font-black text-xl">PDF</div>
+                    <div className="text-xs">เอกสารสำหรับสั่งพิมพ์</div>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-500 mb-3">2. เลือกธีมและดีไซน์ (Design Theme)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button onClick={() => setExportTheme('premium')} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportTheme === 'premium' ? 'border-yellow-500 bg-yellow-50 text-yellow-700 shadow-md shadow-yellow-500/20' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                    <Crown className="w-6 h-6" />
+                    <div className="font-black text-sm">Premium Gold</div>
+                    <div className="w-full h-8 bg-gradient-to-br from-yellow-200 to-amber-300 rounded mt-1 border border-yellow-400/30"></div>
+                  </button>
+                  <button onClick={() => setExportTheme('dark')} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportTheme === 'dark' ? 'border-slate-700 bg-slate-800 text-white shadow-md' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                    <ShieldCheck className="w-6 h-6" />
+                    <div className="font-black text-sm">Modern Dark</div>
+                    <div className="w-full h-8 bg-slate-900 rounded mt-1 border border-slate-700"></div>
+                  </button>
+                  <button onClick={() => setExportTheme('classic')} className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportTheme === 'classic' ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md shadow-blue-500/10' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                    <Layers className="w-6 h-6" />
+                    <div className="font-black text-sm">Classic Clean</div>
+                    <div className="w-full h-8 bg-white rounded mt-1 border border-slate-200"></div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={confirmExport}
+              className="w-full mt-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-lg shadow-xl shadow-blue-500/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <Download className="w-5 h-5" /> ยืนยันการดาวน์โหลด
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Hidden Printable Form */}
       {exportingRecord && (
         <div className="fixed -left-[9999px] top-0">
-          <div id="printable-form" className="w-[800px] bg-white p-10 text-slate-900 font-sans border-8 border-yellow-500/20">
-            <div className="flex justify-between items-center border-b-2 border-yellow-500 pb-6 mb-6">
+          <div id="printable-form" className={`w-[800px] p-10 font-sans border-8 ${
+            exportTheme === 'premium' ? 'bg-gradient-to-br from-yellow-50 to-amber-100 border-yellow-400 text-yellow-950' :
+            exportTheme === 'dark' ? 'bg-slate-950 border-slate-700 text-white' :
+            'bg-white border-yellow-500/20 text-slate-900'
+          }`}>
+            <div className={`flex justify-between items-center border-b-2 pb-6 mb-6 ${
+              exportTheme === 'premium' ? 'border-yellow-500' :
+              exportTheme === 'dark' ? 'border-slate-700' :
+              'border-yellow-500'
+            }`}>
               <div>
-                <h1 className="text-3xl font-black text-slate-900 mb-1">ใบประวัติรับฝากผสม VIP</h1>
-                <p className="text-slate-500">ฟาร์มไก่ชนพรีเมียม (Kaichon Plus)</p>
+                <h1 className={`text-3xl font-black mb-1 ${
+                  exportTheme === 'premium' ? 'text-yellow-900' :
+                  exportTheme === 'dark' ? 'text-white' :
+                  'text-slate-900'
+                }`}>ใบประวัติรับฝากผสม VIP</h1>
+                <p className={`${
+                  exportTheme === 'premium' ? 'text-yellow-700 font-bold' :
+                  exportTheme === 'dark' ? 'text-slate-400' :
+                  'text-slate-500'
+                }`}>ฟาร์มไก่ชนพรีเมียม (Kaichon Plus)</p>
               </div>
               <div className="text-right">
-                <div className="inline-block px-4 py-2 bg-slate-100 rounded-lg text-lg font-black border border-slate-200">
+                <div className={`inline-block px-4 py-2 rounded-lg text-lg font-black border ${
+                  exportTheme === 'premium' ? 'bg-yellow-200/50 border-yellow-400 text-yellow-900' :
+                  exportTheme === 'dark' ? 'bg-slate-800 border-slate-600 text-white' :
+                  'bg-slate-100 border-slate-200 text-slate-900'
+                }`}>
                   คิวที่: {exportingRecord.queueNo}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-8 mb-8">
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                <h3 className="text-lg font-bold border-b border-slate-200 pb-2 mb-4 text-slate-800">ข้อมูลไก่ชน</h3>
-                <div className="space-y-3 text-sm">
-                  <p><span className="text-slate-500 font-bold inline-block w-24">พ่อพันธุ์:</span> <span className="font-bold">{exportingRecord.father?.name || '-'}</span></p>
-                  <p><span className="text-slate-500 font-bold inline-block w-24">แม่พันธุ์:</span> <span className="font-bold">{exportingRecord.motherName || '-'}</span></p>
-                  <p><span className="text-slate-500 font-bold inline-block w-24">เบอร์ห่วงขา:</span> {exportingRecord.bandNo || '-'}</p>
-                  <p><span className="text-slate-500 font-bold inline-block w-24">น้ำหนักรับเข้า:</span> {exportingRecord.weight ? `${exportingRecord.weight} กก.` : '-'}</p>
-                </div>
-              </div>
+            {/* Helper function to style sections based on theme */}
+            {(() => {
+              const cardBg = exportTheme === 'premium' ? 'bg-white/60 border border-yellow-300 shadow-lg shadow-yellow-900/5' :
+                             exportTheme === 'dark' ? 'bg-slate-900 border border-slate-800' :
+                             'bg-slate-50 border border-slate-200';
+              const headingColor = exportTheme === 'premium' ? 'text-yellow-800 border-yellow-300' :
+                                   exportTheme === 'dark' ? 'text-white border-slate-700' :
+                                   'text-slate-800 border-slate-200';
+              const labelColor = exportTheme === 'premium' ? 'text-yellow-600' :
+                                 exportTheme === 'dark' ? 'text-slate-400' :
+                                 'text-slate-500';
+              
+              return (
+                <>
+                  <div className="grid grid-cols-2 gap-8 mb-8">
+                    <div className={`${cardBg} p-6 rounded-xl`}>
+                      <h3 className={`text-lg font-bold border-b pb-2 mb-4 ${headingColor}`}>ข้อมูลไก่ชน</h3>
+                      <div className="space-y-3 text-sm">
+                        <p><span className={`${labelColor} font-bold inline-block w-24`}>พ่อพันธุ์:</span> <span className="font-bold">{exportingRecord.father?.name || '-'}</span></p>
+                        <p><span className={`${labelColor} font-bold inline-block w-24`}>แม่พันธุ์:</span> <span className="font-bold">{exportingRecord.motherName || '-'}</span></p>
+                        <p><span className={`${labelColor} font-bold inline-block w-24`}>เบอร์ห่วงขา:</span> {exportingRecord.bandNo || '-'}</p>
+                        <p><span className={`${labelColor} font-bold inline-block w-24`}>น้ำหนักรับเข้า:</span> {exportingRecord.weight ? `${exportingRecord.weight} กก.` : '-'}</p>
+                      </div>
+                    </div>
 
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                <h3 className="text-lg font-bold border-b border-slate-200 pb-2 mb-4 text-slate-800">ข้อมูลการรับฝาก</h3>
-                <div className="space-y-3 text-sm">
-                  <p><span className="text-slate-500 font-bold inline-block w-24">วันที่รับเข้า:</span> {exportingRecord.intakeDate ? new Date(exportingRecord.intakeDate).toLocaleDateString('th-TH') : '-'}</p>
-                  <p><span className="text-slate-500 font-bold inline-block w-24">ผู้ดูแล:</span> {exportingRecord.caretaker || '-'}</p>
-                  <p><span className="text-slate-500 font-bold inline-block w-24">เบอร์ติดต่อ:</span> {exportingRecord.phone || '-'}</p>
-                </div>
-              </div>
-            </div>
+                    <div className={`${cardBg} p-6 rounded-xl`}>
+                      <h3 className={`text-lg font-bold border-b pb-2 mb-4 ${headingColor}`}>ข้อมูลการรับฝาก</h3>
+                      <div className="space-y-3 text-sm">
+                        <p><span className={`${labelColor} font-bold inline-block w-24`}>วันที่รับเข้า:</span> {exportingRecord.intakeDate ? new Date(exportingRecord.intakeDate).toLocaleDateString('th-TH') : '-'}</p>
+                        <p><span className={`${labelColor} font-bold inline-block w-24`}>ผู้ดูแล:</span> {exportingRecord.caretaker || '-'}</p>
+                        <p><span className={`${labelColor} font-bold inline-block w-24`}>เบอร์ติดต่อ:</span> {exportingRecord.phone || '-'}</p>
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
-              <h3 className="text-lg font-bold border-b border-slate-200 pb-2 mb-4 text-slate-800">ผลการผสมและการฟัก</h3>
-              <div className="grid grid-cols-3 gap-6 text-sm">
-                <div>
-                  <p className="text-slate-500 font-bold mb-1">วันที่เริ่มผสม</p>
-                  <p className="font-medium">{exportingRecord.breedingStartDate ? new Date(exportingRecord.breedingStartDate).toLocaleDateString('th-TH') : '-'}</p>
-                </div>
-                <div>
-                  <p className="text-slate-500 font-bold mb-1">จำนวนไข่ทั้งหมด</p>
-                  <p className="font-medium">{exportingRecord.eggCount ? `${exportingRecord.eggCount} ฟอง` : '-'}</p>
-                </div>
-                <div>
-                  <p className="text-slate-500 font-bold mb-1">จำนวนไข่มีเชื้อ</p>
-                  <p className="font-medium">{exportingRecord.fertileEggs ? `${exportingRecord.fertileEggs} ฟอง` : '-'}</p>
-                </div>
-                <div>
-                  <p className="text-slate-500 font-bold mb-1">วันที่ฟัก</p>
-                  <p className="font-medium">{exportingRecord.hatchDate ? new Date(exportingRecord.hatchDate).toLocaleDateString('th-TH') : '-'}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-slate-500 font-bold mb-1">จำนวนลูกไก่ที่ได้</p>
-                  <p className="font-black text-lg text-green-600">{exportingRecord.chickQuantity ? `${exportingRecord.chickQuantity} ตัว` : '-'}</p>
-                </div>
-              </div>
-            </div>
+                  <div className={`${cardBg} p-6 rounded-xl mb-8`}>
+                    <h3 className={`text-lg font-bold border-b pb-2 mb-4 ${headingColor}`}>ผลการผสมและการฟัก</h3>
+                    <div className="grid grid-cols-3 gap-6 text-sm">
+                      <div>
+                        <p className={`${labelColor} font-bold mb-1`}>วันที่เริ่มผสม</p>
+                        <p className="font-medium">{exportingRecord.breedingStartDate ? new Date(exportingRecord.breedingStartDate).toLocaleDateString('th-TH') : '-'}</p>
+                      </div>
+                      <div>
+                        <p className={`${labelColor} font-bold mb-1`}>จำนวนไข่ทั้งหมด</p>
+                        <p className="font-medium">{exportingRecord.eggCount ? `${exportingRecord.eggCount} ฟอง` : '-'}</p>
+                      </div>
+                      <div>
+                        <p className={`${labelColor} font-bold mb-1`}>จำนวนไข่มีเชื้อ</p>
+                        <p className="font-medium">{exportingRecord.fertileEggs ? `${exportingRecord.fertileEggs} ฟอง` : '-'}</p>
+                      </div>
+                      <div>
+                        <p className={`${labelColor} font-bold mb-1`}>วันที่ฟัก</p>
+                        <p className="font-medium">{exportingRecord.hatchDate ? new Date(exportingRecord.hatchDate).toLocaleDateString('th-TH') : '-'}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className={`${labelColor} font-bold mb-1`}>จำนวนลูกไก่ที่ได้</p>
+                        <p className={`font-black text-lg ${exportTheme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{exportingRecord.chickQuantity ? `${exportingRecord.chickQuantity} ตัว` : '-'}</p>
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="grid grid-cols-2 gap-8 mb-8">
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                <h3 className="text-lg font-bold border-b border-slate-200 pb-2 mb-4 text-slate-800">ข้อมูลการจัดส่ง</h3>
-                <div className="space-y-3 text-sm">
-                  <p><span className="text-slate-500 font-bold inline-block w-32">วันที่แม่ส่งกลับ:</span> {exportingRecord.motherReturnDate ? new Date(exportingRecord.motherReturnDate).toLocaleDateString('th-TH') : '-'}</p>
-                  <p><span className="text-slate-500 font-bold inline-block w-32">วันที่ลูกไก่จัดส่ง:</span> {exportingRecord.expectedDeliveryDate ? new Date(exportingRecord.expectedDeliveryDate).toLocaleDateString('th-TH') : '-'}</p>
-                </div>
-              </div>
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                <h3 className="text-lg font-bold border-b border-slate-200 pb-2 mb-4 text-slate-800">หมายเหตุ</h3>
-                <p className="text-sm text-slate-700 whitespace-pre-wrap">{exportingRecord.notes || '-'}</p>
-              </div>
-            </div>
-            
-            <div className="mt-12 text-center text-sm text-slate-400">
-              <p>เอกสารรับรองโดย KaiChon Plus System</p>
-              <p className="mt-1">สร้างเมื่อ: {new Date().toLocaleString('th-TH')}</p>
-            </div>
+                  <div className="grid grid-cols-2 gap-8 mb-8">
+                    <div className={`${cardBg} p-6 rounded-xl`}>
+                      <h3 className={`text-lg font-bold border-b pb-2 mb-4 ${headingColor}`}>ข้อมูลการจัดส่ง</h3>
+                      <div className="space-y-3 text-sm">
+                        <p><span className={`${labelColor} font-bold inline-block w-32`}>วันที่แม่ส่งกลับ:</span> {exportingRecord.motherReturnDate ? new Date(exportingRecord.motherReturnDate).toLocaleDateString('th-TH') : '-'}</p>
+                        <p><span className={`${labelColor} font-bold inline-block w-32`}>วันที่ลูกไก่จัดส่ง:</span> {exportingRecord.expectedDeliveryDate ? new Date(exportingRecord.expectedDeliveryDate).toLocaleDateString('th-TH') : '-'}</p>
+                      </div>
+                    </div>
+                    <div className={`${cardBg} p-6 rounded-xl`}>
+                      <h3 className={`text-lg font-bold border-b pb-2 mb-4 ${headingColor}`}>หมายเหตุ</h3>
+                      <p className={`text-sm whitespace-pre-wrap ${exportTheme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>{exportingRecord.notes || '-'}</p>
+                    </div>
+                  </div>
+                  <div className={`mt-8 pt-6 border-t border-dashed ${exportTheme === 'dark' ? 'border-slate-700' : 'border-slate-300'}`}>
+                    <div className="flex justify-between items-center text-sm">
+                      <div className={`font-bold ${headingColor}`}>
+                        ข้อมูลติดต่อฟาร์ม:
+                      </div>
+                      <div className={`flex gap-6 ${exportTheme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+                        <span className="flex items-center gap-1.5"><Phone className="w-4 h-4 text-blue-500" /> 08X-XXX-XXXX</span>
+                        <span className="flex items-center gap-1.5"><MessageCircle className="w-4 h-4 text-green-500" /> @kaichonplus</span>
+                        <span className="flex items-center gap-1.5"><Globe className="w-4 h-4 text-blue-600" /> โกวเซ้ม ฟาร์ม</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className={`mt-6 text-center text-sm ${exportTheme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+                    <p>เอกสารรับรองโดย KaiChon Plus System</p>
+                    <p className="mt-1">สร้างเมื่อ: {new Date().toLocaleString('th-TH')}</p>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
