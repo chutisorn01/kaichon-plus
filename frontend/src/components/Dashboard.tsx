@@ -158,7 +158,10 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
       setIsSearching(true);
       try {
         const query = searchQuery.trim();
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : undefined;
+        
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`, { headers });
         const data = await res.json();
         
         if (active && data.status === 'success') {
