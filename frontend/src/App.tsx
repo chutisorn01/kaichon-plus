@@ -47,7 +47,7 @@ function App() {
       }
 
       setSelectedId(id);
-      if (['home', 'login', 'register', ...protectedPages].includes(page)) {
+      if (['home', 'login', 'register', 'chicken-detail', ...protectedPages].includes(page)) {
         setCurrentPage(page as Page);
       }
     };

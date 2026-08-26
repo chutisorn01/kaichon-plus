@@ -15,14 +15,16 @@ export default function AdminVipStuds() {
     
     setIsSearching(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(searchQuery)}`);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/fathers/search?search=${encodeURIComponent(searchQuery)}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await res.json();
       if (res.ok) {
         // Handle both direct array and object with data array
         const list = Array.isArray(data) 
           ? data 
-          : (Array.isArray(data.data) ? data.data : (Array.isArray(data.chickens) ? data.chickens : []));
-        // Filter only fathers (assuming gender checking or just list them all since any chicken could be promoted)
+          : (Array.isArray(data.data) ? data.data : []);
         setSearchResults(list);
       }
     } catch (err) {

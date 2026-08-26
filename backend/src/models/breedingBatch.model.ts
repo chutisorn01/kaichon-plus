@@ -7,6 +7,7 @@ export interface IBreedingBatch extends Document {
   mother: mongoose.Types.ObjectId;
   breedingDate: Date;
   notes: string;
+  isArchived: boolean;
 }
 
 const breedingBatchSchema = new Schema<IBreedingBatch>(
@@ -16,7 +17,8 @@ const breedingBatchSchema = new Schema<IBreedingBatch>(
     father: { type: Schema.Types.ObjectId, ref: 'Father', required: true },
     mother: { type: Schema.Types.ObjectId, ref: 'Mother', required: true },
     breedingDate: { type: Date, default: Date.now },
-    notes: { type: String }
+    notes: { type: String },
+    isArchived: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

@@ -34,6 +34,10 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       return next(new AppError('User belonging to this token no longer exists', 401));
     }
 
+    if ((user as any).isBlocked) {
+      return next(new AppError('บัญชีของคุณถูกระงับการใช้งานชั่วคราว กรุณาติดต่อผู้ดูแลระบบ (Your account has been temporarily blocked)', 403));
+    }
+
     // Grant access and assign user payload to request
     (req as any).user = user;
     next();

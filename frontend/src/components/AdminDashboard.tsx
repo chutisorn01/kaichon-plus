@@ -17,10 +17,18 @@ import {
   Clock,
   LogOut,
   Megaphone,
-  Crown
+  Crown,
+  Menu,
+  X,
+  Trash2,
+  Settings,
+  UserPlus
 } from 'lucide-react';
 import AdminBanners from './AdminBanners';
 import AdminVipStuds from './AdminVipStuds';
+import AdminSettings from './AdminSettings';
+import AdminAddUserModal from './AdminAddUserModal';
+import AdminManageUserModal from './AdminManageUserModal';
 
 interface UserItem {
   _id: string;
@@ -30,6 +38,7 @@ interface UserItem {
   farmName?: string;
   farmCode?: string;
   isVerified?: boolean;
+  isBlocked?: boolean;
   role: string;
   createdAt: string;
 }
@@ -77,7 +86,13 @@ interface VipSubscriptionItem {
 
 export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any) => void }) {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'users' | 'promotions' | 'banners' | 'vip' | 'vip-subscriptions' | 'revenue'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'promotions' | 'banners' | 'vip' | 'vip-subscriptions' | 'revenue' | 'settings'>(() => {
+    return (sessionStorage.getItem('AdminDashboard_activeTab') as any) || 'users';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('AdminDashboard_activeTab', activeTab);
+  }, [activeTab]);
   const [users, setUsers] = useState<UserItem[]>([]);
   const [promotions, setPromotions] = useState<PromotionItem[]>([]);
   const [vipSubscriptions, setVipSubscriptions] = useState<VipSubscriptionItem[]>([]);
@@ -86,6 +101,10 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
   const [error, setError] = useState('');
   const [selectedSlip, setSelectedSlip] = useState<string | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [selectedUserToManage, setSelectedUserToManage] = useState<UserItem | null>(null);
+  const [currentAdminUsername, setCurrentAdminUsername] = useState('');
 
   // Check admin role authorization & Fetch Data
   useEffect(() => {
@@ -110,6 +129,8 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
           onNavigate('dashboard');
           return;
         }
+
+        setCurrentAdminUsername(authData.data?.username || '');
 
         // Step 2: Fetch Tab Specific Data
         const headers = { 'Authorization': `Bearer ${token}` };
@@ -200,6 +221,26 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
       setPromotions(promotions.map(p => p._id === promoId ? { ...p, status: 'rejected' as const } : p));
     } catch (err: any) {
       alert(err.message || 'Error rejecting request');
+    }
+  };
+
+  // Delete Promotion
+  const handleDeletePromotion = async (promoId: string) => {
+    if (!window.confirm(language === 'th' ? 'ยืนยันลบรายการโปรโมทนี้อย่างถาวร?' : 'Confirm permanent deletion of this promotion?')) return;
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/promotions/${promoId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to delete');
+
+      setPromotions(promotions.filter(p => p._id !== promoId));
+    } catch (err: any) {
+      alert(err.message || 'Error deleting request');
     }
   };
 
@@ -360,6 +401,18 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
               <DollarSign className="w-4.5 h-4.5 text-emerald-500" />
               {t('รายได้ & บัญชี', 'Revenue & Finance')}
             </button>
+
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
+                activeTab === 'settings'
+                  ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              <Settings className="w-4.5 h-4.5 text-indigo-400" />
+              {t('ตั้งค่าระบบ', 'System Settings')}
+            </button>
           </nav>
         </div>
 
@@ -412,8 +465,95 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
               <ArrowLeftRight className="w-4 h-4" />
               {t('สลับไปโหมดซุ้มฟาร์ม', 'Switch to Farm Mode')}
             </button>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-white/70 hover:text-white transition-colors cursor-pointer bg-white/10 hover:bg-white/20 rounded-2xl md:hidden"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Hamburger Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 top-[76px] bg-slate-900/95 backdrop-blur-xl z-40 overflow-y-auto p-4 flex flex-col gap-2 shadow-2xl animate-in slide-in-from-top-2 duration-200">
+            <button
+              onClick={() => { setActiveTab('users'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all cursor-pointer ${
+                activeTab === 'users' ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <Users className="w-5 h-5" /> {t('จัดการสมาชิก', 'Manage Users')}
+            </button>
+            <button
+              onClick={() => { setActiveTab('promotions'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all cursor-pointer relative ${
+                activeTab === 'promotions' ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <Award className="w-5 h-5" /> {t('รายการโปรโมท', 'Promotions')}
+              {pendingPromotionsCount > 0 && (
+                <span className="absolute right-4 bg-amber-500 text-white rounded-full text-[10px] px-2 py-0.5 animate-pulse">{pendingPromotionsCount}</span>
+              )}
+            </button>
+            <button
+              onClick={() => { setActiveTab('banners'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all cursor-pointer ${
+                activeTab === 'banners' ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <Megaphone className="w-5 h-5 text-pink-500" /> {t('จัดการแบนเนอร์โฆษณา', 'Banner Ads')}
+            </button>
+            <button
+              onClick={() => { setActiveTab('vip'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all cursor-pointer ${
+                activeTab === 'vip' ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <Crown className="w-5 h-5 text-amber-500" /> {t('ตั้งค่าพ่อพันธุ์ VIP', 'VIP Studs')}
+            </button>
+            <button
+              onClick={() => { setActiveTab('vip-subscriptions'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all cursor-pointer relative ${
+                activeTab === 'vip-subscriptions' ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <FileText className="w-5 h-5 text-emerald-500" /> {t('คำขออัปเกรด VIP', 'VIP Upgrades')}
+              {vipSubscriptions.filter(s => s.status === 'pending').length > 0 && (
+                <span className="absolute right-4 bg-amber-500 text-white rounded-full text-[10px] px-2 py-0.5 animate-pulse">{vipSubscriptions.filter(s => s.status === 'pending').length}</span>
+              )}
+            </button>
+            <button
+              onClick={() => { setActiveTab('revenue'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all cursor-pointer ${
+                activeTab === 'revenue' ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <DollarSign className="w-5 h-5 text-emerald-500" /> {t('รายได้ & บัญชี', 'Revenue & Finance')}
+            </button>
+            <button
+              onClick={() => { setActiveTab('settings'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black transition-all cursor-pointer ${
+                activeTab === 'settings' ? 'bg-indigo-650 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <Settings className="w-5 h-5 text-indigo-400" /> {t('ตั้งค่าระบบ', 'System Settings')}
+            </button>
+            <div className="h-[1px] bg-white/10 my-4"></div>
+            <button
+              onClick={() => { onNavigate('dashboard'); setIsMobileMenuOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black text-slate-300 hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              <LayoutDashboard className="w-5 h-5 text-red-500" /> {t('ไปโหมดซุ้มฟาร์ม', 'Farm Mode')}
+            </button>
+            <button
+              onClick={() => { setShowLogoutConfirm(true); setIsMobileMenuOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-black text-red-400 hover:bg-red-950/20 transition-all cursor-pointer"
+            >
+              <LogOut className="w-5 h-5" /> {t('ออกจากระบบ', 'Logout')}
+            </button>
+          </div>
+        )}
 
         {/* Content Container */}
         <div className="p-4 sm:p-6 max-w-5xl w-full mx-auto space-y-6">
@@ -491,6 +631,17 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
               )}
             </button>
             <button
+              onClick={() => setActiveTab('vip')}
+              className={`px-3.5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                activeTab === 'vip'
+                  ? 'bg-white dark:bg-slate-800 text-slate-950 dark:text-white shadow-sm'
+                  : 'text-slate-550 dark:text-slate-400'
+              }`}
+            >
+              <Crown className="w-3.5 h-3.5" />
+              {t('VIP Manual', 'VIP Manual')}
+            </button>
+            <button
               onClick={() => setActiveTab('revenue')}
               className={`px-3.5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                 activeTab === 'revenue'
@@ -506,7 +657,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
           {/* Tab 1: Users View */}
           {activeTab === 'users' && (
             <div className="space-y-4">
-              {/* Search Bar */}
+              {/* Search Bar & Actions */}
               <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <div className="relative w-full sm:max-w-xs">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-450">
@@ -520,9 +671,18 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                     className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 rounded-2xl shadow-xs focus:ring-2 focus:ring-indigo-500 outline-none text-xs font-semibold"
                   />
                 </div>
-                <span className="text-xs font-bold text-slate-400">
-                  {t(`พบบัญชีผู้ใช้ทั้งหมด ${filteredUsers.length} รายการ`, `Total found ${filteredUsers.length} users`)}
-                </span>
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                  <span className="text-xs font-bold text-slate-400 shrink-0">
+                    {t(`พบบัญชีผู้ใช้ทั้งหมด ${filteredUsers.length} รายการ`, `Total found ${filteredUsers.length} users`)}
+                  </span>
+                  <button
+                    onClick={() => setShowAddUserModal(true)}
+                    className="ml-auto sm:ml-0 flex items-center gap-1.5 px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/20 transition-all active:scale-[0.98]"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    {t('เพิ่มผู้ใช้', 'Add User')}
+                  </button>
+                </div>
               </div>
 
               {isLoading ? (
@@ -585,16 +745,25 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                             {u.username === 'adminkaichon' ? (
                               <span className="inline-block bg-slate-100 dark:bg-slate-800 text-slate-450 px-3 py-1.5 rounded-xl text-[10px] font-extrabold tracking-wider uppercase border border-slate-200 dark:border-slate-700">{t('ผู้ดูแลระบบสูงสุด 👑', 'Super Admin 👑')}</span>
                             ) : (
-                              <button
-                                onClick={() => handleToggleVerify(u._id, !!u.isVerified)}
-                                className={`px-3 py-2 rounded-xl text-[10px] font-black transition-all active:scale-[0.98] cursor-pointer ${
-                                  u.isVerified
-                                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 border border-slate-200 dark:border-slate-700'
-                                    : 'bg-indigo-600 hover:bg-indigo-750 text-white shadow-md shadow-indigo-600/10'
-                                }`}
-                              >
-                                {u.isVerified ? t('ยกเลิกการรับรอง', 'Revoke Verify') : t('อนุมัติ Verified 🔵', 'Approve Verified')}
-                              </button>
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => setSelectedUserToManage(u)}
+                                  className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all cursor-pointer border border-slate-200/50 dark:border-slate-700"
+                                  title={t('จัดการผู้ใช้', 'Manage User')}
+                                >
+                                  <Settings className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleToggleVerify(u._id, !!u.isVerified)}
+                                  className={`px-3 py-2 rounded-xl text-[10px] font-black transition-all active:scale-[0.98] cursor-pointer ${
+                                    u.isVerified
+                                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 border border-slate-200 dark:border-slate-700'
+                                      : 'bg-indigo-600 hover:bg-indigo-750 text-white shadow-md shadow-indigo-600/10'
+                                  }`}
+                                >
+                                  {u.isVerified ? t('ยกเลิกการรับรอง', 'Revoke Verify') : t('อนุมัติ Verified 🔵', 'Approve Verified')}
+                                </button>
+                              </div>
                             )}
                           </td>
                         </tr>
@@ -634,15 +803,24 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                             </h4>
                             <p className="text-[10px] text-slate-450 font-semibold">{t('ผู้ส่งคำขอ:', 'Requester:')} {p.user?.name} (@{p.user?.username})</p>
                           </div>
-                          <span className={`px-2.5 py-1 text-[10px] font-black rounded-lg border ${
-                            p.status === 'approved' 
-                              ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-455 border-emerald-250/30'
-                              : p.status === 'rejected' 
-                              ? 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-250/30'
-                              : 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-455 border-amber-250/30 animate-pulse'
-                          }`}>
-                            {p.status === 'approved' ? t('อนุมัติแล้ว', 'Approved') : p.status === 'rejected' ? t('ปฏิเสธแล้ว', 'Rejected') : t('รอดำเนินการ', 'Pending Review')}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2.5 py-1 text-[10px] font-black rounded-lg border ${
+                              p.status === 'approved' 
+                                ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-455 border-emerald-250/30'
+                                : p.status === 'rejected' 
+                                ? 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-250/30'
+                                : 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-455 border-amber-250/30 animate-pulse'
+                            }`}>
+                              {p.status === 'approved' ? t('อนุมัติแล้ว', 'Approved') : p.status === 'rejected' ? t('ปฏิเสธแล้ว', 'Rejected') : t('รอดำเนินการ', 'Pending Review')}
+                            </span>
+                            <button
+                              onClick={() => handleDeletePromotion(p._id)}
+                              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors cursor-pointer"
+                              title={t('ลบรายการ', 'Delete')}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
 
                         {/* Chicken details row */}
@@ -726,6 +904,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
           {/* Tab 3: Revenue & Finance View */}
           {activeTab === 'banners' && <AdminBanners />}
           {activeTab === 'vip' && <AdminVipStuds />}
+          {activeTab === 'settings' && <AdminSettings />}
 
           {/* VIP Subscriptions Tab */}
           {activeTab === 'vip-subscriptions' && (
@@ -1051,6 +1230,47 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
           </div>
         </div>
       )}
+
+      <AdminAddUserModal
+        isOpen={showAddUserModal}
+        onClose={() => setShowAddUserModal(false)}
+        onSuccess={() => {
+          // Re-fetch users to update the list
+          const fetchUsers = async () => {
+            try {
+              const token = localStorage.getItem('token');
+              const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              const data = await res.json();
+              if (res.ok) setUsers(data.data);
+            } catch (err) {}
+          };
+          fetchUsers();
+        }}
+      />
+
+      <AdminManageUserModal
+        isOpen={selectedUserToManage !== null}
+        onClose={() => setSelectedUserToManage(null)}
+        user={selectedUserToManage}
+        currentAdminUsername={currentAdminUsername}
+        onSuccess={() => {
+          // Re-fetch users to update the list and status
+          const fetchUsers = async () => {
+            try {
+              const token = localStorage.getItem('token');
+              const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              const data = await res.json();
+              if (res.ok) setUsers(data.data);
+            } catch (err) {}
+          };
+          fetchUsers();
+          setSelectedUserToManage(null);
+        }}
+      />
     </div>
   );
 }

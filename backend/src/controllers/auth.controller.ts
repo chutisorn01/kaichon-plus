@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/user.model.js';
 import { hashPassword, verifyPassword, createToken } from '../config/crypto.js';
 import { AppError } from '../middleware/error.middleware.js';
+import { SystemSetting } from '../models/systemSetting.model.js';
 
 const getJwtSecret = () => {
   if (!process.env.JWT_SECRET) {
@@ -12,6 +13,11 @@ const getJwtSecret = () => {
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const settings = await (SystemSetting as any).getSettings();
+    if (!settings.isRegistrationOpen) {
+      return next(new AppError('ระบบปิดรับสมัครสมาชิกชั่วคราว (Registration is currently closed)', 403));
+    }
+
     const { username, password, name, email } = req.body;
 
     const existingUser = await User.findOne({ username: username.toLowerCase() });
@@ -152,6 +158,20 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+export const getPublicSettings = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const settings = await (SystemSetting as any).getSettings();
+    res.status(200).json({
+      status: 'success',
+      data: {
+        isRegistrationOpen: settings.isRegistrationOpen
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user._id;
@@ -183,6 +203,41 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     res.status(200).json({
       status: 'success',
       data: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user._id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return next(new AppError('กรุณากรอกรหัสผ่านปัจจุบันและรหัสผ่านใหม่', 400));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(new AppError('ไม่พบผู้ใช้งาน', 404));
+    }
+
+    const isValidPassword = verifyPassword(currentPassword, user.passwordSalt, user.passwordHash);
+    if (!isValidPassword) {
+      return next(new AppError('รหัสผ่านปัจจุบันไม่ถูกต้อง', 401));
+    }
+
+    const { salt, hash } = hashPassword(newPassword);
+    
+    await User.findByIdAndUpdate(userId, {
+      passwordHash: hash,
+      passwordSalt: salt
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'อัปเดตรหัสผ่านสำเร็จ'
     });
   } catch (error) {
     next(error);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, ChevronLeft, Trash2, Edit, Swords, Tag, User, Users, ChevronDown, ChevronUp, Plus, Download, Loader2, X, CheckCircle } from 'lucide-react'; // Trigger HMR
+import { Search, ChevronLeft, Trash2, Edit, Swords, Tag, User, Users, ChevronDown, ChevronUp, Plus, Download, Loader2, X, CheckCircle, Home, Crown, Layers } from 'lucide-react'; // Trigger HMR
 import JSZip from 'jszip';
 import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
@@ -22,6 +22,7 @@ const getBandColorCircleClass = (color: string) => {
 export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selectedBatchCode?: string, onNavigate: (page: any, id?: string) => void }) {
   const [chicks, setChicks] = useState<any[]>([]);
   const [search, setSearch] = useState(selectedBatchCode || '');
+  const [filterSource, setFilterSource] = useState<'all' | 'farm' | 'vip'>('all');
   const [loading, setLoading] = useState(true);
   const [expandedBatches, setExpandedBatches] = useState<Record<string, boolean>>(() => {
     return selectedBatchCode ? { [selectedBatchCode]: true } : {};
@@ -154,8 +155,8 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           // 1. Trigger React to render ONLY this chick's certificate
           setExportingCurrentIndex(i + 1);
           
-          // 2. Wait for DOM to mount and external images to load
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // 2. Wait for DOM to mount and external images to load (optimized from 1000ms to 150ms)
+          await new Promise(resolve => setTimeout(resolve, 150));
           
           const chick = sortedSelectedChicks[i];
           const element = document.getElementById(`cert-${chick._id}`);
@@ -181,7 +182,8 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
         for (let i = 0; i < sortedSelectedChicks.length; i++) {
           setExportingCurrentIndex(i + 1);
           
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Wait for DOM (optimized)
+          await new Promise(resolve => setTimeout(resolve, 150));
           
           const chick = sortedSelectedChicks[i];
           const element = document.getElementById(`cert-${chick._id}`);
@@ -349,6 +351,12 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
   };
 
   const filteredChicks = chicks.filter(c => {
+    // Check Source Filter
+    const isVip = c.mother?.source === 'ไก่ฟาร์มอื่น (ลูกค้า VIP)';
+    if (filterSource === 'farm' && isVip) return false;
+    if (filterSource === 'vip' && !isVip) return false;
+
+    // Check Search Query
     const q = search.toLowerCase().trim();
     if (!q) return true;
     return (
@@ -426,11 +434,33 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           {search && (
             <button 
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl transition-colors active:scale-95"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
             >
-              ล้าง
+              <X className="w-5 h-5" />
             </button>
           )}
+        </div>
+
+        {/* Filter Source Tabs */}
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-6">
+          <button
+            onClick={() => setFilterSource('all')}
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-xl transition-all duration-300 ${filterSource === 'all' ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800'}`}
+          >
+            <Layers className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> <span>ทั้งหมด</span>
+          </button>
+          <button
+            onClick={() => setFilterSource('farm')}
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-xl transition-all duration-300 ${filterSource === 'farm' ? 'bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-md shadow-purple-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800'}`}
+          >
+            <Home className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> <span>ฟาร์มเรา</span>
+          </button>
+          <button
+            onClick={() => setFilterSource('vip')}
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-2 sm:py-2.5 text-[10px] sm:text-xs font-black rounded-xl transition-all duration-300 ${filterSource === 'vip' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white shadow-md shadow-yellow-500/20' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800'}`}
+          >
+            <Crown className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> <span>VIP</span>
+          </button>
         </div>
 
         {loading ? (
@@ -583,51 +613,56 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
 
       {/* Floating Bulk Action Bar */}
       {selectedChicks.size > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-none z-40 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs font-black">
-              {selectedChicks.size}
-            </span>
-            <span className="font-bold text-sm">รายการที่เลือก</span>
-          </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setShowBulkNameModal(true)}
-              className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:bg-emerald-600"
-            >
-              ตั้งชื่อชุด
-            </button>
-            <button 
-              onClick={() => setShowBulkGenderModal(true)}
-              className="px-4 py-2 bg-pink-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:bg-pink-600"
-            >
-              ระบุเพศ
-            </button>
-            <button 
-              onClick={() => setShowBulkBandModal(true)}
-              className="px-4 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:bg-amber-600"
-            >
-              ติดกิ๊ฟชุด
-            </button>
-            <button 
-              onClick={() => setShowBulkDateModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer"
-            >
-              แก้วันที่ฟัก
-            </button>
-            <button 
-              onClick={() => setShowExportModal(true)}
-              className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:from-indigo-600 hover:to-purple-600 flex items-center gap-1.5"
-            >
-              <Download className="w-3.5 h-3.5" />
-              ออกใบเซอร์ชุด
-            </button>
-            <button 
-              onClick={handleBulkDeleteClick}
-              className="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-red-600 rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm hover:bg-red-50 cursor-pointer"
-            >
-              ลบทั้งหมด
-            </button>
+        <div className="fixed bottom-0 left-0 right-0 p-3 md:p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-none z-40">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 max-w-7xl mx-auto w-full">
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs font-black">
+                {selectedChicks.size}
+              </span>
+              <span className="font-bold text-sm">ทำรายการแบบกลุ่ม:</span>
+            </div>
+            
+            {/* Responsive Grid Button List */}
+            <div className="grid grid-cols-3 md:flex md:flex-row gap-2 w-full">
+              <button 
+                onClick={() => setShowBulkNameModal(true)}
+                className="w-full px-2 py-2.5 bg-emerald-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:bg-emerald-600 flex items-center justify-center"
+              >
+                ตั้งชื่อชุด
+              </button>
+              <button 
+                onClick={() => setShowBulkGenderModal(true)}
+                className="w-full px-2 py-2.5 bg-pink-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:bg-pink-600 flex items-center justify-center"
+              >
+                ระบุเพศ
+              </button>
+              <button 
+                onClick={() => setShowBulkBandModal(true)}
+                className="w-full px-2 py-2.5 bg-amber-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:bg-amber-600 flex items-center justify-center"
+              >
+                ติดกิ๊ฟชุด
+              </button>
+              <button 
+                onClick={() => setShowBulkDateModal(true)}
+                className="w-full px-2 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer flex items-center justify-center"
+              >
+                แก้วันที่ฟัก
+              </button>
+              <button 
+                onClick={() => setShowExportModal(true)}
+                className="w-full px-2 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm cursor-pointer hover:from-indigo-600 hover:to-purple-600 flex items-center justify-center gap-1"
+              >
+                <Download className="w-3.5 h-3.5" />
+                ใบเซอร์
+              </button>
+              <button 
+                onClick={handleBulkDeleteClick}
+                className="w-full px-2 py-2.5 bg-slate-200 dark:bg-slate-800 text-red-600 rounded-xl text-xs font-bold active:scale-95 transition-transform shadow-sm hover:bg-red-50 cursor-pointer flex items-center justify-center gap-1"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                ลบ
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -682,7 +717,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-black flex items-center gap-2">
                 <Download className="w-6 h-6 text-indigo-500" />
-                ออกเอกสารใบประวัติ (Batch Export)
+                ดาวน์โหลดใบเซอร์
               </h2>
               {!isExporting && (
                 <button onClick={() => setShowExportModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
@@ -693,7 +728,9 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
             
             {isExporting ? (
               <div className="py-12 flex flex-col items-center justify-center text-center">
-                <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+                <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6">
+                  <Download className="w-8 h-8 text-indigo-500 animate-bounce" />
+                </div>
                 <h3 className="text-xl font-black mb-2">กำลังสร้างเอกสาร...</h3>
                 <p className="text-slate-500 dark:text-slate-400 font-bold mb-4">
                   {exportingCurrentIndex} / {selectedChicks.size} รายการ
@@ -713,11 +750,11 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
                     <div className="flex gap-3">
                       <button onClick={() => setExportFormat('png')} className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportFormat === 'png' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                         <div className="font-black text-xl">JPG</div>
-                        <div className="text-xs">รูปภาพแยกทีละไฟล์</div>
+                        <div className="text-xs">แยกไฟล์ (Zip)</div>
                       </button>
                       <button onClick={() => setExportFormat('pdf')} className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${exportFormat === 'pdf' ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' : 'border-slate-200 dark:border-slate-700 bg-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                         <div className="font-black text-xl">PDF</div>
-                        <div className="text-xs">รวมทุกหน้าในไฟล์เดียว</div>
+                        <div className="text-xs">รวมไฟล์ (PDF)</div>
                       </button>
                     </div>
                   </div>
@@ -727,7 +764,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
                   onClick={confirmBatchExport}
                   className="w-full mt-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-black text-lg shadow-xl shadow-indigo-500/30 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <Download className="w-5 h-5" /> ยืนยันการดาวน์โหลด
+                  <Download className="w-5 h-5" /> ดาวน์โหลด
                 </button>
               </>
             )}

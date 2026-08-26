@@ -28,7 +28,13 @@ export default function VaccineDashboard({ onNavigate }: { onNavigate: (page: st
   const [schedule, setSchedule] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'batch' | 'individual'>('batch');
-  const [activeTab, setActiveTab] = useState<'all' | 'overdue' | 'today' | 'upcoming'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'overdue' | 'today' | 'upcoming'>(() => {
+    return (sessionStorage.getItem('VaccineDashboard_activeTab') as any) || 'all';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('VaccineDashboard_activeTab', activeTab);
+  }, [activeTab]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showProgramGuide, setShowProgramGuide] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);

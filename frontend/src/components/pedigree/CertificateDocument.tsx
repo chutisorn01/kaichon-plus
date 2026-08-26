@@ -14,7 +14,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
     return 'ไม่ระบุ';
   };
 
-  const certUrl = `http://localhost:5173/chicken-detail/${chicken._id}`;
+  const certUrl = `${window.location.origin}/chicken-detail/${chicken._id}`;
   const qrCodeUrl = `https://quickchart.io/qr?size=150&text=${encodeURIComponent(certUrl)}`;
   const certDate = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
 

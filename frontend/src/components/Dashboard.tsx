@@ -50,7 +50,13 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem('Dashboard_activeTab') || 'home';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('Dashboard_activeTab', activeTab);
+  }, [activeTab]);
   const [user, setUser] = useState<any>(() => {
     const cached = sessionStorage.getItem('dashboard_user');
     return cached ? JSON.parse(cached) : null;
@@ -383,12 +389,10 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
                               {chicken.code}
                             </span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-300 mt-1 mb-1">
-                            <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
-                            <span className="truncate">{chicken.user?.farmName || chicken.user?.name || 'ฟาร์มสมาชิก'}</span>
-                            {chicken.user?.isVerified === true && (
-                              <BadgeCheck className="w-3.5 h-3.5 text-white fill-blue-500 shrink-0 drop-shadow-xs" />
-                            )}
+
+                          <div className="flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-500 mb-1.5 bg-amber-50 dark:bg-amber-950/30 w-fit px-1.5 py-0.5 rounded-md border border-amber-200/50 dark:border-amber-900/50">
+                            <Award className="w-3 h-3 shrink-0" />
+                            <span className="font-mono">KP-{chicken._id.substring(12, 18).toUpperCase()}-{chicken._id.substring(18, 24).toUpperCase()}</span>
                           </div>
                           <div className="flex flex-wrap items-center gap-2 text-xs mb-1.5 mt-1">
                             {chicken.bandNumber && (

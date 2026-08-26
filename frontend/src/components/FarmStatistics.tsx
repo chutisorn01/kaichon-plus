@@ -52,7 +52,13 @@ const getBandColorHex = (colorName: string) => {
 export default function FarmStatistics({ onNavigate }: { onNavigate: (page: string) => void }) {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'breeders' | 'bands'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'breeders' | 'bands'>(() => {
+    return (sessionStorage.getItem('FarmStatistics_activeTab') as any) || 'overview';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('FarmStatistics_activeTab', activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     fetchStatistics();

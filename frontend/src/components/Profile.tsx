@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Edit, Save, LogOut, Share2, MapPin, Phone, Globe, Camera, UserCircle2, CheckCircle, Info, Image as ImageIcon, Map, MessageCircle, BadgeCheck, Crown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Save, LogOut, Share2, MapPin, Phone, Globe, Camera, UserCircle2, CheckCircle, Info, Image as ImageIcon, Map, MessageCircle, BadgeCheck, Crown, Lock, AlertTriangle } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
 import SignaturePad from './SignaturePad';
@@ -11,7 +11,18 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<any>({});
   const [alertConfig, setAlertConfig] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'info' | 'settings'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'settings'>(() => {
+    return (sessionStorage.getItem('Profile_activeTab') as any) || 'info';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('Profile_activeTab', activeTab);
+  }, [activeTab]);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -91,12 +102,91 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
     onNavigate('login');
   };
 
+  const handleChangePassword = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setAlertConfig({ show: true, title: 'ข้อมูลไม่ครบถ้วน', message: 'กรุณากรอกข้อมูลให้ครบทุกช่อง', type: 'error' });
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setAlertConfig({ show: true, title: 'รหัสผ่านไม่ตรงกัน', message: 'รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน', type: 'error' });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/password`, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword
+        })
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        setShowPasswordModal(false);
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setAlertConfig({
+          show: true,
+          title: '✅ สำเร็จ',
+          message: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว',
+          type: 'success'
+        });
+      } else {
+        throw new Error(data.message || 'Update failed');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setAlertConfig({
+        show: true,
+        title: '❌ เกิดข้อผิดพลาด',
+        message: err.message || 'รหัสผ่านปัจจุบันไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง',
+        type: 'error'
+      });
+    }
+    setIsChangingPassword(false);
+  };
+
+  const handleQuickSaveImage = async (field: 'profileImage' | 'coverImage', base64Data: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/profile`, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ [field]: base64Data })
+      });
+      
+      if (res.ok) {
+        const json = await res.json();
+        setUser(json.data);
+        setAlertConfig({
+          show: true,
+          title: '✅ อัปเดตสำเร็จ',
+          message: field === 'coverImage' ? 'เปลี่ยนรูปหน้าปกเรียบร้อยแล้ว' : 'เปลี่ยนรูปโปรไฟล์เรียบร้อยแล้ว',
+          type: 'success'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, profileImage: reader.result as string }));
+        const result = reader.result as string;
+        setFormData(prev => ({ ...prev, profileImage: result }));
+        if (!isEditing) handleQuickSaveImage('profileImage', result);
       };
       reader.readAsDataURL(file);
     }
@@ -107,7 +197,9 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, coverImage: reader.result as string }));
+        const result = reader.result as string;
+        setFormData(prev => ({ ...prev, coverImage: result }));
+        if (!isEditing) handleQuickSaveImage('coverImage', result);
       };
       reader.readAsDataURL(file);
     }
@@ -135,29 +227,34 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
         )}
         
         <button 
-          onClick={() => onNavigate('dashboard')}
+          onClick={() => {
+            if (isEditing) {
+              setShowUnsavedModal(true);
+            } else {
+              onNavigate('dashboard');
+            }
+          }}
           className="absolute top-6 left-4 z-20 p-2.5 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/60 transition-all cursor-pointer"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
 
-        {isEditing && (
-          <div className="absolute bottom-4 right-4 z-20">
-            <input 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              id="cover-upload" 
-              onChange={handleCoverImageChange} 
-            />
-            <label 
-              htmlFor="cover-upload"
-              className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 text-white text-xs font-bold flex items-center gap-2 cursor-pointer hover:bg-black/80 transition-colors shadow-lg"
-            >
-              <Camera className="w-4 h-4" /> เปลี่ยนรูปหน้าปก
-            </label>
-          </div>
-        )}
+        <div className="absolute top-6 right-4 z-20">
+          <input 
+            type="file" 
+            accept="image/*" 
+            className="hidden" 
+            id="cover-upload" 
+            onChange={handleCoverImageChange} 
+          />
+          <label 
+            htmlFor="cover-upload"
+            className="bg-black/40 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border border-white/20 text-white text-xs font-bold flex items-center gap-2 cursor-pointer hover:bg-black/60 transition-colors shadow-lg"
+          >
+            <Camera className="w-4 h-4 sm:w-5 sm:h-5" /> 
+            <span className="hidden sm:inline">เปลี่ยนรูปหน้าปก</span>
+          </label>
+        </div>
       </div>
 
       <div className="px-4 w-full max-w-2xl mx-auto -mt-16 sm:-mt-20 relative z-20">
@@ -165,17 +262,17 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
         {/* Profile Card */}
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-white/10 p-5 pt-0 mb-6 flex flex-col items-center">
           {/* Profile Image Avatar */}
-          <div className="w-40 h-40 sm:w-48 sm:h-48 bg-slate-100 dark:bg-slate-800 rounded-full border-[6px] border-white dark:border-slate-900 shadow-xl -mt-20 sm:-mt-24 relative overflow-hidden flex items-center justify-center shrink-0 mb-4 z-30">
-            {formData.profileImage || user?.profileImage ? (
-              <img src={isEditing ? formData.profileImage : user?.profileImage} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              <UserCircle2 className="w-16 h-16 text-slate-300 dark:text-slate-600" />
-            )}
-            
-            {isEditing && (
+          <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full border-[6px] border-white dark:border-slate-900 shadow-xl -mt-20 sm:-mt-24 relative mb-4 z-30">
+            <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-full relative overflow-hidden flex items-center justify-center shrink-0 group cursor-pointer">
+              {formData.profileImage || user?.profileImage ? (
+                <img src={isEditing ? formData.profileImage : user?.profileImage} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <UserCircle2 className="w-16 h-16 text-slate-300 dark:text-slate-600" />
+              )}
+              
               <label 
                 htmlFor="profile-upload"
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-2 text-center z-40 cursor-pointer hover:bg-black/70 transition-colors group"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-2 text-center z-40 cursor-pointer opacity-0 md:hover:opacity-100 transition-opacity"
               >
                 <input 
                   type="file" 
@@ -184,10 +281,18 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
                   id="profile-upload" 
                   onChange={handleProfileImageChange} 
                 />
-                <Camera className="w-8 h-8 text-white mb-1 group-hover:scale-110 transition-transform" />
+                <Camera className="w-8 h-8 text-white mb-1 md:group-hover:scale-110 transition-transform" />
                 <span className="text-[10px] font-bold text-white">เปลี่ยนโลโก้</span>
               </label>
-            )}
+            </div>
+
+            {/* Mobile persistent camera badge */}
+            <label 
+              htmlFor="profile-upload"
+              className="absolute bottom-2 right-2 md:hidden bg-indigo-600 text-white p-2.5 rounded-full shadow-lg border-[3px] border-white dark:border-slate-900 z-50 cursor-pointer active:scale-95 transition-transform"
+            >
+              <Camera className="w-5 h-5" />
+            </label>
           </div>
 
           {!isEditing ? (
@@ -238,6 +343,25 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
                   </div>
                   <ChevronRight className="w-5 h-5 text-slate-800/80 group-hover:translate-x-1 transition-transform" />
                 </div>
+              </div>
+
+              {/* Change Password Button */}
+              <div className="mt-4 w-full max-w-sm mx-auto">
+                <button 
+                  onClick={() => setShowPasswordModal(true)}
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 rounded-2xl active:scale-95 transition-all cursor-pointer flex items-center justify-between group border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="w-10 h-10 bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-slate-500 group-hover:scale-110 transition-transform shadow-sm">
+                      <Lock className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold block">เปลี่ยนรหัสผ่าน</span>
+                      <span className="text-[10px] text-slate-400 font-sans">อัปเดตหรือตั้งรหัสผ่านใหม่เพื่อความปลอดภัย</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
             </div>
           ) : (
@@ -453,6 +577,106 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
           </div>
         )}
       </div>
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 shadow-2xl">
+            <h3 className="text-xl font-black mb-6 flex items-center gap-2">
+              <Lock className="w-6 h-6 text-indigo-500" />
+              เปลี่ยนรหัสผ่าน
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 mb-1 block">รหัสผ่านปัจจุบัน</label>
+                <input 
+                  type="password"
+                  className={inputClass}
+                  value={passwordForm.currentPassword}
+                  onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                  placeholder="รหัสผ่านเดิม"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 mb-1 block">รหัสผ่านใหม่</label>
+                <input 
+                  type="password"
+                  className={inputClass}
+                  value={passwordForm.newPassword}
+                  onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                  placeholder="รหัสผ่านใหม่"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 mb-1 block">ยืนยันรหัสผ่านใหม่</label>
+                <input 
+                  type="password"
+                  className={inputClass}
+                  value={passwordForm.confirmPassword}
+                  onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                  placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-8">
+              <button 
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                }}
+                className="flex-1 py-3 rounded-2xl font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button 
+                onClick={handleChangePassword}
+                disabled={isChangingPassword}
+                className="flex-1 py-3 rounded-2xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+              >
+                {isChangingPassword ? 'กำลังบันทึก...' : 'บันทึกรหัสผ่าน'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unsaved Changes Modal */}
+      {showUnsavedModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200 border border-slate-100 dark:border-white/10 text-center">
+            <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-8 h-8 text-amber-500" />
+            </div>
+            
+            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">ยังไม่ได้บันทึกข้อมูล</h3>
+            <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-8">
+              คุณมีการแก้ไขที่ยังไม่ได้บันทึก ต้องการออกจากหน้านี้โดยไม่บันทึกหรือไม่?
+            </p>
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowUnsavedModal(false)}
+                className="flex-1 py-3.5 rounded-2xl font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+              <button 
+                onClick={() => {
+                  setShowUnsavedModal(false);
+                  setIsEditing(false);
+                  fetchProfile();
+                  onNavigate('dashboard');
+                }}
+                className="flex-1 py-3.5 rounded-2xl font-bold text-white bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+              >
+                ออกโดยไม่บันทึก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Alert Modal */}
       {alertConfig?.show && (

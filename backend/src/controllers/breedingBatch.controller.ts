@@ -42,7 +42,7 @@ export const getBreedingBatches = async (req: any, res: Response, next: NextFunc
   try {
     const batches = await BreedingBatch.find({ user: req.user.id })
       .populate('father', 'name code')
-      .populate('mother', 'name code')
+      .populate('mother', 'name code source')
       .sort({ createdAt: -1 });
     res.json(batches);
   } catch (error) {
@@ -80,10 +80,10 @@ export const deleteBreedingBatch = async (req: any, res: Response, next: NextFun
 
 export const updateBreedingBatch = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const { batchCode, father, mother, breedingDate, notes } = req.body;
+    const { batchCode, father, mother, breedingDate, notes, isArchived } = req.body;
     const updatedBatch = await BreedingBatch.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
-      { batchCode, father, mother, breedingDate, notes },
+      { batchCode, father, mother, breedingDate, notes, isArchived },
       { new: true }
     );
     if (!updatedBatch) return res.status(404).json({ message: 'ไม่พบข้อมูลชุดการผสม' });
