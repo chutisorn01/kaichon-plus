@@ -1,3 +1,4 @@
+import { OAuth2Client } from 'google-auth-library';
 import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/user.model.js';
 import { hashPassword, verifyPassword, createToken } from '../config/crypto.js';
@@ -95,12 +96,30 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 export const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, name, googleId, profileImage } = req.body;
+    const { credential } = req.body;
 
-    if (!email) {
-      return next(new AppError('Email is required for Google login', 400));
+    if (!credential) {
+      return next(new AppError('Google credential is required', 400));
     }
 
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || "1058888702511-73ndeh0hvtkpge1ulhed049mdom0h8mc.apps.googleusercontent.com");
+    
+    let ticket;
+    try {
+      ticket = await client.verifyIdToken({
+          idToken: credential,
+          audience: process.env.GOOGLE_CLIENT_ID || "1058888702511-73ndeh0hvtkpge1ulhed049mdom0h8mc.apps.googleusercontent.com", 
+      });
+    } catch (err) {
+      return next(new AppError('Invalid Google token', 401));
+    }
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return next(new AppError('Google authentication failed', 401));
+    }
+
+    const { email, name, picture } = payload;
     const cleanEmail = email.toLowerCase().trim();
     let user = await User.findOne({ email: cleanEmail });
 
@@ -124,7 +143,7 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
         role: 'user',
         isVerified: false,
         farmName: `ซุ้ม ${name || 'สมาร์ทฟาร์ม'}`,
-        profileImage: profileImage || ''
+        profileImage: picture || ''
       });
     }
 
@@ -133,15 +152,7 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     res.status(200).json({
       status: 'success',
       token,
-      data: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        isVerified: user.isVerified,
-        isPartnerVip: user.isPartnerVip
-      },
+      data: { user }
     });
   } catch (error) {
     next(error);
