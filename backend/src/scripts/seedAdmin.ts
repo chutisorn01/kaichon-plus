@@ -9,12 +9,10 @@ config({ path: join(process.cwd(), '.env') });
 
 const seedAdmin = async () => {
   try {
-    if (!process.env.MONGO_URI) {
-      throw new Error('MONGO_URI is not defined in .env file');
-    }
+    const dbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/kaichon-plus';
 
-    console.log('Connecting to MongoDB...');
-    await mongoose.connect(process.env.MONGO_URI);
+    console.log(`Connecting to MongoDB... (${dbUri})`);
+    await mongoose.connect(dbUri);
     console.log('Connected successfully.');
 
     const adminUsername = 'admin';
