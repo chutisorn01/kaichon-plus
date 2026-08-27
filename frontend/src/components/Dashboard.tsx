@@ -506,69 +506,73 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
             {/* 1-Month Chick Banding Banner */}
             <div 
               onClick={() => onNavigate('chick-banding')}
-              className="p-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-[2rem] active:scale-95 transition-all shadow-md shadow-amber-500/20 cursor-pointer flex items-center justify-between"
+              className="p-5 bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white rounded-[2rem] hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-amber-500/30 cursor-pointer flex items-center justify-between group overflow-hidden relative"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white text-xl">
-                  🏷️
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white text-xl shadow-inner border border-white/20 group-hover:rotate-6 transition-transform">
+                  <Tag className="w-7 h-7" />
                 </div>
                 <div className="text-left">
-                  <span className="text-base font-bold block">บันทึกคัดเพศ & ติดกิ๊ฟปีกไก่ 1 เดือน 🐥</span>
-                  <span className="text-xs text-white/80 font-medium font-sans">1-Month Chick Sexing & Wing Banding Registry</span>
+                  <span className="text-base font-black block tracking-wide">บันทึกคัดเพศ & ติดกิ๊ฟปีกไก่</span>
+                  <span className="text-[11px] text-white/90 font-medium font-sans uppercase tracking-wider mt-0.5 block">1-Month Chick Sexing & Banding</span>
                 </div>
               </div>
-              <ChevronRight className="w-6 h-6 text-white/80" />
+              <ChevronRight className="w-6 h-6 text-white/80 group-hover:translate-x-1 transition-transform relative z-10" />
             </div>
 
             {/* Farm Statistics Banner */}
             <div 
               onClick={() => onNavigate('statistics')}
-              className="p-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-[2rem] active:scale-95 transition-all shadow-md shadow-emerald-600/20 cursor-pointer flex items-center justify-between"
+              className="p-5 bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-700 text-white rounded-[2rem] hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-emerald-500/30 cursor-pointer flex items-center justify-between group overflow-hidden relative"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
-                  <BarChart className="w-6 h-6" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white shadow-inner border border-white/20 group-hover:-translate-y-1 transition-transform">
+                  <BarChart className="w-7 h-7" />
                 </div>
                 <div className="text-left">
-                  <span className="text-base font-bold block">สถิติฟาร์มอัจฉริยะ 📊</span>
-                  <span className="text-xs text-white/80 font-medium font-sans">Farm Analytics & Population Stats</span>
+                  <span className="text-base font-black block tracking-wide">สถิติฟาร์มอัจฉริยะ</span>
+                  <span className="text-[11px] text-white/90 font-medium font-sans uppercase tracking-wider mt-0.5 block">Farm Analytics & Population</span>
                 </div>
               </div>
-              <ChevronRight className="w-6 h-6 text-white/80" />
+              <ChevronRight className="w-6 h-6 text-white/80 group-hover:translate-x-1 transition-transform relative z-10" />
             </div>
 
             {/* VIP Mating System Banner */}
             <div 
               onClick={() => onNavigate('vip-breeding')}
-              className="p-5 bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-900 rounded-[2rem] active:scale-95 transition-all shadow-md shadow-amber-500/30 cursor-pointer flex items-center justify-between group border border-yellow-400"
+              className="p-5 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 text-slate-900 rounded-[2rem] hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-amber-500/30 cursor-pointer flex items-center justify-between group overflow-hidden relative border border-yellow-300/50"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform">
-                  <Crown className="w-6 h-6" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-14 h-14 bg-white/40 backdrop-blur-md rounded-2xl flex items-center justify-center text-amber-900 shadow-inner border border-white/40 group-hover:scale-110 transition-transform">
+                  <Crown className="w-7 h-7 fill-amber-700/20" />
                 </div>
                 <div className="text-left">
-                  <span className="text-base font-black block">🌟 ระบบรับฝากผสม VIP</span>
-                  <span className="text-xs text-slate-800/80 font-bold font-sans">VIP Breeder Deposit & Tracking System</span>
+                  <span className="text-base font-black block tracking-wide text-amber-950">ระบบรับฝากผสม VIP</span>
+                  <span className="text-[11px] text-amber-900/80 font-bold font-sans uppercase tracking-wider mt-0.5 block">VIP Breeder Deposit System</span>
                 </div>
               </div>
-              <ChevronRight className="w-6 h-6 text-slate-800/80 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="w-6 h-6 text-amber-900/80 group-hover:translate-x-1 transition-transform relative z-10" />
             </div>
 
             {/* Vaccine Notification Banner */}
             <div 
               onClick={() => onNavigate('vaccine')}
-              className="p-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-[2rem] active:scale-95 transition-all shadow-md shadow-blue-600/20 cursor-pointer flex items-center justify-between"
+              className="p-5 bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-700 text-white rounded-[2rem] hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-blue-500/30 cursor-pointer flex items-center justify-between group overflow-hidden relative"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
-                  <Syringe className="w-6 h-6" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white shadow-inner border border-white/20 group-hover:rotate-12 transition-transform">
+                  <Syringe className="w-7 h-7" />
                 </div>
                 <div className="text-left">
-                  <span className="text-base font-bold block">โปรแกรมทำวัคซีนไก่ชน 💉</span>
-                  <span className="text-xs text-white/80 font-medium font-sans">Vaccination Schedule & Notifications</span>
+                  <span className="text-base font-black block tracking-wide">โปรแกรมทำวัคซีน</span>
+                  <span className="text-[11px] text-white/90 font-medium font-sans uppercase tracking-wider mt-0.5 block">Vaccination Schedule</span>
                 </div>
               </div>
-              <ChevronRight className="w-6 h-6 text-white/80" />
+              <ChevronRight className="w-6 h-6 text-white/80 group-hover:translate-x-1 transition-transform relative z-10" />
             </div>
 
             {/* Admin Control Banner */}
