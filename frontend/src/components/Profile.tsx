@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Edit, Save, LogOut, Share2, MapPin, Phone, Globe, Camera, UserCircle2, CheckCircle, Info, Image as ImageIcon, Map, MessageCircle, BadgeCheck, Crown, Lock, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Save, LogOut, Share2, MapPin, Phone, Globe, Camera, UserCircle2, CheckCircle, Info, Image as ImageIcon, Map, MessageCircle, BadgeCheck, Crown, Lock, AlertTriangle, Upload, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
 import SignaturePad from './SignaturePad';
@@ -23,6 +24,7 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -150,6 +152,113 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
       });
     }
     setIsChangingPassword(false);
+  };
+
+  const handleExportExcel = async () => {
+    setIsExporting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      // Fetch all data in parallel
+      const [chickensRes, vipBreedingRes, fathersRes, breedersRes] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_URL}/api/chickens`, { headers }),
+        fetch(`${import.meta.env.VITE_API_URL}/api/vip-breeding`, { headers }), // Adjust if endpoint is different
+        fetch(`${import.meta.env.VITE_API_URL}/api/fathers`, { headers }), // Fetch fathers and we will filter if needed, or if the API returns all, we might need a specific 'me' endpoint
+        fetch(`${import.meta.env.VITE_API_URL}/api/mothers`, { headers })
+      ]);
+
+      const [chickensData, vipBreedingData, fathersData, mothersData] = await Promise.all([
+        chickensRes.json(),
+        vipBreedingRes.json(),
+        fathersRes.json(),
+        mothersRes.json()
+      ]);
+
+      // Helper to extract array data safely
+      const extractArray = (res: any) => {
+        if (Array.isArray(res)) return res;
+        if (res?.data && Array.isArray(res.data)) return res.data;
+        if (res?.results && Array.isArray(res.results)) return res.results;
+        return [];
+      };
+
+      const chickens = extractArray(chickensData);
+      const vipBreeding = extractArray(vipBreedingData);
+      // For Fathers and Breeders, we only want those belonging to the current user
+      const fathers = extractArray(fathersData).filter((f: any) => f.user === user?._id || f.user?._id === user?._id || !f.user);
+      const mothers = extractArray(mothersData).filter((b: any) => b.user === user?._id || b.user?._id === user?._id || !b.user);
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+
+      // 1. Chickens Sheet
+      const wsChickens = XLSX.utils.json_to_sheet(chickens.map((c: any) => ({
+        'รหัสไก่': c.code,
+        'ชื่อไก่': c.name,
+        'สายพันธุ์': c.breed,
+        'เพศ': c.gender === 'M' ? 'ผู้' : 'เมีย',
+        'สี': c.color,
+        'วันที่ฟัก': c.hatchDate ? new Date(c.hatchDate).toLocaleDateString('th-TH') : '',
+        'สถานะ': c.status
+      })));
+      XLSX.utils.book_append_sheet(wb, wsChickens, 'ไก่ชนทั้งหมด');
+
+      // 2. VIP Breeding Sheet
+      const wsVip = XLSX.utils.json_to_sheet(vipBreeding.map((v: any) => ({
+        'คิวที่': v.queueNo,
+        'วันที่รับเข้า': v.intakeDate ? new Date(v.intakeDate).toLocaleDateString('th-TH') : '',
+        'ชื่อแม่ไก่': v.motherName,
+        'พ่อพันธุ์': v.father?.name || '-',
+        'น้ำหนัก (กก.)': v.weight,
+        'จำนวนไข่': v.eggCount,
+        'มีเชื้อ': v.fertileEggs,
+        'ลูกไก่ที่ได้': v.chickQuantity,
+        'สถานะ': v.status
+      })));
+      XLSX.utils.book_append_sheet(wb, wsVip, 'ประวัติฝากผสม VIP');
+
+      // 3. Fathers Sheet
+      const wsFathers = XLSX.utils.json_to_sheet(fathers.map((f: any) => ({
+        'รหัส': f.code,
+        'ชื่อพ่อพันธุ์': f.name,
+        'สายพันธุ์': f.breed,
+        'เบอร์แข้ง': f.bandNumber,
+        'ค่าฝากผสม (บาท)': f.matingFee,
+        'เบอร์โทร': f.contactPhone
+      })));
+      XLSX.utils.book_append_sheet(wb, wsFathers, 'พ่อพันธุ์');
+
+      // 4. Mothers Sheet
+      const wsMothers = XLSX.utils.json_to_sheet(mothers.map((m: any) => ({
+        'รหัส': m.code,
+        'ชื่อแม่พันธุ์': m.name,
+        'สายพันธุ์': m.breed,
+        'เบอร์แข้ง': m.bandNumber || '-',
+        'สถานะ': m.status
+      })));
+      XLSX.utils.book_append_sheet(wb, wsMothers, 'แม่พันธุ์ในซุ้ม');
+
+      // Save file
+      XLSX.writeFile(wb, `KaichonPlus_Data_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      setAlertConfig({
+        show: true,
+        title: '✅ ดาวน์โหลดสำเร็จ',
+        message: 'ระบบได้สร้างไฟล์ Excel และดาวน์โหลดลงเครื่องของคุณแล้ว',
+        type: 'success'
+      });
+    } catch (error) {
+      console.error(error);
+      setAlertConfig({
+        show: true,
+        title: '❌ เกิดข้อผิดพลาด',
+        message: 'ไม่สามารถดึงข้อมูลเพื่อสร้างไฟล์ Excel ได้',
+        type: 'error'
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleQuickSaveImage = async (field: 'profileImage' | 'coverImage', base64Data: string) => {
@@ -554,6 +663,23 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
                     <ThemeToggle />
                     <LanguageToggle />
                   </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider px-2">ข้อมูลฟาร์ม (Farm Data)</h3>
+                  <button 
+                    onClick={handleExportExcel}
+                    disabled={isExporting}
+                    className="w-full p-4 bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-2xl flex items-center gap-3 text-emerald-600 dark:text-emerald-500 transition-colors cursor-pointer border border-emerald-100 dark:border-emerald-900/30 disabled:opacity-50"
+                  >
+                    <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex items-center justify-center shrink-0">
+                      {isExporting ? <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" /> : <Download className="w-5 h-5" />}
+                    </div>
+                    <div className="text-left">
+                      <div className="font-black text-sm">ส่งออกข้อมูลเป็น Excel</div>
+                      <div className="text-xs opacity-70">ดาวน์โหลดประวัติไก่และข้อมูลทั้งหมด</div>
+                    </div>
+                  </button>
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
