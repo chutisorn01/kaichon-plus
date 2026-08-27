@@ -56,6 +56,7 @@ export const createMother = async (req: any, res: Response) => {
           motherNameText: req.body.motherNameText,
           status: status,
           notes: req.body.records,
+          saleInfo: savedMother.saleInfo,
           image,
           user: req.user.id
         },
@@ -116,6 +117,7 @@ export const updateMother = async (req: any, res: Response) => {
             motherNameText: updatedMother.motherNameText,
             status: updatedMother.status,
             notes: updatedMother.records,
+            saleInfo: updatedMother.saleInfo,
             image: updatedMother.image,
             user: req.user.id
           },
