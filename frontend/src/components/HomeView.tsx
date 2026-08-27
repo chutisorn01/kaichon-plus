@@ -100,7 +100,7 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
         <div className="w-full px-4">
           <div className="flex justify-between items-center h-16 relative">
             <div className="flex items-center min-w-0">
-              <div className="flex items-center group cursor-pointer shrink-0" onClick={() => onNavigate('home')}>
+              <div className="flex items-center group cursor-pointer shrink-0" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('home'); }}>
                 <Swords className="w-6 h-6 mr-2 text-red-600 dark:text-red-500 shrink-0" />
                 <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap overflow-hidden">KaiChon Plus</span>
               </div>
