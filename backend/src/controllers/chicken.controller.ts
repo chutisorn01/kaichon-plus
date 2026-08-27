@@ -314,7 +314,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
         };
       });
 
-      chickens = [...chickens, ...mappedChicks];
+      chickens = [...chickens, ...(mappedChicks as any[])] as any[];
     }
 
     // Sort the final results
@@ -655,7 +655,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
         return next(new AppError(`Father chicken must be male (selected chicken is ${fatherChicken.gender})`, 400));
       }
       // Circular check
-      const isCircular = await detectCircularReference(chickenId, father);
+      const isCircular = await detectCircularReference(chickenId as string, father as string);
       if (isCircular) {
         return next(new AppError('Circular pedigree reference detected: This chicken is an ancestor of the proposed father', 400));
       }
@@ -674,7 +674,7 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
         return next(new AppError(`Mother chicken must be female (selected chicken is ${motherChicken.gender})`, 400));
       }
       // Circular check
-      const isCircular = await detectCircularReference(chickenId, mother);
+      const isCircular = await detectCircularReference(chickenId as string, mother as string);
       if (isCircular) {
         return next(new AppError('Circular pedigree reference detected: This chicken is an ancestor of the proposed mother', 400));
       }
@@ -686,8 +686,8 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
     chicken.name = name || chicken.name;
     chicken.gender = gender || chicken.gender;
     chicken.bloodline = bloodline || breed || chicken.bloodline;
-    if (breed) chicken.breed = breed;
-    if (color) chicken.color = color;
+    if (breed) (chicken as any).breed = breed;
+    if (color) (chicken as any).color = color;
     if (bandNumber !== undefined) chicken.bandNumber = bandNumber;
     if (bandColor !== undefined) chicken.bandColor = bandColor;
     if (bandText !== undefined) chicken.bandText = bandText;
@@ -711,8 +711,8 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
           {
             code: updatedChicken.code,
             name: updatedChicken.name,
-            breed: updatedChicken.breed || updatedChicken.bloodline,
-            color: updatedChicken.color,
+            breed: (updatedChicken as any).breed || (updatedChicken as any).bloodline,
+            color: (updatedChicken as any).color,
             bandNumber: updatedChicken.bandNumber,
             bandColor: updatedChicken.bandColor,
             bandText: updatedChicken.bandText,
@@ -731,8 +731,8 @@ export const updateChicken = async (req: Request, res: Response, next: NextFunct
           {
             code: updatedChicken.code,
             name: updatedChicken.name,
-            breed: updatedChicken.breed || updatedChicken.bloodline,
-            color: updatedChicken.color,
+            breed: (updatedChicken as any).breed || (updatedChicken as any).bloodline,
+            color: (updatedChicken as any).color,
             bandNumber: updatedChicken.bandNumber,
             bandColor: updatedChicken.bandColor,
             bandText: updatedChicken.bandText,

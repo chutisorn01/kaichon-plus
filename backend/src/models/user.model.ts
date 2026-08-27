@@ -11,6 +11,7 @@ export interface IUser extends Document {
   farmName?: string;
   farmCode?: string;
   isVerified?: boolean;
+  isBlocked?: boolean;
   isVIP?: boolean;
   farmType?: 'main' | 'sub';
   parentFarm?: mongoose.Types.ObjectId;

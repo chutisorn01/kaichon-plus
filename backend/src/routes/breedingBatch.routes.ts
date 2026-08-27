@@ -4,9 +4,7 @@ import {
   getBreedingBatches, 
   getBreedingBatchById, 
   deleteBreedingBatch,
-  updateBreedingBatch,
-  updateEggStatus,
-  updateHatchStatus
+  updateBreedingBatch
 } from '../controllers/breedingBatch.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 

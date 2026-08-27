@@ -7,7 +7,7 @@ import { Chick } from '../models/chick.model.js';
 export const createVipBreeding = async (req: Request, res: Response) => {
   try {
     // Only VIP users can create VIP breeding records
-    if (!(req.user as any)?.isVIP) {
+    if (!(req as any).user?.isVIP) {
       return res.status(403).json({ success: false, message: 'VIP access required' });
     }
 
@@ -25,7 +25,7 @@ export const createVipBreeding = async (req: Request, res: Response) => {
 
 export const getVipBreedings = async (req: Request, res: Response) => {
   try {
-    if (!(req.user as any)?.isVIP) {
+    if (!(req as any).user?.isVIP) {
       return res.status(403).json({ success: false, message: 'VIP access required' });
     }
 
