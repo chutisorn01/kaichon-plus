@@ -29,6 +29,7 @@ import AdminVipStuds from './AdminVipStuds';
 import AdminSettings from './AdminSettings';
 import AdminAddUserModal from './AdminAddUserModal';
 import AdminManageUserModal from './AdminManageUserModal';
+import SuccessModal from './ui/SuccessModal';
 
 interface UserItem {
   _id: string;
@@ -105,6 +106,8 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [selectedUserToManage, setSelectedUserToManage] = useState<UserItem | null>(null);
   const [currentAdminUsername, setCurrentAdminUsername] = useState('');
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' });
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState<UserItem | null>(null);
 
   // Check admin role authorization & Fetch Data
   useEffect(() => {
@@ -184,11 +187,15 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('คุณต้องการลบผู้ใช้งานรายนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้')) return;
+  const handleDeleteUser = async (user: UserItem) => {
+    setDeleteConfirmUser(user);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!deleteConfirmUser) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users/${deleteConfirmUser._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -196,10 +203,12 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Error deleting user');
-      alert('ลบผู้ใช้งานสำเร็จ');
+      setSuccessModal({ isOpen: true, message: 'ลบผู้ใช้งานสำเร็จ' });
       fetchUsers();
     } catch (err: any) {
       alert(err.message || 'Error deleting user');
+    } finally {
+      setDeleteConfirmUser(null);
     }
   };
 
@@ -816,7 +825,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                                   {u.isPartnerVip ? t('ยกเลิก Partner', 'Revoke Partner') : t('ให้สิทธิ์ Partner 👑', 'Grant Partner VIP')}
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteUser(u._id)}
+                                  onClick={() => handleDeleteUser(u)}
                                   disabled={u.username === 'adminkaichon'}
                                   className={`px-3 py-2 rounded-xl text-[10px] font-black transition-all active:scale-[0.98] cursor-pointer ${
                                     u.username === 'adminkaichon' 
