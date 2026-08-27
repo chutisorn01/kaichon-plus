@@ -171,6 +171,7 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
 
             {/* PromptPay QR Code Section (Hidden for Partner VIP) */}
             {!isPartnerVip && (
+              <>
               <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 text-center">
               <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-3 text-left">
                 2. {t('โอนเงินผ่านระบบพร้อมเพย์ (PromptPay)', 'Transfer via PromptPay')}
@@ -249,6 +250,7 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
                 </label>
               </div>
             </div>
+              </>
             )}
 
             {/* Action Buttons */}
