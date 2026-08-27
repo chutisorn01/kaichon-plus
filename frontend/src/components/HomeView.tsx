@@ -2,7 +2,6 @@ import { Swords, Search, ShieldCheck, Activity, BadgeCheck, Tag, X, Sparkles, Tr
 import { ThemeToggle } from './ThemeToggle';
 import { useState, useEffect } from 'react';
 import { getBandColorClass } from './pedigree/FatherRegistry';
-import { LanguageToggle } from './LanguageToggle';
 import { useLanguage } from './LanguageContext';
 
 const getBandColorCircleClass = (color: string) => {
@@ -107,7 +106,6 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
               </div>
             </div>
             <div className="flex items-center space-x-2 shrink-0 ml-2">
-              <LanguageToggle />
               <ThemeToggle />
               <button
                 onClick={() => onNavigate('login')}
