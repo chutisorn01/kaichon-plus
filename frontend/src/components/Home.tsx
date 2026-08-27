@@ -238,7 +238,7 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
 
               <div className="mt-3 flex flex-wrap justify-center gap-2">
                 <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mr-1 py-1">คำค้นยอดนิยม:</span>
-                {['พม่า', 'ก๋อย', '001', 'KCP', 'กุมารจีน'].map((tag) => (
+                {['พม่า', 'ก๋อย', '001', 'A99', 'KP-', 'ธนูทอง', 'เสือดำ', 'กุมารจีน', 'ก็อตซิล่า', 'ทันใจ'].map((tag) => (
                   <button 
                     key={tag} 
                     onClick={() => setSearchQuery(tag)}
