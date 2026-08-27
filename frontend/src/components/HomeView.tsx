@@ -100,7 +100,7 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
         <div className="w-full px-4">
           <div className="flex justify-between items-center h-16 relative">
             <div className="flex items-center min-w-0">
-              <div className="flex items-center group cursor-pointer shrink-0" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('home'); }}>
+              <div className="flex items-center group cursor-pointer shrink-0" onClick={() => { document.getElementById('home-main-scroll')?.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('home'); }}>
                 <Swords className="w-6 h-6 mr-2 text-red-600 dark:text-red-500 shrink-0" />
                 <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap overflow-hidden">KaiChon Plus</span>
               </div>
@@ -119,7 +119,7 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden">
+      <main id="home-main-scroll" className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden">
         {/* Hero Section */}
         <div className="pt-8 pb-8 sm:pt-16 sm:pb-12 lg:pt-16 lg:pb-12 w-full px-4">
           <div className="max-w-7xl mx-auto text-center">
