@@ -599,7 +599,7 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
       {/* Modern Bottom Navigation Bar */}
       <nav className="h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 fixed bottom-0 left-0 right-0 max-w-6xl mx-auto w-full flex items-center justify-around px-2 z-40 shadow-lg">
         <button 
-          onClick={() => { setActiveTab('home'); onNavigate('dashboard'); }}
+          onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveTab('home'); onNavigate('dashboard'); }}
           className={`flex flex-col items-center gap-1 flex-1 py-1 transition-all cursor-pointer ${activeTab === 'home' ? 'text-red-600 font-bold' : 'text-slate-400'}`}
         >
           <LayoutDashboard className={`w-5 h-5 ${activeTab === 'home' ? 'scale-110' : ''}`} />
