@@ -4,11 +4,13 @@ import { Settings, Save, Download, AlertTriangle, UserPlus, CheckCircle2, XCircl
 
 interface SystemSettings {
   isRegistrationOpen: boolean;
+  adminLineUrl?: string;
 }
 
 export default function AdminSettings() {
   const { language } = useLanguage();
-  const [settings, setSettings] = useState<SystemSettings>({ isRegistrationOpen: true });
+  const [settings, setSettings] = useState<SystemSettings>({ isRegistrationOpen: true, adminLineUrl: '' });
+  const [lineUrlInput, setLineUrlInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -27,6 +29,7 @@ export default function AdminSettings() {
       const data = await response.json();
       if (response.ok) {
         setSettings(data.data);
+        setLineUrlInput(data.data.adminLineUrl || '');
       }
     } catch (err) {
       console.error('Error fetching settings:', err);
@@ -55,6 +58,36 @@ export default function AdminSettings() {
       setSettings({ ...settings, isRegistrationOpen: newValue });
       setMessage({ 
         text: t('บันทึกการตั้งค่าสำเร็จ', 'Settings saved successfully'), 
+        type: 'success' 
+      });
+      
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    } catch (err: any) {
+      setMessage({ text: err.message || 'Error updating settings', type: 'error' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveLineUrl = async () => {
+    setIsSaving(true);
+    setMessage({ text: '', type: '' });
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/settings`, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ adminLineUrl: lineUrlInput })
+      });
+      
+      if (!response.ok) throw new Error('Failed to update settings');
+      
+      setSettings({ ...settings, adminLineUrl: lineUrlInput });
+      setMessage({ 
+        text: t('บันทึกลิงก์ LINE สำเร็จ', 'LINE link saved successfully'), 
         type: 'success' 
       });
       
@@ -163,6 +196,51 @@ export default function AdminSettings() {
                   <Save className="w-4 h-4" />
                 )}
                 {settings.isRegistrationOpen ? t('ปิดรับสมัครสมาชิก', 'Close Registration') : t('เปิดรับสมัครสมาชิก', 'Open Registration')}
+              </button>
+            </div>
+          </div>
+
+          {/* LINE Contact Link Panel */}
+          <div className="bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-6 space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400">
+                <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                  <path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 3.961 8.931 9.382 9.638.368.082.871.253.999.584.116.3.076.761.036 1.055l-.173 1.05c-.053.33-.25.992.868.522 1.118-.47 6.037-3.557 8.356-6.182 1.62-1.848 2.532-4.148 2.532-6.667zm-14.733 3.033h-3.411c-.347 0-.629-.283-.629-.629 0-.347.282-.629.629-.629h2.782v-3.32c0-.347.282-.629.629-.629.347 0 .629.282.629.629v3.949c0 .347-.282.629-.629.629zm2.748-4.578c.347 0 .629.282.629.629v3.949c0 .347-.282.629-.629.629-.347 0-.629-.283-.629-.629v-3.949c0-.346.282-.629.629-.629zm6.059 4.578h-2.193v-1.28h2.193c.347 0 .629-.283.629-.629 0-.347-.282-.629-.629-.629h-2.193v-1.281h2.193c.347 0 .629-.282.629-.629 0-.347-.282-.629-.629-.629h-2.822c-.347 0-.629.282-.629.629v3.949c0 .347.282.629.629.629h2.822c.347 0 .629-.283.629-.629 0-.347-.282-.629-.629-.629z"/>
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                  {t('ช่องทางติดต่อแอดมิน (LINE)', 'Admin Contact (LINE)')}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed mb-3">
+                  {t('ลิงก์นี้จะแสดงที่หน้าล็อกอินเมื่อผู้ใช้กด "ลืมรหัสผ่าน?"', 'This link is used for the "Forgot Password?" button on the login page.')}
+                </p>
+                <input
+                  type="text"
+                  value={lineUrlInput}
+                  onChange={(e) => setLineUrlInput(e.target.value)}
+                  placeholder="https://line.me/ti/p/~your_id"
+                  className="w-full text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200/50 dark:border-slate-700/50 flex justify-end">
+              <button
+                onClick={handleSaveLineUrl}
+                disabled={isSaving || lineUrlInput === settings.adminLineUrl}
+                className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${
+                  isSaving || lineUrlInput === settings.adminLineUrl
+                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 active:scale-[0.98]'
+                }`}
+              >
+                {isSaving ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                {t('บันทึกลิงก์', 'Save Link')}
               </button>
             </div>
           </div>

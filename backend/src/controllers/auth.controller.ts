@@ -166,7 +166,8 @@ export const getPublicSettings = async (req: Request, res: Response, next: NextF
     res.status(200).json({
       status: 'success',
       data: {
-        isRegistrationOpen: settings.isRegistrationOpen
+        isRegistrationOpen: settings.isRegistrationOpen,
+        adminLineUrl: settings.adminLineUrl
       }
     });
   } catch (error) {

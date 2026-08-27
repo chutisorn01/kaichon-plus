@@ -4,6 +4,10 @@ const systemSettingSchema = new mongoose.Schema({
   isRegistrationOpen: {
     type: Boolean,
     default: true
+  },
+  adminLineUrl: {
+    type: String,
+    default: 'https://line.me/ti/p/~your_line_id'
   }
 }, {
   timestamps: true

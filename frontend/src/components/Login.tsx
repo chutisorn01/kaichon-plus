@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Swords, Eye, EyeOff } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
@@ -13,6 +13,23 @@ export default function Login({ onNavigate }: { onNavigate: (page: any) => void 
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [customGoogleEmail, setCustomGoogleEmail] = useState('');
   const [customGoogleName, setCustomGoogleName] = useState('');
+  const [adminLineUrl, setAdminLineUrl] = useState('https://line.me/ti/p/~your_line_id');
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/settings`);
+      const data = await response.json();
+      if (response.ok && data.data?.adminLineUrl) {
+        setAdminLineUrl(data.data.adminLineUrl);
+      }
+    } catch (err) {
+      console.error('Error fetching settings:', err);
+    }
+  };
 
   const handleGoogleAuth = async (email: string, name: string) => {
     try {
@@ -183,7 +200,7 @@ export default function Login({ onNavigate }: { onNavigate: (page: any) => void 
 
               <div className="text-sm">
                 <a 
-                  href="https://line.me/ti/p/~your_line_id" 
+                  href={adminLineUrl}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="font-medium text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 transition-colors"

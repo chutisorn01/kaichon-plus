@@ -458,11 +458,14 @@ export const getSystemSettings = async (req: Request, res: Response, next: NextF
 
 export const updateSystemSettings = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { isRegistrationOpen } = req.body;
+    const { isRegistrationOpen, adminLineUrl } = req.body;
     let settings = await (SystemSetting as any).getSettings();
     
     if (isRegistrationOpen !== undefined) {
       settings.isRegistrationOpen = isRegistrationOpen;
+    }
+    if (adminLineUrl !== undefined) {
+      settings.adminLineUrl = adminLineUrl;
     }
     await settings.save();
 
