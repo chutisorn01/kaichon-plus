@@ -701,25 +701,25 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
           </div>
 
           {/* Registration Certificate Number */}
-          <div className="mt-3 p-4 bg-amber-500/5 dark:bg-amber-500/5 border border-amber-500/20 rounded-2xl flex items-center justify-between gap-3 shadow-[0_2px_12px_rgba(251,191,36,0.05)] relative overflow-hidden text-left">
+          <div className="mt-3 p-3.5 sm:p-4 bg-amber-500/5 dark:bg-amber-500/5 border border-amber-500/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 shadow-[0_2px_12px_rgba(251,191,36,0.05)] relative overflow-hidden text-left">
             <div className="absolute top-0 right-0 w-16 h-16 bg-amber-500/10 rounded-full blur-xl pointer-events-none"></div>
             
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-inner">
-                <Award className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-inner">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 dark:text-amber-400" />
               </div>
-              <div className="min-w-0">
-                <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
-                  เลขทะเบียนใบรับรองระบบดิจิทัล
+              <div className="min-w-0 flex-1">
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider truncate">
+                  เลขใบรับรองดิจิทัล
                 </div>
-                <div className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
-                  Digital Certificate Register No.
+                <div className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5 truncate">
+                  Digital Certificate No.
                 </div>
               </div>
             </div>
 
-            <div className="shrink-0 text-right">
-              <span className="inline-block font-mono font-black text-sm text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl shadow-sm tracking-wide select-all whitespace-nowrap">
+            <div className="shrink-0 w-full sm:w-auto text-left sm:text-right">
+              <span className="inline-block w-full sm:w-auto text-center sm:text-right font-mono font-black text-[13px] sm:text-sm text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-2 sm:py-1.5 rounded-xl shadow-sm tracking-wide select-all whitespace-nowrap">
                 KP-{chick._id.substring(12, 18).toUpperCase()}-{chick._id.substring(18, 24).toUpperCase()}
               </span>
             </div>
