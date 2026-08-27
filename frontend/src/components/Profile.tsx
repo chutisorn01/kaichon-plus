@@ -196,18 +196,27 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
       const wsChickens = XLSX.utils.json_to_sheet(chickens.map((c: any) => ({
         'รหัสไก่': c.code,
         'ชื่อไก่': c.name,
-        'สายพันธุ์': c.breed,
-        'เพศ': c.gender === 'M' ? 'ผู้' : 'เมีย',
-        'สี': c.color,
-        'วันที่ฟัก': c.hatchDate ? new Date(c.hatchDate).toLocaleDateString('th-TH') : '',
-        'สถานะ': c.status
+        'เพศ': c.gender === 'male' ? 'ผู้' : (c.gender === 'female' ? 'เมีย' : c.gender),
+        'สายเลือด': c.bloodline,
+        'พ่อไก่': c.father?.name || c.fatherNameText || '-',
+        'แม่ไก่': c.mother?.name || c.motherNameText || '-',
+        'เบอร์แข้ง': c.bandNumber || '-',
+        'สีเบอร์แข้ง': c.bandColor || '-',
+        'ข้อความบนเบอร์แข้ง': c.bandText || '-',
+        'วันที่ฟัก': c.hatchDate ? new Date(c.hatchDate).toLocaleDateString('th-TH') : '-',
+        'สถานะ': c.status || 'ปกติ',
+        'ข้อมูลการขาย (ลูกค้า)': c.saleInfo?.customerName || '-',
+        'ข้อมูลการขาย (ฟาร์ม)': c.saleInfo?.customerFarm || '-',
+        'ข้อมูลการขาย (เบอร์โทร)': c.saleInfo?.customerPhone || '-',
+        'ข้อมูลการขาย (ราคา)': c.saleInfo?.price || '-',
+        'หมายเหตุ': c.notes || '-'
       })));
       XLSX.utils.book_append_sheet(wb, wsChickens, 'ไก่ชนทั้งหมด');
 
       // 2. VIP Breeding Sheet
       const wsVip = XLSX.utils.json_to_sheet(vipBreeding.map((v: any) => ({
         'คิวที่': v.queueNo,
-        'วันที่รับเข้า': v.intakeDate ? new Date(v.intakeDate).toLocaleDateString('th-TH') : '',
+        'วันที่รับเข้า': v.intakeDate ? new Date(v.intakeDate).toLocaleDateString('th-TH') : '-',
         'ชื่อแม่ไก่': v.motherName,
         'พ่อพันธุ์': v.father?.name || '-',
         'น้ำหนัก (กก.)': v.weight,
@@ -222,10 +231,17 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
       const wsFathers = XLSX.utils.json_to_sheet(fathers.map((f: any) => ({
         'รหัส': f.code,
         'ชื่อพ่อพันธุ์': f.name,
-        'สายพันธุ์': f.breed,
-        'เบอร์แข้ง': f.bandNumber,
-        'ค่าฝากผสม (บาท)': f.matingFee,
-        'เบอร์โทร': f.contactPhone
+        'สายพันธุ์': f.breed || '-',
+        'สี': f.color || '-',
+        'เบอร์แข้ง': f.bandNumber || '-',
+        'พ่อ': f.fatherNameText || '-',
+        'แม่': f.motherNameText || '-',
+        'วันที่ฟัก': f.hatchDate ? new Date(f.hatchDate).toLocaleDateString('th-TH') : '-',
+        'ประวัติและผลงาน': f.records || '-',
+        'ค่าฝากผสม (บาท)': f.studFee || f.matingFee || '-',
+        'สถานะ': f.status || 'ปกติ',
+        'ข้อมูลการขาย (ลูกค้า)': f.saleInfo?.customerName || '-',
+        'ข้อมูลการขาย (ราคา)': f.saleInfo?.price || '-'
       })));
       XLSX.utils.book_append_sheet(wb, wsFathers, 'พ่อพันธุ์');
 
@@ -233,9 +249,17 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
       const wsMothers = XLSX.utils.json_to_sheet(mothers.map((m: any) => ({
         'รหัส': m.code,
         'ชื่อแม่พันธุ์': m.name,
-        'สายพันธุ์': m.breed,
+        'สายพันธุ์': m.breed || '-',
+        'สี': m.color || '-',
         'เบอร์แข้ง': m.bandNumber || '-',
-        'สถานะ': m.status
+        'พ่อ': m.fatherNameText || '-',
+        'แม่': m.motherNameText || '-',
+        'แหล่งที่มา': m.source || '-',
+        'วันที่ฟัก': m.hatchDate ? new Date(m.hatchDate).toLocaleDateString('th-TH') : '-',
+        'ประวัติและผลงาน': m.records || '-',
+        'สถานะ': m.status || 'ปกติ',
+        'ข้อมูลการขาย (ลูกค้า)': m.saleInfo?.customerName || '-',
+        'ข้อมูลการขาย (ราคา)': m.saleInfo?.price || '-'
       })));
       XLSX.utils.book_append_sheet(wb, wsMothers, 'แม่พันธุ์ในซุ้ม');
 
