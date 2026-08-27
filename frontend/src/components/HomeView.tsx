@@ -237,8 +237,8 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
 
             <div className="mt-3 flex flex-wrap justify-center gap-2">
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mr-1 py-1">{t('popularSearches')}</span>
-              {['พม่า', 'ก๋อย', '001', 'KCP', 'กุมารจีน'].map((tag) => (
-                <button
+              {['พม่า', 'ก๋อย', '001', 'A99', 'KP-', 'ธนูทอง', 'เสือดำ', 'กุมารจีน', 'ก็อตซิล่า', 'ทันใจ'].map((tag) => (
+                <button 
                   key={tag}
                   onClick={() => setSearchQuery(tag)}
                   className="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-medium transition-all"
