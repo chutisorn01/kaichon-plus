@@ -184,6 +184,25 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm('คุณต้องการลบผู้ใช้งานรายนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้')) return;
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Error deleting user');
+      alert('ลบผู้ใช้งานสำเร็จ');
+      fetchUsers();
+    } catch (err: any) {
+      alert(err.message || 'Error deleting user');
+    }
+  };
+
   // Toggle Partner VIP status of user
   const handleTogglePartnerVip = async (userId: string, currentStatus: boolean) => {
     const token = localStorage.getItem('token');
@@ -795,6 +814,18 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                                   title="ให้สิทธิ์ใช้งานทุกอย่างฟรี ไม่มีลิมิต"
                                 >
                                   {u.isPartnerVip ? t('ยกเลิก Partner', 'Revoke Partner') : t('ให้สิทธิ์ Partner 👑', 'Grant Partner VIP')}
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteUser(u._id)}
+                                  disabled={u.username === 'adminkaichon'}
+                                  className={`px-3 py-2 rounded-xl text-[10px] font-black transition-all active:scale-[0.98] cursor-pointer ${
+                                    u.username === 'adminkaichon' 
+                                      ? 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
+                                      : 'bg-red-100 dark:bg-red-900/30 text-red-600 hover:bg-red-200 border border-red-200 dark:border-red-800'
+                                  }`}
+                                  title={u.username === 'adminkaichon' ? 'บัญชีผู้ดูแลสูงสุด ไม่สามารถลบได้' : 'ลบผู้ใช้งาน'}
+                                >
+                                  {t('ลบผู้ใช้', 'Delete')}
                                 </button>
                               </div>
                             )}

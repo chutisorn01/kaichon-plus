@@ -534,3 +534,26 @@ export const togglePartnerVip = async (req: Request, res: Response, next: NextFu
     next(error);
   }
 };
+
+export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return next(new AppError('ไม่พบข้อมูลผู้ใช้งาน', 404));
+    }
+    
+    // Optional: prevent deleting the main admin
+    if (user.username === 'adminkaichon') {
+      return next(new AppError('ไม่อนุญาตให้ลบบัญชีผู้ดูแลระบบสูงสุด', 403));
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'ลบผู้ใช้งานสำเร็จ'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
