@@ -511,3 +511,23 @@ export const backupData = async (req: Request, res: Response, next: NextFunction
   }
 };
 
+// Toggle Partner VIP status
+export const togglePartnerVip = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await User.findById(req.params.id);
+    
+    if (!user) {
+      return next(new AppError('ไม่พบข้อมูลผู้ใช้งาน', 404));
+    }
+
+    user.isPartnerVip = !user.isPartnerVip;
+    await user.save();
+
+    res.status(200).json({
+      status: 'success',
+      data: user
+    });
+  } catch (error) {
+    next(error);
+  }
+};

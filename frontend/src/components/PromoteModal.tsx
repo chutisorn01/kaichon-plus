@@ -26,6 +26,15 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
     }
   };
 
+  const user = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('dashboard_user') || '{}');
+    } catch {
+      return {};
+    }
+  })();
+  const isPartnerVip = user.isPartnerVip === true;
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -40,7 +49,7 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!slipImage) {
+    if (!isPartnerVip && !slipImage) {
       setError(language === 'th' ? 'กรุณาอัปโหลดสลิปการโอนเงิน' : 'Please upload payment slip');
       return;
     }
@@ -151,8 +160,18 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
               </div>
             </div>
 
-            {/* PromptPay QR Code Section */}
-            <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 text-center">
+            {/* Partner VIP Badge */}
+            {isPartnerVip && (
+              <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50 flex flex-col items-center justify-center text-center">
+                <span className="text-2xl mb-2">👑</span>
+                <p className="font-bold text-amber-700 dark:text-amber-400">คุณได้รับสิทธิ์ Partner VIP</p>
+                <p className="text-sm text-amber-600 dark:text-amber-500 mt-1">สามารถกดทำรายการโปรโมทพ่อพันธุ์ได้ฟรี โดยไม่ต้องแนบสลิปโอนเงิน</p>
+              </div>
+            )}
+
+            {/* PromptPay QR Code Section (Hidden for Partner VIP) */}
+            {!isPartnerVip && (
+              <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 text-center">
               <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-3 text-left">
                 2. {t('โอนเงินผ่านระบบพร้อมเพย์ (PromptPay)', 'Transfer via PromptPay')}
               </label>
@@ -230,6 +249,7 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
                 </label>
               </div>
             </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
@@ -243,7 +263,7 @@ export default function PromoteModal({ father, onClose, onSuccess }: PromoteModa
               </button>
               <button
                 type="submit"
-                disabled={isLoading || !slipImage}
+                disabled={isLoading || (!isPartnerVip && !slipImage)}
                 className="flex-1 py-3 px-4 font-bold text-white bg-red-600 hover:bg-red-700 rounded-2xl transition-all cursor-pointer text-center shadow-lg shadow-red-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (

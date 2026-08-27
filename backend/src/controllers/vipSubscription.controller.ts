@@ -4,16 +4,18 @@ import { VipSubscription } from '../models/vipSubscription.model.js';
 export const createSubscription = async (req: Request, res: Response) => {
   try {
     const { amount, slipImage } = req.body;
+    const reqUser = (req as any).user;
+    const isPartnerVip = reqUser?.isPartnerVip === true;
 
-    if (!amount || !slipImage) {
+    if (!isPartnerVip && (!amount || !slipImage)) {
       return res.status(400).json({ success: false, message: 'Please provide amount and slip image' });
     }
 
     const subscription = new VipSubscription({
-      user: (req as any).user?._id,
-      amount,
-      slipImage,
-      status: 'pending'
+      user: reqUser?._id,
+      amount: isPartnerVip ? 0 : amount,
+      slipImage: isPartnerVip ? 'partner-vip-auto-approved' : slipImage,
+      status: isPartnerVip ? 'active' : 'pending'
     });
     
     await subscription.save();

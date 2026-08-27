@@ -140,7 +140,7 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
   };
 
   const submitSubscription = async () => {
-    if (!slipImage) return;
+    if (!user?.isPartnerVip && !slipImage) return;
     setSubmitting(true);
     try {
       const token = localStorage.getItem('token');
@@ -151,13 +151,17 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
           'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({
-          amount: 500, // VIP Price
-          slipImage
+          amount: user?.isPartnerVip ? 0 : 500, // VIP Price
+          slipImage: user?.isPartnerVip ? 'partner-vip-auto-approved' : slipImage
         })
       });
       const data = await res.json();
       if (data.success) {
-        setSubscriptionStatus('pending');
+        if (user?.isPartnerVip) {
+          setIsVIP(true); // Auto-activate
+        } else {
+          setSubscriptionStatus('pending');
+        }
       }
     } catch (err) {
       console.error(err);
@@ -382,34 +386,47 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
         </div>
       ) : (
         <div className="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 w-full max-w-sm flex flex-col items-center">
-          <div className="text-yellow-400 font-bold text-2xl mb-4">500 ฿ <span className="text-sm text-slate-400 font-normal">/ ตลอดชีพ</span></div>
           
-          <img src="/promptpay-qr.JPG" alt="PromptPay QR" className="w-48 h-48 rounded-xl mb-6 shadow-md object-cover" />
-          
-          <div className="w-full mb-6">
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-600 border-dashed rounded-xl cursor-pointer bg-slate-800/50 hover:bg-slate-700 transition-colors">
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <Camera className="w-8 h-8 mb-2 text-slate-400" />
-                <p className="text-sm text-slate-400 font-bold">อัปโหลดสลิปโอนเงิน</p>
+          {user?.isPartnerVip ? (
+            <div className="text-center w-full mb-6">
+              <div className="w-16 h-16 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
+                <Crown className="w-8 h-8" />
               </div>
-              <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-            </label>
-            {slipImage && (
-              <div className="mt-4 relative rounded-lg overflow-hidden border border-slate-600">
-                <img src={slipImage} alt="Slip preview" className="w-full h-32 object-cover" />
-                <button onClick={() => setSlipImage(null)} className="absolute top-2 right-2 p-1 bg-black/60 rounded-full text-white hover:bg-red-500 transition-colors">
-                  <X className="w-4 h-4" />
-                </button>
+              <h3 className="text-xl font-bold text-amber-400 mb-2">คุณได้รับสิทธิ์ Partner VIP</h3>
+              <p className="text-sm text-slate-300">เปิดใช้งานระบบ VIP Breeding ได้ทันทีโดยไม่ต้องชำระเงินและรออนุมัติ</p>
+            </div>
+          ) : (
+            <>
+              <div className="text-yellow-400 font-bold text-2xl mb-4">500 ฿ <span className="text-sm text-slate-400 font-normal">/ ตลอดชีพ</span></div>
+              
+              <img src="/promptpay-qr.JPG" alt="PromptPay QR" className="w-48 h-48 rounded-xl mb-6 shadow-md object-cover" />
+              
+              <div className="w-full mb-6">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-600 border-dashed rounded-xl cursor-pointer bg-slate-800/50 hover:bg-slate-700 transition-colors">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Camera className="w-8 h-8 mb-2 text-slate-400" />
+                    <p className="text-sm text-slate-400 font-bold">อัปโหลดสลิปโอนเงิน</p>
+                  </div>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                </label>
+                {slipImage && (
+                  <div className="mt-4 relative rounded-lg overflow-hidden border border-slate-600">
+                    <img src={slipImage} alt="Slip preview" className="w-full h-32 object-cover" />
+                    <button onClick={() => setSlipImage(null)} className="absolute top-2 right-2 p-1 bg-black/60 rounded-full text-white hover:bg-red-500 transition-colors">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
 
           <button 
             onClick={submitSubscription}
-            disabled={!slipImage || submitting}
+            disabled={(!user?.isPartnerVip && !slipImage) || submitting}
             className="w-full py-3 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-900 font-black rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
-            {submitting ? 'กำลังส่งข้อมูล...' : 'ยืนยันการชำระเงิน'}
+            {submitting ? 'กำลังส่งข้อมูล...' : user?.isPartnerVip ? 'ยืนยันเปิดใช้งานระบบฟรี' : 'ยืนยันการชำระเงิน'}
           </button>
         </div>
       )}

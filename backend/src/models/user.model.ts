@@ -7,6 +7,7 @@ export interface IUser extends Document {
   passwordSalt: string;
   name: string;
   role: string;
+  isPartnerVip?: boolean;
   farmName?: string;
   farmCode?: string;
   isVerified?: boolean;
@@ -76,6 +77,10 @@ const userSchema = new Schema<IUser>(
       default: false,
     },
     isVIP: {
+      type: Boolean,
+      default: false,
+    },
+    isPartnerVip: {
       type: Boolean,
       default: false,
     },

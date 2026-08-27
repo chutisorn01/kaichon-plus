@@ -18,7 +18,8 @@ import {
   blockUser,
   changeUserPassword,
   changeUserRole,
-  searchFathers
+  searchFathers,
+  togglePartnerVip
 } from '../controllers/admin.controller.js';
 
 const router = Router();
@@ -37,6 +38,7 @@ router.put('/users/:id/block', blockUser);
 router.put('/users/:id/password', changeUserPassword);
 router.put('/users/:id/role', changeUserRole);
 router.put('/users/:id/verify', verifyUser);
+router.put('/users/:id/partner-vip', togglePartnerVip);
 router.get('/promotions', getPromotions);
 router.put('/promotions/:id/approve', approvePromotion);
 router.put('/promotions/:id/reject', rejectPromotion);

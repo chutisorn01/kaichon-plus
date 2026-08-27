@@ -184,6 +184,27 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
     }
   };
 
+  // Toggle Partner VIP status of user
+  const handleTogglePartnerVip = async (userId: string, currentStatus: boolean) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users/${userId}/partner-vip`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ isPartnerVip: !currentStatus })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to update user');
+
+      setUsers(users.map(u => u._id === userId ? { ...u, isPartnerVip: !currentStatus } : u));
+    } catch (err: any) {
+      alert(err.message || 'Error updating partner VIP status');
+    }
+  };
+
   // Approve Promotion Request
   const handleApprovePromotion = async (promoId: string) => {
     if (!window.confirm(language === 'th' ? 'ยืนยันอนุมัติการโปรโมทนี้?' : 'Confirm approval for this promotion?')) return;
@@ -713,6 +734,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                               <p className="font-extrabold text-slate-900 dark:text-white flex items-center gap-1 text-sm">
                                 {u.farmName || t('ยังไม่ตั้งชื่อซุ้มฟาร์ม', 'No Farm Name')}
                                 {u.isVerified && <BadgeCheck className="w-4.5 h-4.5 text-blue-500 shrink-0" />}
+                                {u.isPartnerVip && <Crown className="w-4.5 h-4.5 text-yellow-500 shrink-0" title="Partner VIP 👑" />}
                               </p>
                               <p className="text-[10px] font-mono text-slate-400 mt-0.5">{u.farmCode || '-'}</p>
                             </div>
@@ -762,6 +784,17 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                                   }`}
                                 >
                                   {u.isVerified ? t('ยกเลิกการรับรอง', 'Revoke Verify') : t('อนุมัติ Verified 🔵', 'Approve Verified')}
+                                </button>
+                                <button
+                                  onClick={() => handleTogglePartnerVip(u._id, !!u.isPartnerVip)}
+                                  className={`px-3 py-2 rounded-xl text-[10px] font-black transition-all active:scale-[0.98] cursor-pointer ${
+                                    u.isPartnerVip
+                                      ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 border border-amber-200 dark:border-amber-800'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 hover:bg-slate-200 border border-slate-200'
+                                  }`}
+                                  title="ให้สิทธิ์ใช้งานทุกอย่างฟรี ไม่มีลิมิต"
+                                >
+                                  {u.isPartnerVip ? t('ยกเลิก Partner', 'Revoke Partner') : t('ให้สิทธิ์ Partner 👑', 'Grant Partner VIP')}
                                 </button>
                               </div>
                             )}

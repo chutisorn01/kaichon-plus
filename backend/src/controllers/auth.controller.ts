@@ -85,6 +85,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         email: user.email,
         name: user.name,
         role: user.role,
+        isPartnerVip: user.isPartnerVip,
       },
     });
   } catch (error) {
@@ -138,7 +139,8 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
         email: user.email,
         name: user.name,
         role: user.role,
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
+        isPartnerVip: user.isPartnerVip
       },
     });
   } catch (error) {
