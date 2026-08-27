@@ -227,11 +227,11 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
       {/* Mobile Top Header */}
       <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-white/10 flex items-center justify-center px-4 sticky top-0 z-50">
         <div className="max-w-6xl w-full flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => onNavigate('dashboard')}>
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('dashboard'); }}>
+            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
               <Swords className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg">KaiChon Plus</span>
+            <span className="font-bold text-lg group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">KaiChon Plus</span>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />

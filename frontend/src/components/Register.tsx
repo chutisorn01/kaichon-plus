@@ -103,7 +103,7 @@ export default function Register({ onNavigate }: { onNavigate: (page: any) => vo
       <div className="absolute bottom-[-10%] right-[-10%] w-72 h-72 sm:w-96 sm:h-96 bg-orange-400 dark:bg-orange-600 rounded-full mix-blend-multiply dark:mix-blend-multiply filter blur-[96px] sm:blur-[128px] opacity-30 dark:opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
 
       <div className="w-full max-w-md mx-auto relative z-10 mb-6 sm:mb-8">
-        <div className="text-center group cursor-pointer" onClick={() => onNavigate('home')}>
+        <div className="text-center group cursor-pointer" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); onNavigate('home'); }}>
           <div className="inline-flex items-center justify-center p-3 bg-linear-to-br from-red-500 to-orange-600 rounded-2xl shadow-lg shadow-red-500/30 mb-3 sm:mb-4 transform transition-transform group-hover:scale-105">
             <Swords className="w-8 h-8 text-white" />
           </div>
