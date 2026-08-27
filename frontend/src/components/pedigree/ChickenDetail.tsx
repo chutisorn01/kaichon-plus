@@ -264,7 +264,10 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const headers = { 'Authorization': `Bearer ${token}` };
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
 
       // Fetch using the unified includeAny endpoint with cache buster
       let res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens/${chickenId}?includeAny=true&t=${Date.now()}`, { headers }).catch(() => null);
@@ -427,7 +430,10 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
 
     try {
       const token = localStorage.getItem('token');
-      const headers = { 'Authorization': `Bearer ${token}` };
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
 
       const collection = chick?._sourceCollection || 'chickens';
       const endpoint = `${import.meta.env.VITE_API_URL}/api/${collection}/${chickenId}`;

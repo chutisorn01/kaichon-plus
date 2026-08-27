@@ -229,7 +229,7 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
       <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-white/10 flex items-center justify-center px-4 sticky top-0 z-50">
         <div className="max-w-6xl w-full flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => onNavigate('home')}>
+            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center cursor-pointer" onClick={() => onNavigate('dashboard')}>
               <Swords className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-lg">KaiChon Plus</span>
