@@ -161,7 +161,7 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
       const headers = { 'Authorization': `Bearer ${token}` };
 
       // Fetch all data in parallel
-      const [chickensRes, vipBreedingRes, fathersRes, breedersRes] = await Promise.all([
+      const [chickensRes, vipBreedingRes, fathersRes, mothersRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL}/api/chickens`, { headers }),
         fetch(`${import.meta.env.VITE_API_URL}/api/vip-breeding`, { headers }), // Adjust if endpoint is different
         fetch(`${import.meta.env.VITE_API_URL}/api/fathers`, { headers }), // Fetch fathers and we will filter if needed, or if the API returns all, we might need a specific 'me' endpoint
