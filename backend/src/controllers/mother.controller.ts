@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Mother } from '../models/mother.model';
-import { Chicken } from '../models/chicken.model';
+import { Mother } from '../models/mother.model.js';
+import { Chicken } from '../models/chicken.model.js';
 
 export const getMothers = async (req: any, res: Response) => {
   try {

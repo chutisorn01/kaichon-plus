@@ -5,8 +5,8 @@ import {
   createMother, 
   updateMother, 
   deleteMother 
-} from '../controllers/mother.controller';
-import { protect } from '../middleware/auth.middleware';
+} from '../controllers/mother.controller.js';
+import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 

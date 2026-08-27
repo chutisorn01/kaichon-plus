@@ -6,8 +6,8 @@ import {
   updateChick, 
   deleteChick,
   getSiblings
-} from '../controllers/chick.controller';
-import { protect } from '../middleware/auth.middleware';
+} from '../controllers/chick.controller.js';
+import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 

@@ -289,7 +289,8 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
 
         {promotedFathers.length > 0 && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-4 w-full overflow-x-hidden border-b border-slate-100 dark:border-slate-800/50">
-                      {promotedFathers.map((father, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
+              {promotedFathers.map((father, index) => (
                 <div 
                   key={father._id}
                   onClick={() => onNavigate('chicken-detail', father._id)}
@@ -335,7 +336,7 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
                           )}
                         </span>
                       </div>
- 
+
                       <div className="flex justify-between items-center text-xs font-bold">
                         <span className="text-slate-400 font-semibold">{language === 'th' ? 'สายเลือด' : 'Bloodline'}</span>
                         <span className="text-slate-700 dark:text-slate-300 bg-slate-105 px-2.5 py-0.5 rounded-lg border border-slate-200/50 dark:border-slate-800 font-semibold truncate max-w-[150px]">
@@ -347,20 +348,6 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
                         <span className="text-slate-400 font-semibold">{language === 'th' ? 'ความนิยม' : 'Popularity'}</span>
                         <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-black">
                           👑 {language === 'th' ? 'พ่อไก่ติดอันดับยอดนิยม' : 'Top Popular Stud'}
-                        </span>
-                      </div>�ง' : 'Owner Farm'}</span>
-                        <span className="text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                          {father.user?.farmName || father.user?.name || 'ฟาร์มสมาชิก'}
-                          {father.user?.isVerified && (
-                            <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />
-                          )}
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between items-center text-xs font-bold">
-                        <span className="text-slate-400 font-semibold">{language === 'th' ? 'สายเลือด' : 'Bloodline'}</span>
-                        <span className="text-slate-700 dark:text-slate-300 bg-slate-105 px-2.5 py-0.5 rounded-lg border border-slate-200/50 dark:border-slate-800 font-semibold truncate max-w-[150px]">
-                          {father.breed || 'ไม่ระบุ'}
                         </span>
                       </div>
 

@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
-import { BreedingBatch } from '../models/breedingBatch.model';
-import { Chick } from '../models/chick.model';
+import { BreedingBatch } from '../models/breedingBatch.model.js';
+import { Chick } from '../models/chick.model.js';
 
 export const createBreedingBatch = async (req: any, res: Response, next: NextFunction) => {
   try {

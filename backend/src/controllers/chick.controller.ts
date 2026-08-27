@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Chick } from '../models/chick.model';
+import { Chick } from '../models/chick.model.js';
 
 export const getChicks = async (req: any, res: Response, next: NextFunction) => {
   try {

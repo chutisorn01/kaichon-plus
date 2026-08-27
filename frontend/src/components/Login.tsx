@@ -182,7 +182,16 @@ export default function Login({ onNavigate }: { onNavigate: (page: any) => void 
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 transition-colors">
+                <a 
+                  href="https://line.me/ti/p/~your_line_id" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="font-medium text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 transition-colors flex items-center gap-1"
+                  title="ติดต่อแอดมินผ่าน LINE เพื่อรีเซ็ตรหัสผ่าน"
+                >
+                  <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 3.961 8.931 9.382 9.638.368.082.871.253.999.584.116.3.076.761.036 1.055l-.173 1.05c-.053.33-.25.992.868.522 1.118-.47 6.037-3.557 8.356-6.182 1.62-1.848 2.532-4.148 2.532-6.667zm-14.733 3.033h-3.411c-.347 0-.629-.283-.629-.629 0-.347.282-.629.629-.629h2.782v-3.32c0-.347.282-.629.629-.629.347 0 .629.282.629.629v3.949c0 .347-.282.629-.629.629zm2.748-4.578c.347 0 .629.282.629.629v3.949c0 .347-.282.629-.629.629-.347 0-.629-.283-.629-.629v-3.949c0-.346.282-.629.629-.629zm6.059 4.578h-2.193v-1.28h2.193c.347 0 .629-.283.629-.629 0-.347-.282-.629-.629-.629h-2.193v-1.281h2.193c.347 0 .629-.282.629-.629 0-.347-.282-.629-.629-.629h-2.822c-.347 0-.629.282-.629.629v3.949c0 .347.282.629.629.629h2.822c.347 0 .629-.283.629-.629 0-.347-.282-.629-.629-.629z"/>
+                  </svg>
                   ลืมรหัสผ่าน?
                 </a>
               </div>
