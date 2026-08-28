@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, ChevronLeft, Trash2, Edit, Swords, Tag, User, Users, ChevronDown, ChevronUp, Plus, Download, Loader2, X, CheckCircle, Home, Crown, Layers } from 'lucide-react'; // Trigger HMR
 import JSZip from 'jszip';
-import html2canvas from 'html2canvas';
+import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { CustomSelect } from '../ui/CustomSelect';
 import { getBandColorClass } from './FatherRegistry';
@@ -161,14 +161,14 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           const chick = sortedSelectedChicks[i];
           const element = document.getElementById(`cert-${chick._id}`);
           if (element) {
-            const canvas = await html2canvas(element, {
-              scale: 1.5,
+            const dataUrl = await toJpeg(element, {
+              quality: 0.95,
               backgroundColor: '#0f172a',
+              pixelRatio: 1.5,
               useCORS: true,
-              allowTaint: false,
-              logging: false
+              cacheBust: true,
+              style: { transform: 'scale(1)', transformOrigin: 'top left' }
             });
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             
             if (i > 0) pdf.addPage();
             pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, (1123 * pdfWidth) / 794);
@@ -189,14 +189,14 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           const chick = sortedSelectedChicks[i];
           const element = document.getElementById(`cert-${chick._id}`);
           if (element) {
-            const canvas = await html2canvas(element, {
-              scale: 1.5,
+            const dataUrl = await toJpeg(element, {
+              quality: 0.95,
               backgroundColor: '#0f172a',
+              pixelRatio: 1.5,
               useCORS: true,
-              allowTaint: false,
-              logging: false
+              cacheBust: true,
+              style: { transform: 'scale(1)', transformOrigin: 'top left' }
             });
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             
             // Add image to zip
             const base64Data = dataUrl.split(',')[1];
