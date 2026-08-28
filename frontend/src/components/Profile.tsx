@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Edit, Save, LogOut, Share2, MapPin, Phone, Globe, Camera, UserCircle2, CheckCircle, Info, Image as ImageIcon, Map, MessageCircle, BadgeCheck, Crown, Lock, AlertTriangle, Upload, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Save, LogOut, Share2, MapPin, Phone, Globe, Camera, UserCircle2, CheckCircle, Info, Image as ImageIcon, Map, MessageCircle, BadgeCheck, Crown, Lock, AlertTriangle, Upload, Download, Check } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
@@ -25,6 +25,7 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [showVerifiedPackageModal, setShowVerifiedPackageModal] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -503,6 +504,28 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
                 <label className="text-xs font-bold text-slate-500">ชื่อซุ้ม / ฟาร์ม (Farm Name)</label>
                 <input className={inputClass} value={formData.farmName} onChange={e => setFormData({...formData, farmName: e.target.value})} placeholder="Ex. ซุ้ม ส.เจริญชัย" />
               </div>
+
+              {/* Verified Farm Badge Toggle Switch - Display Only / Triggers Modal */}
+              <div 
+                className="flex items-center justify-between p-3.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-2xl border border-blue-200/80 dark:border-blue-900/50 cursor-pointer hover:bg-blue-100/50 dark:hover:bg-blue-900/40 transition-colors"
+                onClick={() => setShowVerifiedPackageModal(true)}
+              >
+                <div className="flex items-center gap-2.5">
+                  <BadgeCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                  <div>
+                    <div className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1">
+                      เครื่องหมายรับรองฟาร์ม (Verified Badge)
+                      <span className="px-1.5 py-0.5 text-[8px] uppercase tracking-wider bg-blue-600 text-white rounded-md font-bold">Premium</span>
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">แสดงเครื่องหมายรับรองยึกๆ กลมๆ สีฟ้าหลังชื่อฟาร์มในทุกหน้า</div>
+                  </div>
+                </div>
+                <div className="relative inline-flex items-center shrink-0">
+                  <div className={`w-11 h-6 rounded-full transition-all ${user?.isVerified ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}>
+                    <div className={`absolute top-[2px] left-[2px] bg-white border border-slate-300 dark:border-slate-600 rounded-full h-5 w-5 transition-all ${user?.isVerified ? 'translate-x-full border-white' : ''}`}></div>
+                  </div>
+                </div>
+              </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">ชื่อผู้ดูแล (Your Name)</label>
                 <input className={inputClass} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ex. สมชาย" />
@@ -833,6 +856,65 @@ export default function Profile({ onNavigate }: { onNavigate: (page: string) => 
             >
               ตกลง
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Verified Package Modal */}
+      {showVerifiedPackageModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowVerifiedPackageModal(false)}>
+          <div className="relative max-w-sm w-full bg-white dark:bg-slate-900 rounded-[2rem] p-6 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-center" onClick={e => e.stopPropagation()}>
+            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 relative">
+              <BadgeCheck className="w-8 h-8" />
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center shadow-sm">
+                <span className="text-[10px] font-black text-slate-900">👑</span>
+              </div>
+            </div>
+            
+            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 leading-tight">
+              แพ็คเกจฟาร์มรับรอง<br/>
+              <span className="text-blue-600 dark:text-blue-400 text-base">Verified Farm Premium</span>
+            </h3>
+            
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+              ยกระดับความน่าเชื่อถือให้กับฟาร์มของคุณ<br/>
+              ด้วยเครื่องหมายรับรอง <span className="inline-flex items-center gap-0.5 text-blue-600">🔵✔</span> สีฟ้า<br/>
+              ที่ทุกคนจะเห็นทุกครั้งที่ค้นหาไก่ของคุณ!
+            </p>
+
+            <div className="bg-slate-50 dark:bg-slate-850/50 rounded-2xl p-4 mb-6 text-left space-y-3">
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">ได้รับความน่าเชื่อถือสูงสุดจากผู้ซื้อ</div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">โดดเด่นกว่าใครในผลการค้นหาหน้าแรก</div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">อัปเกรดสถานะบัญชีเป็น Verified Member</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/30 rounded-xl text-xs font-black text-blue-700 dark:text-blue-400 animate-pulse">
+                🚀 Coming Soon! ระบบกำลังพัฒนา...
+              </div>
+              
+              <button 
+                onClick={() => setShowVerifiedPackageModal(false)}
+                className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-black rounded-xl transition-all text-xs cursor-pointer"
+              >
+                ปิดหน้าต่าง
+              </button>
+            </div>
           </div>
         </div>
       )}
