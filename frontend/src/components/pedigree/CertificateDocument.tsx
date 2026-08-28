@@ -1,3 +1,4 @@
+import { SafeImage } from '../ui/SafeImage';
 import React from 'react';
 import { ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck } from 'lucide-react';
 import { getBandColorCircleClass, getBandTextColorClass, getBandContrastTextClass, getBandBorderColorClass, getBandBgFadedClass } from './ChickenDetail';
@@ -39,7 +40,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  {/* Background Watermark */}
  <div className="absolute inset-0 flex items-center justify-center opacity-25 z-0 pointer-events-none overflow-hidden">
  {chicken.user?.profileImage || chicken.user?.coverImage ? (
- <img crossOrigin="anonymous" src={chicken.user.coverImage || chicken.user.profileImage} alt="Watermark" className="w-full h-full object-cover" />
+ <SafeImage crossOrigin="anonymous" src={chicken.user.coverImage || chicken.user.profileImage} alt="Watermark" className="w-full h-full object-cover" />
  ) : (
  <ShieldCheck className="w-[600px] h-[600px] text-amber-500/50" />
  )}
@@ -88,7 +89,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  <div className="absolute inset-0 rounded-3xl border border-white/40 m-1 z-20 pointer-events-none"></div>
  <div className="w-full h-full rounded-[24px] bg-slate-900 overflow-hidden shadow-inner relative z-10">
  {chicken.image ? (
- <img crossOrigin="anonymous" src={chicken.image} alt="Chicken" className="w-full h-full object-cover" />
+ <SafeImage crossOrigin="anonymous" src={chicken.image} alt="Chicken" className="w-full h-full object-cover" />
  ) : (
  <Trophy className="w-16 h-16 opacity-50 text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
  )}
@@ -114,7 +115,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  {/* Right: Signature/Stamp */}
  <div className="flex flex-col items-center justify-center relative mt-2 pr-4">
  {chicken.user?.signatureImage ? (
- <img crossOrigin="anonymous" src={chicken.user.signatureImage} alt="Signature" className="h-12 object-contain " />
+ <SafeImage crossOrigin="anonymous" src={chicken.user.signatureImage} alt="Signature" className="h-12 object-contain " />
  ) : (
  <div className="text-3xl text-amber-400 -rotate-6 pb-1" style={{ fontFamily: "'Charm', cursive" }}>
  {chicken.user?.farmName || chicken.user?.name || 'ชุติศรณ์ ฟาร์ม'}
@@ -242,7 +243,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  </div>
  {chicken.father?.image ? (
  <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/50 overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.4)]">
- <img crossOrigin="anonymous" src={chicken.father.image} alt={chicken.father.name} className="w-full h-full object-cover" />
+ <SafeImage crossOrigin="anonymous" src={chicken.father.image} alt={chicken.father.name} className="w-full h-full object-cover" />
  </div>
  ) : (
  <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/20 bg-blue-900/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)]">
@@ -267,7 +268,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  </div>
  {chicken.mother?.image ? (
  <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/50 overflow-hidden shadow-[0_0_15px_rgba(236,72,153,0.4)]">
- <img crossOrigin="anonymous" src={chicken.mother.image} alt={chicken.mother.name} className="w-full h-full object-cover" />
+ <SafeImage crossOrigin="anonymous" src={chicken.mother.image} alt={chicken.mother.name} className="w-full h-full object-cover" />
  </div>
  ) : (
  <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/20 bg-pink-900/30 flex items-center justify-center shadow-[0_0_15px_rgba(236,72,153,0.2)]">
@@ -337,7 +338,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  {chicken.user?.profileImage && (
  <div className="flex flex-col items-center justify-center shrink-0">
  <div className="w-12 h-12 rounded-full border-2 border-amber-500/50 p-1 mb-1 bg-slate-900 shadow-[0_0_15px_rgba(251,191,36,0.2)]">
- <img crossOrigin="anonymous" src={chicken.user.profileImage} alt="Farm Logo" className="w-full h-full object-cover rounded-full" />
+ <SafeImage crossOrigin="anonymous" src={chicken.user.profileImage} alt="Farm Logo" className="w-full h-full object-cover rounded-full" />
  </div>
  <div className="text-[8px] text-amber-500/80 uppercase tracking-widest font-bold max-w-[64px] text-center truncate">
  {chicken.user?.farmName || chicken.user?.name || 'Official Seal'}
@@ -385,7 +386,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
 
  <div className="flex flex-col items-center shrink-0">
  <div className="bg-white p-1.5 rounded-lg shadow-[0_0_15px_rgba(251,191,36,0.15)] w-[70px] h-[70px] flex items-center justify-center">
- <img crossOrigin="anonymous" src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain rounded-sm" />
+ <SafeImage crossOrigin="anonymous" src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain rounded-sm" />
  </div>
  </div>
  </div>

@@ -1,3 +1,4 @@
+import { SafeImage } from '../ui/SafeImage';
 import React, { useState, useEffect } from 'react';
 import { Camera, CheckCircle, Crown, Plus, X, Loader2, Sparkles, AlertCircle, ChevronLeft, Edit, Trash2, Download, Hash, Calendar, Hourglass, Layers, ShieldCheck, Phone, MessageCircle, Globe } from 'lucide-react';
 import { toJpeg } from 'html-to-image';
@@ -443,7 +444,7 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
             <>
               <div className="text-yellow-400 font-bold text-2xl mb-4">500 ฿ <span className="text-sm text-slate-400 font-normal">/ ตลอดชีพ</span></div>
               
-              <img src="/promptpay-qr.JPG" alt="PromptPay QR" className="w-48 h-48 rounded-xl mb-6 shadow-md object-cover" />
+              <SafeImage src="/promptpay-qr.JPG" alt="PromptPay QR" className="w-48 h-48 rounded-xl mb-6 shadow-md object-cover" />
               
               <div className="w-full mb-6">
                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-600 border-dashed rounded-xl cursor-pointer bg-slate-800/50 hover:bg-slate-700 transition-colors">
@@ -455,7 +456,7 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
                 </label>
                 {slipImage && (
                   <div className="mt-4 relative rounded-lg overflow-hidden border border-slate-600">
-                    <img src={slipImage} alt="Slip preview" className="w-full h-32 object-cover" />
+                    <SafeImage src={slipImage} alt="Slip preview" className="w-full h-32 object-cover" />
                     <button onClick={() => setSlipImage(null)} className="absolute top-2 right-2 p-1 bg-black/60 rounded-full text-white hover:bg-red-500 transition-colors">
                       <X className="w-4 h-4" />
                     </button>
