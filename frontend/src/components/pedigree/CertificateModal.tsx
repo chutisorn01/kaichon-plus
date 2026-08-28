@@ -47,7 +47,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  backgroundColor: '#0f172a',
  width: 794,
  height: 1123,
- pixelRatio: 2, // High quality
+ pixelRatio: 1.5, // High quality
  useCORS: true,
  cacheBust: true
  });
@@ -110,7 +110,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  backgroundColor: '#0f172a',
  width: 794,
  height: 1123,
- pixelRatio: 2,
+ pixelRatio: 1.5,
  useCORS: true,
  cacheBust: true
  });
@@ -233,11 +233,10 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div 
  ref={certificateRef}
  className="w-[794px] h-[1123px] bg-slate-900 relative overflow-hidden rounded-sm shadow-2xl flex flex-col border-[12px] border-slate-800 origin-top-left"
- style={{ 
- backgroundImage: 'radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%)',
- fontFamily: "'Inter', sans-serif"
- }}
+ style={{ fontFamily: "'Inter', sans-serif" }}
  >
+ {/* Background Gradient Fixed for iOS */}
+ <div className="absolute inset-0 z-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%)' }}></div>
  {/* Ornate Border Overlay */}
  <div className="absolute inset-4 border-[4px] border-amber-500/30 rounded-lg pointer-events-none z-10"></div>
  <div className="absolute inset-5 border-[1px] border-amber-500/20 rounded-md pointer-events-none z-10"></div>
