@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, ChevronLeft, Trash2, Edit, Swords, Tag, User, Users, ChevronDown, ChevronUp, Plus, Download, Loader2, X, CheckCircle, Home, Crown, Layers } from 'lucide-react'; // Trigger HMR
 import JSZip from 'jszip';
-import { toJpeg } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { CustomSelect } from '../ui/CustomSelect';
 import { getBandColorClass } from './FatherRegistry';
@@ -156,18 +156,19 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           setExportingCurrentIndex(i + 1);
           
           // 2. Wait for DOM to mount and external images to load (optimized from 1000ms to 150ms)
-          await new Promise(resolve => setTimeout(resolve, 150));
+          await new Promise(resolve => setTimeout(resolve, 500));
           
           const chick = sortedSelectedChicks[i];
           const element = document.getElementById(`cert-${chick._id}`);
           if (element) {
-            const dataUrl = await toJpeg(element, { 
-              quality: 0.95, 
+            const canvas = await html2canvas(element, {
+              scale: 1.5,
               backgroundColor: '#0f172a',
-              width: 794,
-              height: 1123,
-              pixelRatio: 1
+              useCORS: true,
+              allowTaint: false,
+              logging: false
             });
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             
             if (i > 0) pdf.addPage();
             pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, (1123 * pdfWidth) / 794);
@@ -183,18 +184,19 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           setExportingCurrentIndex(i + 1);
           
           // Wait for DOM (optimized)
-          await new Promise(resolve => setTimeout(resolve, 150));
+          await new Promise(resolve => setTimeout(resolve, 500));
           
           const chick = sortedSelectedChicks[i];
           const element = document.getElementById(`cert-${chick._id}`);
           if (element) {
-            const dataUrl = await toJpeg(element, { 
-              quality: 0.95, 
+            const canvas = await html2canvas(element, {
+              scale: 1.5,
               backgroundColor: '#0f172a',
-              width: 794,
-              height: 1123,
-              pixelRatio: 1
+              useCORS: true,
+              allowTaint: false,
+              logging: false
             });
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             
             // Add image to zip
             const base64Data = dataUrl.split(',')[1];
