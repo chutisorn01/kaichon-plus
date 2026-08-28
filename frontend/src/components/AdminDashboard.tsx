@@ -203,8 +203,8 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Error deleting user');
+      setUsers(users.filter(u => u._id !== deleteConfirmUser._id));
       setSuccessModal({ isOpen: true, message: 'ลบผู้ใช้งานสำเร็จ' });
-      fetchUsers();
     } catch (err: any) {
       alert(err.message || 'Error deleting user');
     } finally {
