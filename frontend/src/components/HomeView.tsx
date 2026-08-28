@@ -183,12 +183,18 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
                               </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mb-1.5 mt-1">
-                              <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
-                                {chicken.user?.farmName || chicken.user?.name || 'ฟาร์มสมาชิก'}
-                                {chicken.user?.isVerified === true && (
-                                  <BadgeCheck className="w-4 h-4 text-white fill-blue-500 inline drop-shadow-sm" />
-                                )}
-                              </span>
+                              {chicken.saleInfo?.status === 'sold' && chicken.saleInfo.customerName ? (
+                                <span className="flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
+                                  เจ้าของปัจจุบัน: {chicken.saleInfo.customerName} {chicken.saleInfo.customerFarm ? `(${chicken.saleInfo.customerFarm})` : ''}
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
+                                  {chicken.user?.farmName || chicken.user?.name || 'ฟาร์มสมาชิก'}
+                                  {chicken.user?.isVerified === true && (
+                                    <BadgeCheck className="w-4 h-4 text-white fill-blue-500 inline drop-shadow-sm" />
+                                  )}
+                                </span>
+                              )}
                               {chicken._id && (
                                 <span className="text-[9px] px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-mono font-bold rounded-full whitespace-nowrap">
                                   KP-{chicken._id.substring(12, 18).toUpperCase()}-{chicken._id.substring(18, 24).toUpperCase()}

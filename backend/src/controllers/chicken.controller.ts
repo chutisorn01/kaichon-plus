@@ -213,7 +213,9 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           { bandNumber: regex },
           { bandText: regex },
           { fatherNameText: regex },
-          { motherNameText: regex }
+          { motherNameText: regex },
+          { 'saleInfo.customerName': regex },
+          { 'saleInfo.customerFarm': regex }
         ];
 
         // Match full 24-character ObjectId
@@ -259,7 +261,9 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           { bandNumber: regex },
           { bandText: regex },
           { fatherNameText: regex },
-          { motherNameText: regex }
+          { motherNameText: regex },
+          { 'saleInfo.customerName': regex },
+          { 'saleInfo.customerFarm': regex }
         ];
 
         // Match full 24-character ObjectId
@@ -331,19 +335,23 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
         const bBandText = (b.bandText || '').toLowerCase();
         const aFarm = (a.user?.farmName || '').toLowerCase();
         const bFarm = (b.user?.farmName || '').toLowerCase();
+        const aCustomer = (a.saleInfo?.customerName || '').toLowerCase();
+        const bCustomer = (b.saleInfo?.customerName || '').toLowerCase();
+        const aCustomerFarm = (a.saleInfo?.customerFarm || '').toLowerCase();
+        const bCustomerFarm = (b.saleInfo?.customerFarm || '').toLowerCase();
 
         const searchWords = searchLower.split(/\s+/);
 
-        const calculateScore = (band: string, bandText: string, name: string, farm: string, code: string) => {
+        const calculateScore = (band: string, bandText: string, name: string, farm: string, code: string, customer: string, customerFarm: string) => {
           let score = 0;
           for (const word of searchWords) {
             // 1. กิ๊ฟสำคัญที่สุด (Band Number & Band Text)
             if (band === word || bandText === word) score += 100;
             else if (band.includes(word) || bandText.includes(word)) score += 70;
 
-            // 2. ชื่อไก่ และ ชื่อฟาร์ม สำคัญรองลงมา (Chicken Name & Farm Name)
-            if (name === word || farm === word) score += 80;
-            else if (name.includes(word) || farm.includes(word)) score += 60;
+            // 2. ชื่อไก่ และ ชื่อฟาร์ม สำคัญรองลงมา (Chicken Name & Farm Name & Customer)
+            if (name === word || farm === word || customer === word || customerFarm === word) score += 80;
+            else if (name.includes(word) || farm.includes(word) || customer.includes(word) || customerFarm.includes(word)) score += 60;
 
             // 3. รหัสระบบ สำคัญน้อยสุด (System Code)
             if (code === word) score += 50;
@@ -352,8 +360,8 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           return score;
         };
 
-        const scoreA = calculateScore(aBand, aBandText, aName, aFarm, aCode);
-        const scoreB = calculateScore(bBand, bBandText, bName, bFarm, bCode);
+        const scoreA = calculateScore(aBand, aBandText, aName, aFarm, aCode, aCustomer, aCustomerFarm);
+        const scoreB = calculateScore(bBand, bBandText, bName, bFarm, bCode, bCustomer, bCustomerFarm);
 
         // If scores are different, sort by score descending
         if (scoreA !== scoreB) {
