@@ -12,8 +12,10 @@ interface CertificateModalProps {
 export default function CertificateModal({ chicken, onClose }: CertificateModalProps) {
  const certificateRef = useRef<HTMLDivElement>(null);
  const containerRef = useRef<HTMLDivElement>(null);
- const [downloading, setDownloading] = useState(false);
- const [downloadSuccess, setDownloadSuccess] = useState(false);
+ const [downloadingJpg, setDownloadingJpg] = useState(false);
+ const [downloadSuccessJpg, setDownloadSuccessJpg] = useState(false);
+ const [downloadingPdf, setDownloadingPdf] = useState(false);
+ const [downloadSuccessPdf, setDownloadSuccessPdf] = useState(false);
  const [scale, setScale] = useState(1);
 
  useEffect(() => {
@@ -37,8 +39,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  if (!certificateRef.current) return;
  
  try {
- setDownloading(true);
- setDownloadSuccess(false);
+ setDownloadingJpg(true);
+ setDownloadSuccessJpg(false);
  
  const image = await toJpeg(certificateRef.current, {
  quality: 0.95,
@@ -84,13 +86,13 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  link.click();
  }
  
- setDownloadSuccess(true);
- setTimeout(() => setDownloadSuccess(false), 3000);
+ setDownloadSuccessJpg(true);
+ setTimeout(() => setDownloadSuccessJpg(false), 3000);
  } catch (error) {
  console.error('Error generating certificate:', error);
  alert('เกิดข้อผิดพลาดในการสร้างใบเซอร์ กรุณาลองใหม่อีกครั้ง');
  } finally {
- setDownloading(false);
+ setDownloadingJpg(false);
  }
  };
 
@@ -98,8 +100,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  if (!certificateRef.current) return;
  
  try {
- setDownloading(true);
- setDownloadSuccess(false);
+ setDownloadingPdf(true);
+ setDownloadSuccessPdf(false);
  
  const image = await toJpeg(certificateRef.current, {
  quality: 0.95,
@@ -141,13 +143,13 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  pdf.save(fileName);
  }
  
- setDownloadSuccess(true);
- setTimeout(() => setDownloadSuccess(false), 3000);
+ setDownloadSuccessPdf(true);
+ setTimeout(() => setDownloadSuccessPdf(false), 3000);
  } catch (error) {
  console.error('Error generating PDF:', error);
  alert('เกิดข้อผิดพลาดในการสร้างใบเซอร์ กรุณาลองใหม่อีกครั้ง');
  } finally {
- setDownloading(false);
+ setDownloadingPdf(false);
  }
  };
 
@@ -177,39 +179,39 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="flex gap-2">
  <button 
  onClick={handleDownload}
- disabled={downloading}
+ disabled={downloadingJpg}
  className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
- downloadSuccess 
+ downloadSuccessJpg 
  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
  : 'bg-white text-slate-800 hover:bg-slate-100 shadow-white/20'
  }`}
  >
- {downloadSuccess ? (
+ {downloadSuccessJpg ? (
  <CheckCircle className="w-5 h-5 text-emerald-50" />
- ) : downloading ? (
+ ) : downloadingJpg ? (
  <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
  ) : (
  <ImageIcon className="w-5 h-5" />
  )}
- {downloadSuccess ? 'สำเร็จ!' : 'บันทึก JPG'}
+ {downloadSuccessJpg ? 'สำเร็จ!' : 'บันทึก JPG'}
  </button>
  <button 
  onClick={handleDownloadPdf}
- disabled={downloading}
+ disabled={downloadingPdf}
  className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
- downloadSuccess 
+ downloadSuccessPdf 
  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
  : 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white shadow-red-500/20'
  }`}
  >
- {downloadSuccess ? (
+ {downloadSuccessPdf ? (
  <CheckCircle className="w-5 h-5" />
- ) : downloading ? (
+ ) : downloadingPdf ? (
  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
  ) : (
  <FileText className="w-5 h-5" />
  )}
- {downloadSuccess ? 'สำเร็จ!' : 'บันทึก PDF'}
+ {downloadSuccessPdf ? 'สำเร็จ!' : 'บันทึก PDF'}
  </button>
  </div>
  </div>
