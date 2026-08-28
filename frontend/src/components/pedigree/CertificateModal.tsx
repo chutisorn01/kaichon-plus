@@ -47,7 +47,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  backgroundColor: '#0f172a',
  width: 794,
  height: 1123,
- pixelRatio: 2 // High quality
+ pixelRatio: 2, // High quality
+ useCORS: true,
+ cacheBust: true
  });
  
  const fileName = `Certificate_${chicken.code || 'Kaichon'}.jpg`;
@@ -108,7 +110,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  backgroundColor: '#0f172a',
  width: 794,
  height: 1123,
- pixelRatio: 2
+ pixelRatio: 2,
+ useCORS: true,
+ cacheBust: true
  });
  
  const pdf = new jsPDF('p', 'mm', 'a4');
