@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, CheckCircle, Crown, Plus, X, Loader2, Sparkles, AlertCircle, ChevronLeft, Edit, Trash2, Download, Hash, Calendar, Hourglass, Layers, ShieldCheck, Phone, MessageCircle, Globe } from 'lucide-react';
-import { toPng } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 interface VipBreedingDashboardProps {
@@ -296,8 +296,14 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
       if (exportElement) {
         // Wait a bit for rendering
         setTimeout(() => {
-          toPng(exportElement, { quality: 1.0, backgroundColor: exportTheme === 'dark' ? '#0f172a' : '#ffffff', useCORS: true, cacheBust: true })
-            .then(async (dataUrl) => {
+          html2canvas(exportElement, {
+            scale: 2, // High quality scale
+            backgroundColor: exportTheme === 'dark' ? '#0f172a' : '#ffffff',
+            useCORS: true,
+            allowTaint: false,
+            logging: false
+          }).then(async (canvas) => {
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
               const fileName = `VIP-Breeding-${exportingRecord.queueNo}.${exportFormat === 'pdf' ? 'pdf' : 'png'}`;
               let shared = false;
 
