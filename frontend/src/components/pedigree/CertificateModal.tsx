@@ -263,7 +263,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  {/* Header */}
  <div className="pt-8 pb-0 text-center relative z-20">
  <h1 
- className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-400 to-amber-100 tracking-widest mb-0 pt-6 pb-2"
+ className="text-6xl font-black text-amber-300 tracking-widest mb-0 pt-6 pb-2"
  style={{ fontFamily: "'Charm', cursive", lineHeight: '1.4' }}
  >
  {chicken.user?.farmName || chicken.user?.name || 'KAICHON PLUS'}
@@ -277,7 +277,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  {/* Shine effect */}
  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
  
- <h2 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-400 tracking-[0.2em] relative z-10 ">
+ <h2 className="text-sm font-black text-amber-300 tracking-[0.2em] relative z-10 ">
  ใบประวัติรับรองสายพันธุ์
  </h2>
  </div>
@@ -311,7 +311,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="text-[10px] text-amber-500/80 font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
  <Star className="w-3.5 h-3.5" /> Gamefowl Profile
  </div>
- <h3 className={`${(chicken.name || '').length > 15 ? 'text-xl md:text-2xl' : 'text-3xl'} font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300 mb-1.5 leading-tight line-clamp-2 break-words max-w-[350px]`}>
+ <h3 className={`${(chicken.name || '').length > 15 ? 'text-xl md:text-2xl' : 'text-3xl'} font-black text-white mb-1.5 leading-tight line-clamp-2 break-words max-w-[350px]`}>
  {chicken.name}
  </h3>
  {chicken.code && (
@@ -526,7 +526,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="flex items-center justify-center w-full px-16">
  {/* Slogan */}
  <div className="flex flex-col items-center justify-center text-center relative max-w-full">
- <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-500 to-orange-500 tracking-wide z-10 px-4 pt-2 pb-1 leading-loose" style={{ fontFamily: "'Charm', cursive" }}>
+ <div className="text-2xl font-bold text-amber-500 tracking-wide z-10 px-4 pt-2 pb-1 leading-loose" style={{ fontFamily: "'Charm', cursive" }}>
  {chicken.user?.description || 'พันธุกรรมโคตรเบอร์แข้ง สายเลือดมังกร'}
  </div>
  <div className="text-[9px] text-slate-500/80 uppercase tracking-widest mt-1 font-bold">
