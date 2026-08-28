@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { toJpeg } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { X, Download, ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck, FileText, Image as ImageIcon } from 'lucide-react';
 import { getBandColorCircleClass, getBandTextColorClass, getBandContrastTextClass, getBandBorderColorClass, getBandBgFadedClass } from './ChickenDetail';
@@ -295,7 +295,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="flex items-center justify-between w-full bg-slate-800/20 py-2 px-6 rounded-3xl border border-slate-700/30 shadow-lg">
  <div className="flex items-center gap-8">
  {/* Royal Photo Frame */}
- <div className="w-40 h-40 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-3xl p-[4px] shadow-[0_0_30px_rgba(251,191,36,0.3)] relative shrink-0">
+ <div className="w-40 h-40 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-3xl p-[4px] shadow-lg relative shrink-0">
  <div className="absolute inset-0 rounded-3xl border border-white/40 m-1 z-20 pointer-events-none"></div>
  <div className="w-full h-full rounded-[24px] bg-slate-900 overflow-hidden shadow-inner relative z-10">
  {chicken.image ? (
@@ -341,7 +341,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  
  {/* Fake Stamp Background */}
  {chicken.user?.stampText !== '' && (
- <div className="absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[60%] w-20 h-20 border-2 border-red-500/70 rounded-full flex items-center justify-center -z-10 rotate-12 bg-red-500/5 mix-blend-screen shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+ <div className="absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[60%] w-20 h-20 border-2 border-red-500/70 rounded-full flex items-center justify-center -z-10 rotate-12 bg-red-500/5 mix-blend-screen shadow-lg">
  <div className="text-red-500/70 text-[9px] font-black uppercase text-center leading-tight tracking-widest px-2 ">
  {(chicken.user?.stampText || 'ORIGINAL BREED').split(' ').map((word: string, i: number) => (
  <React.Fragment key={i}>
@@ -440,23 +440,23 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  {/* Horizontal Connection Line (Spans only the gap, touching box edges) */}
  <div className="absolute top-[45%] left-1/2 -translate-x-1/2 w-28 h-[2px] bg-gradient-to-r from-blue-500/50 via-amber-500/50 to-pink-500/50 z-0">
  {/* Center Dot */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-amber-500 border-2 border-amber-500 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.5)]"></div>
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-amber-500 border-2 border-amber-500 rounded-full shadow-lg"></div>
  </div>
  
  {/* Vertical Drop Line (Reaches exactly the top edge of Subject card) */}
  <div className="absolute top-[45%] left-1/2 h-[calc(55%+8px)] w-[2px] bg-gradient-to-b from-amber-500/50 to-amber-500/10 z-0"></div>
 
  {/* Sire (Father) */}
- <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-blue-900/40 to-slate-900/90 border border-blue-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-[0_0_20px_rgba(59,130,246,0.15)] relative z-10 text-center">
- <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-700 to-blue-500 border border-blue-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+ <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-blue-900/40 to-slate-900/90 border border-blue-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-lg relative z-10 text-center">
+ <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-700 to-blue-500 border border-blue-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-lg">
  Sire (พ่อ)
  </div>
  {chicken.father?.image ? (
- <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/50 overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+ <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/50 overflow-hidden shadow-lg">
  <img crossOrigin="anonymous" src={chicken.father.image} alt={chicken.father.name} className="w-full h-full object-cover" />
  </div>
  ) : (
- <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/20 bg-blue-900/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+ <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/20 bg-blue-900/30 flex items-center justify-center shadow-lg">
  <Trophy className="w-6 h-6 text-blue-400/50" />
  </div>
  )}
@@ -472,16 +472,16 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
 
  {/* Dam (Mother) */}
  {/* Dam (Mother) */}
- <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-pink-900/40 to-slate-900/90 border border-pink-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-[0_0_20px_rgba(236,72,153,0.15)] relative z-10 text-center">
- <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-700 to-pink-500 border border-pink-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-[0_0_10px_rgba(236,72,153,0.5)]">
+ <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-pink-900/40 to-slate-900/90 border border-pink-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-lg relative z-10 text-center">
+ <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-700 to-pink-500 border border-pink-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-lg">
  Dam (แม่)
  </div>
  {chicken.mother?.image ? (
- <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/50 overflow-hidden shadow-[0_0_15px_rgba(236,72,153,0.4)]">
+ <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/50 overflow-hidden shadow-lg">
  <img crossOrigin="anonymous" src={chicken.mother.image} alt={chicken.mother.name} className="w-full h-full object-cover" />
  </div>
  ) : (
- <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/20 bg-pink-900/30 flex items-center justify-center shadow-[0_0_15px_rgba(236,72,153,0.2)]">
+ <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/20 bg-pink-900/30 flex items-center justify-center shadow-lg">
  <Heart className="w-6 h-6 text-pink-400/50" />
  </div>
  )}
@@ -498,7 +498,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  
  {/* Subject (Child) */}
  {/* Subject (Child) */}
- <div className="w-[240px] min-w-[240px] shrink-0 bg-gradient-to-b from-amber-600/30 to-slate-900/90 border-2 border-amber-500/60 px-4 pt-3 pb-2 rounded-2xl shadow-[0_0_25px_rgba(251,191,36,0.2)] relative z-10 text-center mt-2">
+ <div className="w-[240px] min-w-[240px] shrink-0 bg-gradient-to-b from-amber-600/30 to-slate-900/90 border-2 border-amber-500/60 px-4 pt-3 pb-2 rounded-2xl shadow-lg relative z-10 text-center mt-2">
  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-lg">
  Subject
  </div>
@@ -547,7 +547,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  {/* Seal */}
  {chicken.user?.profileImage && (
  <div className="flex flex-col items-center justify-center shrink-0">
- <div className="w-12 h-12 rounded-full border-2 border-amber-500/50 p-1 mb-1 bg-slate-900 shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+ <div className="w-12 h-12 rounded-full border-2 border-amber-500/50 p-1 mb-1 bg-slate-900 shadow-lg">
  <img crossOrigin="anonymous" src={chicken.user.profileImage} alt="Farm Logo" className="w-full h-full object-cover rounded-full" />
  </div>
  <div className="text-[8px] text-amber-500/80 uppercase tracking-widest font-bold max-w-[64px] text-center truncate">
@@ -595,7 +595,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  </div>
 
  <div className="flex flex-col items-center shrink-0">
- <div className="bg-white p-1.5 rounded-lg shadow-[0_0_15px_rgba(251,191,36,0.15)] w-[70px] h-[70px] flex items-center justify-center">
+ <div className="bg-white p-1.5 rounded-lg shadow-lg w-[70px] h-[70px] flex items-center justify-center">
  <img crossOrigin="anonymous" src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain rounded-sm" />
  </div>
  </div>
