@@ -169,12 +169,12 @@ export default function HomeView({ onNavigate }: { onNavigate: (page: any, id?: 
                   {resultsList.length === 0 && !isSearching ? (
                     <div className="text-center py-6 text-slate-400 text-sm">ไม่พบไก่ชนหรือกิ๊ฟปีกตรงกับคำค้นหานี้</div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
                       {resultsList.map((chicken) => (
                         <div
                           key={chicken._id}
                           onClick={() => onNavigate('chicken-detail', chicken._id)}
-                          className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700 flex items-center justify-between group"
+                          className="py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer flex items-center justify-between group first:pt-2 last:pb-2"
                         >
                           <div className="flex-1 min-w-0 pr-3">
                             <div className="flex items-center gap-2 mb-1">
