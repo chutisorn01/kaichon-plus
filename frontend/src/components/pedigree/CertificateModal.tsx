@@ -48,10 +48,41 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
         pixelRatio: 2 // High quality
       });
       
-      const link = document.createElement('a');
-      link.href = image;
-      link.download = `Certificate_${chicken.code || 'Kaichon'}.jpg`;
-      link.click();
+      const fileName = `Certificate_${chicken.code || 'Kaichon'}.jpg`;
+      let shared = false;
+
+      // 1) ลองใช้ Web Share API (สำหรับมือถือ iOS/Android จะเด้งเมนูให้ Save Image หรือแชร์ต่อได้)
+      if (navigator.share) {
+        try {
+          const res = await fetch(image);
+          const blob = await res.blob();
+          const file = new File([blob], fileName, { type: 'image/jpeg' });
+          
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'ใบเซอร์ไก่ชน',
+              text: `ใบเซอร์ประวัติไก่ชน ${chicken.name || ''}`
+            });
+            shared = true;
+          }
+        } catch (shareError: any) {
+          // ผู้ใช้กดยกเลิก Share (AbortError) ไม่ต้องทำ Fallback
+          if (shareError.name === 'AbortError' || shareError.message.includes('abort')) {
+            shared = true;
+          } else {
+            console.error('Share API Error:', shareError);
+          }
+        }
+      }
+      
+      // 2) Fallback สำหรับ Desktop หรือเบราว์เซอร์ที่ไม่รองรับ Share API
+      if (!shared) {
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = fileName;
+        link.click();
+      }
       
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
@@ -81,7 +112,34 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       pdf.addImage(image, 'JPEG', 0, 0, pdfWidth, (1123 * pdfWidth) / 794);
-      pdf.save(`Certificate_${chicken.code || 'Kaichon'}.pdf`);
+      
+      const fileName = `Certificate_${chicken.code || 'Kaichon'}.pdf`;
+      let shared = false;
+
+      if (navigator.share) {
+        try {
+          const blob = pdf.output('blob');
+          const file = new File([blob], fileName, { type: 'application/pdf' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'ใบเซอร์ไก่ชน PDF',
+              text: `ใบเซอร์ประวัติไก่ชน ${chicken.name || ''} (PDF)`
+            });
+            shared = true;
+          }
+        } catch (shareError: any) {
+          if (shareError.name === 'AbortError' || shareError.message.includes('abort')) {
+            shared = true;
+          } else {
+            console.error('Share API Error:', shareError);
+          }
+        }
+      }
+
+      if (!shared) {
+        pdf.save(fileName);
+      }
       
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
