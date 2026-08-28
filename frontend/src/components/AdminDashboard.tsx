@@ -743,7 +743,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
               ) : filteredUsers.length === 0 ? (
                 <div className="bg-white dark:bg-slate-900 p-12 rounded-3xl text-center text-slate-400 font-bold border border-slate-200/50 dark:border-white/5">{t('ไม่พบข้อมูลบัญชีผู้ใช้', 'No users found')}</div>
               ) : (
-                
+                <>
                 {/* Mobile View */}
                 <div className="grid grid-cols-1 gap-4 md:hidden">
                   {filteredUsers.map((u) => (
@@ -925,6 +925,7 @@ export default function AdminDashboard({ onNavigate }: { onNavigate: (page: any)
                     </tbody>
                   </table>
                 </div>
+                </>
               )}
             </div>
           )}
