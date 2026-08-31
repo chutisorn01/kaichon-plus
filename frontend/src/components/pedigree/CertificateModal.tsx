@@ -48,7 +48,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  backgroundColor: '#0f172a',
  width: 794,
  height: 1123,
- pixelRatio: 1.5, // High quality
+ pixelRatio: 2.5, // High quality
  useCORS: true,
  cacheBust: true,
  style: { transform: 'scale(1)', transformOrigin: 'top left' }
@@ -84,10 +84,16 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  
  // 2) Fallback สำหรับ Desktop หรือเบราว์เซอร์ที่ไม่รองรับ Share API
  if (!shared) {
+ const res = await fetch(image);
+ const blob = await res.blob();
+ const url = URL.createObjectURL(blob);
  const link = document.createElement('a');
- link.href = image;
+ link.href = url;
  link.download = fileName;
+ document.body.appendChild(link);
  link.click();
+ document.body.removeChild(link);
+ setTimeout(() => URL.revokeObjectURL(url), 100);
  }
  
  setDownloadSuccessJpg(true);
@@ -112,7 +118,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  backgroundColor: '#0f172a',
  width: 794,
  height: 1123,
- pixelRatio: 1.5,
+ pixelRatio: 2.5,
  useCORS: true,
  cacheBust: true,
  style: { transform: 'scale(1)', transformOrigin: 'top left' }

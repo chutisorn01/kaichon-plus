@@ -169,13 +169,14 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           
           const element = document.getElementById(`cert-export-container`);
           if (element) {
-            const canvas = await html2canvas(element, {
+            const dataUrl = await toJpeg(element, {
+              quality: 0.95,
               backgroundColor: '#0f172a',
-              scale: 1.5,
+              pixelRatio: 2.5,
               useCORS: true,
-              allowTaint: true
+              cacheBust: true,
+              style: { transform: 'scale(1)', transformOrigin: 'top left' }
             });
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             
             if (i > 0) pdf.addPage();
             pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, (1123 * pdfWidth) / 794);
@@ -204,13 +205,14 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           
           const element = document.getElementById(`cert-export-container`);
           if (element) {
-            const canvas = await html2canvas(element, {
+            const dataUrl = await toJpeg(element, {
+              quality: 0.95,
               backgroundColor: '#0f172a',
-              scale: 1.5,
+              pixelRatio: 2.5,
               useCORS: true,
-              allowTaint: true
+              cacheBust: true,
+              style: { transform: 'scale(1)', transformOrigin: 'top left' }
             });
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             
             // Add image to zip
             const base64Data = dataUrl.split(',')[1];

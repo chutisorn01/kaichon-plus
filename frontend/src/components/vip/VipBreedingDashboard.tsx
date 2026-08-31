@@ -299,7 +299,7 @@ const VipBreedingDashboard: React.FC<VipBreedingDashboardProps> = ({ user, onNav
         setTimeout(() => {
           toJpeg(exportElement, {
             quality: 0.95,
-            pixelRatio: 2,
+            pixelRatio: 2.5,
             backgroundColor: exportTheme === 'dark' ? '#0f172a' : '#ffffff',
             useCORS: true,
             cacheBust: true,
