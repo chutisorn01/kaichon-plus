@@ -1,6 +1,6 @@
 import { SafeImage } from '../ui/SafeImage';
 import React, { useRef, useState, useEffect } from 'react';
-import html2canvas from 'html2canvas';
+import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { X, Download, ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck, FileText, Image as ImageIcon } from 'lucide-react';
 import { getBandColorCircleClass, getBandTextColorClass, getBandContrastTextClass, getBandBorderColorClass, getBandBgFadedClass } from './ChickenDetail';

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, ChevronLeft, Trash2, Edit, Swords, Tag, User, Users, ChevronDown, ChevronUp, Plus, Download, Loader2, X, CheckCircle, Home, Crown, Layers } from 'lucide-react'; // Trigger HMR
 import JSZip from 'jszip';
-import html2canvas from 'html2canvas';
+import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { CustomSelect } from '../ui/CustomSelect';
 import { getBandColorClass } from './FatherRegistry';
@@ -164,8 +164,8 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           const fullChick = await res.json();
           setExportingChickData(fullChick);
           
-          // 2. Wait for DOM to mount and external images to load
-          await new Promise(resolve => setTimeout(resolve, 800));
+          // 2. Wait for DOM to mount and external images to load (Increased for Mobile)
+          await new Promise(resolve => setTimeout(resolve, 3000));
           
           const element = document.getElementById(`cert-export-container`);
           if (element) {
@@ -199,8 +199,8 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           const fullChick = await res.json();
           setExportingChickData(fullChick);
           
-          // 2. Wait for DOM to mount and external images to load
-          await new Promise(resolve => setTimeout(resolve, 800));
+          // 2. Wait for DOM to mount and external images to load (Increased for Mobile)
+          await new Promise(resolve => setTimeout(resolve, 3000));
           
           const element = document.getElementById(`cert-export-container`);
           if (element) {
