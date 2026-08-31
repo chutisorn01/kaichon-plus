@@ -17,6 +17,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  const [downloadSuccessJpg, setDownloadSuccessJpg] = useState(false);
  const [downloadingPdf, setDownloadingPdf] = useState(false);
  const [downloadSuccessPdf, setDownloadSuccessPdf] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
  const [scale, setScale] = useState(1);
 
  useEffect(() => {
