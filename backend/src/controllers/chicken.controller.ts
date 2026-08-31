@@ -239,9 +239,10 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
     }
 
     let chickens = await Chicken.find(filter)
-      .populate('father', 'code name image')
-      .populate('mother', 'code name image')
-      .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
+      .select('-image')
+      .populate('father', 'code name gender bloodline')
+      .populate('mother', 'code name gender bloodline')
+      .populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -286,9 +287,10 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
       });
 
       const chicks = await Chick.find(chickFilter)
-        .populate('father', 'code name image bloodline breed')
-        .populate('mother', 'code name image bloodline breed')
-        .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
+        .select('-image')
+        .populate('father', 'code name bloodline breed')
+        .populate('mother', 'code name bloodline breed')
+        .populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText')
         .lean();
 
       const mappedChicks = chicks.map(c => {

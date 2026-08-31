@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, ChevronLeft, Trash2, Edit, Swords, Tag, User, Users, ChevronDown, ChevronUp, Plus, Download, Loader2, X, CheckCircle, Home, Crown, Layers } from 'lucide-react'; // Trigger HMR
 import JSZip from 'jszip';
-import { toJpeg } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { CustomSelect } from '../ui/CustomSelect';
 import { getBandColorClass } from './FatherRegistry';
@@ -47,6 +47,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
   const [exportFormat, setExportFormat] = useState<'png' | 'pdf'>('png');
   const [isExporting, setIsExporting] = useState(false);
   const [exportingCurrentIndex, setExportingCurrentIndex] = useState(0);
+  const [exportingChickData, setExportingChickData] = useState<any>(null);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   useEffect(() => {
@@ -152,23 +153,29 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
         const pdfWidth = pdf.internal.pageSize.getWidth();
         
         for (let i = 0; i < sortedSelectedChicks.length; i++) {
-          // 1. Trigger React to render ONLY this chick's certificate
+          const chick = sortedSelectedChicks[i];
           setExportingCurrentIndex(i + 1);
           
-          // 2. Wait for DOM to mount and external images to load (optimized from 1000ms to 150ms)
-          await new Promise(resolve => setTimeout(resolve, 500));
+          // 1. Fetch full chick data on demand
+          const token = localStorage.getItem('token');
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${chick._id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const fullChick = await res.json();
+          setExportingChickData(fullChick);
           
-          const chick = sortedSelectedChicks[i];
-          const element = document.getElementById(`cert-${chick._id}`);
+          // 2. Wait for DOM to mount and external images to load
+          await new Promise(resolve => setTimeout(resolve, 800));
+          
+          const element = document.getElementById(`cert-export-container`);
           if (element) {
-            const dataUrl = await toJpeg(element, {
-              quality: 0.95,
+            const canvas = await html2canvas(element, {
               backgroundColor: '#0f172a',
-              pixelRatio: 1.5,
+              scale: 1.5,
               useCORS: true,
-              cacheBust: true,
-              style: { transform: 'scale(1)', transformOrigin: 'top left' }
+              allowTaint: true
             });
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             
             if (i > 0) pdf.addPage();
             pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, (1123 * pdfWidth) / 794);
@@ -181,22 +188,29 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
         const zip = new JSZip();
         
         for (let i = 0; i < sortedSelectedChicks.length; i++) {
+          const chick = sortedSelectedChicks[i];
           setExportingCurrentIndex(i + 1);
           
-          // Wait for DOM (optimized)
-          await new Promise(resolve => setTimeout(resolve, 500));
+          // 1. Fetch full chick data on demand
+          const token = localStorage.getItem('token');
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${chick._id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const fullChick = await res.json();
+          setExportingChickData(fullChick);
           
-          const chick = sortedSelectedChicks[i];
-          const element = document.getElementById(`cert-${chick._id}`);
+          // 2. Wait for DOM to mount and external images to load
+          await new Promise(resolve => setTimeout(resolve, 800));
+          
+          const element = document.getElementById(`cert-export-container`);
           if (element) {
-            const dataUrl = await toJpeg(element, {
-              quality: 0.95,
+            const canvas = await html2canvas(element, {
               backgroundColor: '#0f172a',
-              pixelRatio: 1.5,
+              scale: 1.5,
               useCORS: true,
-              cacheBust: true,
-              style: { transform: 'scale(1)', transformOrigin: 'top left' }
+              allowTaint: true
             });
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
             
             // Add image to zip
             const base64Data = dataUrl.split(',')[1];
@@ -222,6 +236,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
       setIsExporting(false);
       setShowExportModal(false);
       setExportingCurrentIndex(0);
+      setExportingChickData(null);
     }
   };
 
@@ -703,17 +718,14 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
             
             {/* 
               HIDDEN RENDERING AREA (Memory Optimized):
-              Only renders the specific certificate currently being exported, one by one.
-              Kept inside the modal viewport to prevent browser optimization culling.
+              Renders ONE full certificate with fetched data dynamically.
             */}
             <div className="absolute top-0 left-0 opacity-0 pointer-events-none z-[-1]" aria-hidden="true">
-              {chicks.filter(c => selectedChicks.has(c._id)).map((chick, index) => (
-                (isExporting && exportingCurrentIndex === index + 1) && (
-                  <div key={`cert-${chick._id}`} id={`cert-${chick._id}`} className="w-[794px] h-[1123px] relative bg-slate-900 shrink-0">
-                    <CertificateDocument chicken={chick} scale={1} />
-                  </div>
-                )
-              ))}
+              {isExporting && exportingChickData && (
+                <div id="cert-export-container" className="w-[794px] h-[1123px] relative bg-slate-900 shrink-0">
+                  <CertificateDocument chicken={exportingChickData} scale={1} />
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between items-center mb-6">

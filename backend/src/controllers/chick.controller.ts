@@ -4,10 +4,11 @@ import { Chick } from '../models/chick.model.js';
 export const getChicks = async (req: any, res: Response, next: NextFunction) => {
   try {
     const chicks = await Chick.find({ user: req.user.id })
+      .select('-image')
       .populate('father', 'name code bloodline breed')
       .populate('mother', 'name code bloodline breed source')
       .populate('batch', 'batchCode')
-      .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
+      .populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText')
       .lean();
 
     const mappedChicks = chicks.map(c => {
@@ -47,7 +48,8 @@ export const getChickById = async (req: any, res: Response, next: NextFunction) 
     const chick = await Chick.findById(req.params.id)
       .populate('father')
       .populate('mother')
-      .populate('batch');
+      .populate('batch')
+      .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText');
     if (!chick) return res.status(404).json({ message: 'ไม่พบข้อมูลลูกไก่' });
     res.json(chick);
   } catch (err: any) {
