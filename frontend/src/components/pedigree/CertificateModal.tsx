@@ -1,6 +1,6 @@
 import { SafeImage } from '../ui/SafeImage';
 import React, { useRef, useState, useEffect } from 'react';
-import { toJpeg } from 'html-to-image';
+import html2canvas from 'html2canvas-pro';
 import jsPDF from 'jspdf';
 import { X, Download, ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck, FileText, Image as ImageIcon } from 'lucide-react';
 import { getBandColorCircleClass, getBandTextColorClass, getBandContrastTextClass, getBandBorderColorClass, getBandBgFadedClass } from './ChickenDetail';
@@ -44,15 +44,14 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingJpg(true);
  setDownloadSuccessJpg(false);
  
- const image = await toJpeg(certificateRef.current, {
- quality: 0.95,
+ const canvas = await html2canvas(certificateRef.current, {
  backgroundColor: '#0f172a',
- width: 794,
- height: 1123,
- pixelRatio: 2,
+ scale: 2,
  useCORS: true,
- style: { transform: 'scale(1)', transformOrigin: 'top left' }
+ allowTaint: true,
+ logging: false
  });
+ const image = canvas.toDataURL('image/jpeg', 0.95);
  
  const fileName = `Certificate_${chicken.code || 'Kaichon'}.jpg`;
  let shared = false;
@@ -113,15 +112,14 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingPdf(true);
  setDownloadSuccessPdf(false);
  
- const image = await toJpeg(certificateRef.current, {
- quality: 0.95,
+ const canvas = await html2canvas(certificateRef.current, {
  backgroundColor: '#0f172a',
- width: 794,
- height: 1123,
- pixelRatio: 2,
+ scale: 2,
  useCORS: true,
- style: { transform: 'scale(1)', transformOrigin: 'top left' }
+ allowTaint: true,
+ logging: false
  });
+ const image = canvas.toDataURL('image/jpeg', 0.95);
  
  const pdf = new jsPDF('p', 'mm', 'a4');
  const pdfWidth = pdf.internal.pageSize.getWidth();
