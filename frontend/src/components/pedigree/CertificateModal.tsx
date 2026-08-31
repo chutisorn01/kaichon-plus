@@ -43,13 +43,16 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingJpg(true);
  setDownloadSuccessJpg(false);
  
- const canvas = await html2canvas(certificateRef.current, {
+ const image = await toJpeg(certificateRef.current, {
+ quality: 0.95,
  backgroundColor: '#0f172a',
- scale: 1.5,
+ width: 794,
+ height: 1123,
+ pixelRatio: 1.5, // High quality
  useCORS: true,
- allowTaint: true
+ cacheBust: true,
+ style: { transform: 'scale(1)', transformOrigin: 'top left' }
  });
- const image = canvas.toDataURL('image/jpeg', 0.95);
  
  const fileName = `Certificate_${chicken.code || 'Kaichon'}.jpg`;
  let shared = false;
@@ -104,13 +107,16 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingPdf(true);
  setDownloadSuccessPdf(false);
  
- const canvas = await html2canvas(certificateRef.current, {
+ const image = await toJpeg(certificateRef.current, {
+ quality: 0.95,
  backgroundColor: '#0f172a',
- scale: 1.5,
+ width: 794,
+ height: 1123,
+ pixelRatio: 1.5,
  useCORS: true,
- allowTaint: true
+ cacheBust: true,
+ style: { transform: 'scale(1)', transformOrigin: 'top left' }
  });
- const image = canvas.toDataURL('image/jpeg', 0.95);
  
  const pdf = new jsPDF('p', 'mm', 'a4');
  const pdfWidth = pdf.internal.pageSize.getWidth();
