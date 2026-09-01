@@ -57,6 +57,28 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
     }
   }, []);
 
+
+  const getCertificateImage = async () => {
+    if (generatedImage) return generatedImage;
+    if (!certificateRef.current) throw new Error('Ref not found');
+    
+    // Safari workaround: Wait a tiny bit for UI to settle
+    await new Promise(resolve => setTimeout(resolve, 150));
+    
+    const image = await toJpeg(certificateRef.current, {
+      quality: 0.95,
+      backgroundColor: '#0f172a',
+      width: 794,
+      height: 1123,
+      pixelRatio: 2,
+      useCORS: true,
+      style: { transform: 'scale(1)', transformOrigin: 'top left' }
+    });
+    
+    setGeneratedImage(image);
+    return image;
+  };
+
  const handleDownload = async () => {
  if (!certificateRef.current) return;
  
@@ -64,18 +86,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingJpg(true);
  setDownloadSuccessJpg(false);
  
-       // Safari workaround: Wait a tiny bit for UI to settle
-      await new Promise(resolve => setTimeout(resolve, 150));
-      
-      const image = await toJpeg(certificateRef.current, {
- quality: 0.95,
- backgroundColor: '#0f172a',
- width: 794,
- height: 1123,
- pixelRatio: 2,
- useCORS: true,
- style: { transform: 'scale(1)', transformOrigin: 'top left' }
- });
+       const image = await getCertificateImage();
  
  const fileName = `Certificate_${chicken.code || 'Kaichon'}.jpg`;
  let shared = false;
@@ -136,18 +147,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingPdf(true);
  setDownloadSuccessPdf(false);
  
-       // Safari workaround: Wait a tiny bit for UI to settle
-      await new Promise(resolve => setTimeout(resolve, 150));
-      
-      const image = await toJpeg(certificateRef.current, {
- quality: 0.95,
- backgroundColor: '#0f172a',
- width: 794,
- height: 1123,
- pixelRatio: 2,
- useCORS: true,
- style: { transform: 'scale(1)', transformOrigin: 'top left' }
- });
+       const image = await getCertificateImage();
  
  const pdf = new jsPDF('p', 'mm', 'a4');
  const pdfWidth = pdf.internal.pageSize.getWidth();
