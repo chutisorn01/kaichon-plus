@@ -1,6 +1,6 @@
 import { SafeImage } from '../ui/SafeImage';
 import React, { useRef, useState, useEffect } from 'react';
-import { toJpeg } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { X, Download, ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck, FileText, Image as ImageIcon } from 'lucide-react';
 import { getBandColorCircleClass, getBandTextColorClass, getBandContrastTextClass, getBandBorderColorClass, getBandBgFadedClass } from './ChickenDetail';
@@ -130,7 +130,15 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
 
 
 
-const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512) => {
+
+  useEffect(() => {
+    if (isChickenLoaded) {
+      setIsReady(true);
+    }
+  }, [isChickenLoaded]);
+
+
+  const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512) => {
   const byteCharacters = atob(b64Data.split(',')[1]);
   const byteArrays = [];
   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
