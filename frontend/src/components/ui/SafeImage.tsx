@@ -4,7 +4,7 @@ interface SafeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
 }
 
-export const SafeImage: React.FC<SafeImageProps> = ({ src, className, alt, ...props }) => {
+export const SafeImage: React.FC<SafeImageProps> = ({ src, className, alt, crossOrigin, ...props }) => {
   const [base64Src, setBase64Src] = useState<string | null>(null);
 
   useEffect(() => {

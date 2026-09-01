@@ -44,8 +44,10 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingJpg(true);
  setDownloadSuccessJpg(false);
  
-       // Safari workaround: Call toJpeg twice to force image caching inside the SVG context
-      // Safari workaround: Call toJpeg twice to force image caching inside the SVG context
+       // Safari workaround: Wait 300ms for DOM to settle, then call toJpeg twice to force image caching inside the SVG context
+      await new Promise(resolve => setTimeout(resolve, 300));
+      // Safari workaround: Wait 300ms for DOM to settle, then call toJpeg twice to force image caching inside the SVG context
+      await new Promise(resolve => setTimeout(resolve, 300));
       try { await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.5 }); } catch (e) {}
       
       const image = await toJpeg(certificateRef.current, {
@@ -117,7 +119,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingPdf(true);
  setDownloadSuccessPdf(false);
  
-       // Safari workaround: Call toJpeg twice to force image caching inside the SVG context
+       // Safari workaround: Wait 300ms for DOM to settle, then call toJpeg twice to force image caching inside the SVG context
+      await new Promise(resolve => setTimeout(resolve, 300));
       try { await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.5 }); } catch (e) {}
       
       const image = await toJpeg(certificateRef.current, {
