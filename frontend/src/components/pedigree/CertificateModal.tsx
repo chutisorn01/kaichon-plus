@@ -46,8 +46,6 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  
        // Safari workaround: Wait 300ms for DOM to settle, then call toJpeg twice to force image caching inside the SVG context
       await new Promise(resolve => setTimeout(resolve, 300));
-      // Safari workaround: Wait 300ms for DOM to settle, then call toJpeg twice to force image caching inside the SVG context
-      await new Promise(resolve => setTimeout(resolve, 300));
       try { await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.5 }); } catch (e) {}
       
       const image = await toJpeg(certificateRef.current, {
@@ -201,7 +199,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="flex gap-2">
  <button 
  onClick={handleDownload}
- disabled={downloadingJpg}
+ disabled={downloadingJpg || downloadSuccessJpg}
  className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
  downloadSuccessJpg 
  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
@@ -219,7 +217,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  </button>
  <button 
  onClick={handleDownloadPdf}
- disabled={downloadingPdf}
+ disabled={downloadingPdf || downloadSuccessPdf}
  className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
  downloadSuccessPdf 
  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
