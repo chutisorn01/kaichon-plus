@@ -14,10 +14,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  const certificateRef = useRef<HTMLDivElement>(null);
  const containerRef = useRef<HTMLDivElement>(null);
  const [downloadingJpg, setDownloadingJpg] = useState(false);
- const [downloadSuccessJpg, setDownloadSuccessJpg] = useState(false);
- const [downloadingPdf, setDownloadingPdf] = useState(false);
- const [downloadSuccessPdf, setDownloadSuccessPdf] = useState(false);
- const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
  const [scale, setScale] = useState(1);
  const [isReady, setIsReady] = useState(false);
  const [localChickenUrl, setLocalChickenUrl] = useState<string | null>(null);
@@ -137,11 +135,11 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  };
 
  const handleDownload = async () => {
- if (!certificateRef.current || downloadingJpg || downloadSuccessJpg || !isReady) return;
+ if (!certificateRef.current || downloadingJpg  || !isReady) return;
  
  try {
  setDownloadingJpg(true);
- setDownloadSuccessJpg(false);
+ 
  
     const image = await getCertificateImage();
  
@@ -185,8 +183,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setTimeout(() => URL.revokeObjectURL(url), 100);
  }
  
- setDownloadSuccessJpg(true);
- setTimeout(() => setDownloadSuccessJpg(false), 3000);
+ 
  } catch (error) {
  console.error('Error generating certificate:', error);
  alert('เกิดข้อผิดพลาดในการสร้างใบเซอร์ กรุณาลองใหม่อีกครั้ง');
@@ -196,11 +193,11 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  };
 
  const handleDownloadPdf = async () => {
- if (!certificateRef.current || downloadingPdf || downloadSuccessPdf || !isReady) return;
+ if (!certificateRef.current || downloadingPdf  || !isReady) return;
  
  try {
  setDownloadingPdf(true);
- setDownloadSuccessPdf(false);
+ 
  
     const image = await getCertificateImage();
  
@@ -236,8 +233,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  pdf.save(fileName);
  }
  
- setDownloadSuccessPdf(true);
- setTimeout(() => setDownloadSuccessPdf(false), 3000);
+ 
  } catch (error) {
  console.error('Error generating PDF:', error);
  alert('เกิดข้อผิดพลาดในการสร้างใบเซอร์ กรุณาลองใหม่อีกครั้ง');
@@ -272,39 +268,27 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="flex gap-2">
  <button 
  onClick={handleDownload}
- disabled={!isReady || downloadingJpg || downloadSuccessJpg}
- className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
- downloadSuccessJpg 
- ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
- : 'bg-white text-slate-800 hover:bg-slate-100 shadow-white/20'
- }`}
+ disabled={!isReady || downloadingJpg }
+ className="flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white text-slate-800 hover:bg-slate-100 shadow-white/20"
  >
- {downloadSuccessJpg ? (
- <CheckCircle className="w-5 h-5 text-emerald-50" />
- ) : downloadingJpg ? (
+ {downloadingJpg ? (
  <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
  ) : (
  <ImageIcon className="w-5 h-5" />
  )}
- {downloadSuccessJpg ? 'สำเร็จ!' : 'บันทึก JPG'}
+ บันทึก JPG
  </button>
  <button 
  onClick={handleDownloadPdf}
- disabled={!isReady || downloadingPdf || downloadSuccessPdf}
- className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
- downloadSuccessPdf 
- ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
- : 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white shadow-red-500/20'
- }`}
+ disabled={!isReady || downloadingPdf }
+ className="flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white shadow-red-500/20"
  >
- {downloadSuccessPdf ? (
- <CheckCircle className="w-5 h-5" />
- ) : downloadingPdf ? (
+ {downloadingPdf ? (
  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
  ) : (
  <FileText className="w-5 h-5" />
  )}
- {downloadSuccessPdf ? 'สำเร็จ!' : 'บันทึก PDF'}
+ บันทึก PDF
  </button>
  </div>
  </div>
