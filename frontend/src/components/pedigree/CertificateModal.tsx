@@ -53,8 +53,12 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
 
   const prepareImage = async () => {
    try {
-    const cacheBuster = chicken.image.includes('?') ? '&cb=' : '?cb=';
-    const res = await fetch(chicken.image + cacheBuster + new Date().getTime(), { mode: 'cors', cache: 'no-store' });
+    let fetchUrl = chicken.image;
+    if (!fetchUrl.startsWith('data:')) {
+     const cacheBuster = fetchUrl.includes('?') ? '&cb=' : '?cb=';
+     fetchUrl = fetchUrl + cacheBuster + new Date().getTime();
+    }
+    const res = await fetch(fetchUrl, { mode: 'cors', cache: 'no-store' });
     const blob = await res.blob();
     objectUrl = URL.createObjectURL(blob);
     if (isMounted) {
