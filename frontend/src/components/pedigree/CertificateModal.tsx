@@ -129,6 +129,22 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  }, [isChickenLoaded, generatedImage]);
 
 
+
+const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512) => {
+  const byteCharacters = atob(b64Data.split(',')[1]);
+  const byteArrays = [];
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+  return new Blob(byteArrays, { type: contentType });
+};
+
  const getCertificateImage = async () => {
   if (generatedImage) return generatedImage;
   if (!certificateRef.current) throw new Error('Ref not found');
@@ -150,7 +166,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  };
 
  const handleDownload = async () => {
- if (!certificateRef.current) return;
+ if (!certificateRef.current || downloadingJpg || downloadSuccessJpg || !isReady) return;
  
  try {
  setDownloadingJpg(true);
@@ -164,8 +180,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  // 1) ลองใช้ Web Share API (สำหรับมือถือ iOS/Android จะเด้งเมนูให้ Save Image หรือแชร์ต่อได้)
  if (navigator.share) {
  try {
- const res = await fetch(image);
- const blob = await res.blob();
+ const blob = b64toBlob(image, 'image/jpeg');
  const file = new File([blob], fileName, { type: 'image/jpeg' });
  
  if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -188,8 +203,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  
  // 2) Fallback สำหรับ Desktop หรือเบราว์เซอร์ที่ไม่รองรับ Share API
  if (!shared) {
- const res = await fetch(image);
- const blob = await res.blob();
+ const blob = b64toBlob(image, 'image/jpeg');
  const url = URL.createObjectURL(blob);
  const link = document.createElement('a');
  link.href = url;
@@ -211,7 +225,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  };
 
  const handleDownloadPdf = async () => {
- if (!certificateRef.current) return;
+ if (!certificateRef.current || downloadingPdf || downloadSuccessPdf || !isReady) return;
  
  try {
  setDownloadingPdf(true);
