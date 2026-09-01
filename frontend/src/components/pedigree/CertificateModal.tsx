@@ -44,7 +44,11 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingJpg(true);
  setDownloadSuccessJpg(false);
  
- const image = await toJpeg(certificateRef.current, {
+       // Safari workaround: Call toJpeg twice to force image caching inside the SVG context
+      // Safari workaround: Call toJpeg twice to force image caching inside the SVG context
+      try { await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.5 }); } catch (e) {}
+      
+      const image = await toJpeg(certificateRef.current, {
  quality: 0.95,
  backgroundColor: '#0f172a',
  width: 794,
@@ -113,7 +117,10 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingPdf(true);
  setDownloadSuccessPdf(false);
  
- const image = await toJpeg(certificateRef.current, {
+       // Safari workaround: Call toJpeg twice to force image caching inside the SVG context
+      try { await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.5 }); } catch (e) {}
+      
+      const image = await toJpeg(certificateRef.current, {
  quality: 0.95,
  backgroundColor: '#0f172a',
  width: 794,
