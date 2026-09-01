@@ -1,6 +1,6 @@
 import { SafeImage } from '../ui/SafeImage';
 import React, { useRef, useState, useEffect } from 'react';
-import html2canvas from 'html2canvas';
+import { toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { X, Download, ShieldCheck, Trophy, Award, Calendar, Hash, User, Tag, Heart, Phone, MessageCircle, Globe, Star, CheckCircle, BadgeCheck, FileText, Image as ImageIcon } from 'lucide-react';
 import { getBandColorCircleClass, getBandTextColorClass, getBandContrastTextClass, getBandBorderColorClass, getBandBgFadedClass } from './ChickenDetail';
@@ -111,18 +111,27 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
   if (generatedImage) return generatedImage;
   if (!certificateRef.current) throw new Error('Ref not found');
   
-  // Use html2canvas instead of html-to-image for Safari compatibility
-  // html2canvas manually draws DOM to canvas, bypassing SVG strict policies
-  const canvas = await html2canvas(certificateRef.current, {
-   scale: 2,
-   useCORS: true,
-   allowTaint: true,
+  const options = {
+   quality: 0.95,
    backgroundColor: '#0f172a',
    width: 794,
    height: 1123,
-  });
+   pixelRatio: 2,
+   useCORS: true,
+   style: { transform: 'scale(1)', transformOrigin: 'top left' }
+  };
   
-  const image = canvas.toDataURL('image/jpeg', 0.95);
+  // SAFARI FIX: The first render often drops the chicken image due to strict SVG parsing policies.
+  // By running it once (dummy) and yielding, we force Safari to cache the decoded image resources.
+  // The second render will then draw perfectly.
+  await toJpeg(certificateRef.current, options).catch(() => {});
+  
+  // Yield to browser's event loop to allow Safari to finish decoding the image in its background thread
+  await new Promise(r => setTimeout(r, 150));
+  
+  // Second run: this will be perfect!
+  const image = await toJpeg(certificateRef.current, options);
+  
   setGeneratedImage(image);
   return image;
  };
