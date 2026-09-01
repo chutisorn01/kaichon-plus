@@ -76,57 +76,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
   };
  }, [chicken]);
 
- // Step 2: Generate the final image perfectly in the background BEFORE enabling buttons
- useEffect(() => {
-  if (!isChickenLoaded) return;
-  if (generatedImage) {
-   setIsReady(true);
-   return;
-  }
-  
-  let isMounted = true;
-  const generatePerfectImage = async () => {
-   if (!certificateRef.current) {
-    if (isMounted) setIsReady(true);
-    return;
-   }
-   try {
-    // Wait for DOM to completely settle
-    await new Promise(r => setTimeout(r, 300));
-    
-    const options = {
-     quality: 0.95,
-     backgroundColor: '#0f172a',
-     width: 794,
-     height: 1123,
-     pixelRatio: 2,
-     useCORS: true,
-     style: { transform: 'scale(1)', transformOrigin: 'top left' }
-    };
-
-    // 1st Render (Dummy): Forces Safari to parse the SVG and fetch the blob URL into the high-res canvas context.
-    // This one might have a blank chicken due to Safari's async rendering. We throw it away.
-    await toJpeg(certificateRef.current, options).catch(() => {});
-    
-    // Wait for Safari's internal SVG thread to catch up and cache the images
-    await new Promise(r => setTimeout(r, 400));
-    
-    // 2nd Render (Real): Safari has now fully cached the SVG. This render will be perfect.
-    const perfectImage = await toJpeg(certificateRef.current, options);
-    
-    if (isMounted) {
-     setGeneratedImage(perfectImage);
-     setIsReady(true);
-    }
-   } catch (e) {
-    console.error("Failed to generate perfect image", e);
-    if (isMounted) setIsReady(true);
-   }
-  };
-  generatePerfectImage();
-  
-  return () => { isMounted = false; };
- }, [isChickenLoaded, generatedImage]);
+ 
 
 
 
@@ -157,18 +107,18 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
   if (generatedImage) return generatedImage;
   if (!certificateRef.current) throw new Error('Ref not found');
   
-  // Fallback just in case the background generation failed
-  const options = {
-   quality: 0.95,
+  // Use html2canvas instead of html-to-image for Safari compatibility
+  // html2canvas manually draws DOM to canvas, bypassing SVG strict policies
+  const canvas = await html2canvas(certificateRef.current, {
+   scale: 2,
+   useCORS: true,
+   allowTaint: true,
    backgroundColor: '#0f172a',
    width: 794,
    height: 1123,
-   pixelRatio: 2,
-   useCORS: true,
-   style: { transform: 'scale(1)', transformOrigin: 'top left' }
-  };
+  });
   
-  const image = await toJpeg(certificateRef.current, options);
+  const image = canvas.toDataURL('image/jpeg', 0.95);
   setGeneratedImage(image);
   return image;
  };
