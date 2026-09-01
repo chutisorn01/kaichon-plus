@@ -20,6 +20,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
  const [scale, setScale] = useState(1);
  const [isReady, setIsReady] = useState(false);
+ const [localChickenUrl, setLocalChickenUrl] = useState<string | null>(null);
 
  useEffect(() => {
  const updateScale = () => {
@@ -39,23 +40,47 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  }, []);
 
 
-  // Pre-warm Safari SVG Cache & Control UI Readiness
+  // Pre-fetch chicken image as Blob Object URL as requested, then Pre-warm SVG Cache
   useEffect(() => {
-    if (certificateRef.current) {
-      const timer = setTimeout(() => {
-        try {
-          toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.1 })
-            .finally(() => setIsReady(true))
-            .catch(() => setIsReady(true));
-        } catch (e) {
-          setIsReady(true);
+    let isMounted = true;
+    let objectUrl: string | null = null;
+
+    const prepareImage = async () => {
+      try {
+        if (chicken?.image) {
+          const res = await fetch(chicken.image, { mode: 'cors' });
+          const blob = await res.blob();
+          objectUrl = URL.createObjectURL(blob);
+          if (isMounted) {
+            setLocalChickenUrl(objectUrl);
+          }
+          
+          // Wait for the img to decode in the DOM
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
-      }, 1500); // Wait for SafeImages to load
-      return () => clearTimeout(timer);
-    } else {
-      setIsReady(true);
-    }
-  }, []);
+      } catch (e) {
+        console.error("Failed to preload chicken image as blob", e);
+      }
+
+      if (isMounted && certificateRef.current) {
+        try {
+          await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.1 });
+        } catch (e) {}
+        setIsReady(true);
+      } else if (isMounted) {
+        setIsReady(true);
+      }
+    };
+
+    prepareImage();
+
+    return () => {
+      isMounted = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [chicken]);
 
 
   const getCertificateImage = async () => {
@@ -332,7 +357,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="w-40 h-40 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-3xl p-[4px] shadow-lg relative shrink-0">
  <div className="absolute inset-0 rounded-3xl border border-white/40 m-1 z-20 pointer-events-none"></div>
  <div className="w-full h-full rounded-[24px] bg-slate-900 overflow-hidden shadow-inner relative z-10">
- {chicken.image ? (
+ {localChickenUrl ? (
+ <img src={localChickenUrl} alt="Chicken" className="w-full h-full object-cover" />
+ ) : chicken.image ? (
  <SafeImage crossOrigin="anonymous" src={chicken.image} alt="Chicken" className="w-full h-full object-cover" />
  ) : (
  <Trophy className="w-16 h-16 opacity-50 text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
