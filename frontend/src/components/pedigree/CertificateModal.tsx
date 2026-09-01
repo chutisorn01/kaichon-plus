@@ -21,6 +21,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  const [scale, setScale] = useState(1);
  const [isReady, setIsReady] = useState(false);
  const [localChickenUrl, setLocalChickenUrl] = useState<string | null>(null);
+ const [isChickenLoaded, setIsChickenLoaded] = useState(false);
 
  useEffect(() => {
  const updateScale = () => {
@@ -40,35 +41,27 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  }, []);
 
 
-  // Pre-fetch chicken image as Blob Object URL as requested, then Pre-warm SVG Cache
+  // Step 1: Pre-fetch chicken image as Blob Object URL
   useEffect(() => {
     let isMounted = true;
     let objectUrl: string | null = null;
 
+    if (!chicken?.image) {
+      setIsChickenLoaded(true); // No image to load
+      return;
+    }
+
     const prepareImage = async () => {
       try {
-        if (chicken?.image) {
-          const res = await fetch(chicken.image, { mode: 'cors' });
-          const blob = await res.blob();
-          objectUrl = URL.createObjectURL(blob);
-          if (isMounted) {
-            setLocalChickenUrl(objectUrl);
-          }
-          
-          // Wait for the img to decode in the DOM
-          await new Promise(resolve => setTimeout(resolve, 500));
+        const res = await fetch(chicken.image, { mode: 'cors' });
+        const blob = await res.blob();
+        objectUrl = URL.createObjectURL(blob);
+        if (isMounted) {
+          setLocalChickenUrl(objectUrl);
         }
       } catch (e) {
         console.error("Failed to preload chicken image as blob", e);
-      }
-
-      if (isMounted && certificateRef.current) {
-        try {
-          await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.1 });
-        } catch (e) {}
-        setIsReady(true);
-      } else if (isMounted) {
-        setIsReady(true);
+        if (isMounted) setIsChickenLoaded(true); // Fallback to proceed
       }
     };
 
@@ -81,6 +74,26 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
       }
     };
   }, [chicken]);
+
+  // Step 2: Pre-warm SVG Cache ONLY AFTER image has fully loaded in DOM
+  useEffect(() => {
+    if (!isChickenLoaded) return;
+    
+    let isMounted = true;
+    const prewarm = async () => {
+      if (certificateRef.current) {
+        try {
+          // Give a tiny tick for DOM layout to update
+          await new Promise(r => setTimeout(r, 100));
+          await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.1 });
+        } catch (e) {}
+      }
+      if (isMounted) setIsReady(true);
+    };
+    prewarm();
+    
+    return () => { isMounted = false; };
+  }, [isChickenLoaded]);
 
 
   const getCertificateImage = async () => {
@@ -358,7 +371,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="absolute inset-0 rounded-3xl border border-white/40 m-1 z-20 pointer-events-none"></div>
  <div className="w-full h-full rounded-[24px] bg-slate-900 overflow-hidden shadow-inner relative z-10">
  {localChickenUrl ? (
- <img src={localChickenUrl} alt="Chicken" className="w-full h-full object-cover" />
+ <img src={localChickenUrl} alt="Chicken" className="w-full h-full object-cover" onLoad={() => setIsChickenLoaded(true)} onError={() => setIsChickenLoaded(true)} />
  ) : chicken.image ? (
  <SafeImage crossOrigin="anonymous" src={chicken.image} alt="Chicken" className="w-full h-full object-cover" />
  ) : (
