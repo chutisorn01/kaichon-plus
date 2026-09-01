@@ -19,6 +19,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  const [downloadSuccessPdf, setDownloadSuccessPdf] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
  const [scale, setScale] = useState(1);
+ const [isReady, setIsReady] = useState(false);
 
  useEffect(() => {
  const updateScale = () => {
@@ -38,15 +39,21 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  }, []);
 
 
-  // Pre-warm Safari SVG Cache
+  // Pre-warm Safari SVG Cache & Control UI Readiness
   useEffect(() => {
     if (certificateRef.current) {
       const timer = setTimeout(() => {
         try {
-          toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.1 }).catch(() => {});
-        } catch (e) {}
+          toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.1 })
+            .finally(() => setIsReady(true))
+            .catch(() => setIsReady(true));
+        } catch (e) {
+          setIsReady(true);
+        }
       }, 1500); // Wait for SafeImages to load
       return () => clearTimeout(timer);
+    } else {
+      setIsReady(true);
     }
   }, []);
 
@@ -210,7 +217,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="flex gap-2">
  <button 
  onClick={handleDownload}
- disabled={downloadingJpg || downloadSuccessJpg}
+ disabled={!isReady || downloadingJpg || downloadSuccessJpg}
  className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
  downloadSuccessJpg 
  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
@@ -228,7 +235,7 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  </button>
  <button 
  onClick={handleDownloadPdf}
- disabled={downloadingPdf || downloadSuccessPdf}
+ disabled={!isReady || downloadingPdf || downloadSuccessPdf}
  className={`flex items-center gap-2 px-5 py-2.5 font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
  downloadSuccessPdf 
  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
