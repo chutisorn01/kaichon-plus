@@ -37,6 +37,19 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  return () => window.removeEventListener('resize', updateScale);
  }, []);
 
+
+  // Pre-warm Safari SVG Cache
+  useEffect(() => {
+    if (certificateRef.current) {
+      const timer = setTimeout(() => {
+        try {
+          toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.1 }).catch(() => {});
+        } catch (e) {}
+      }, 1500); // Wait for SafeImages to load
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
  const handleDownload = async () => {
  if (!certificateRef.current) return;
  
@@ -44,9 +57,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingJpg(true);
  setDownloadSuccessJpg(false);
  
-       // Safari workaround: Wait 300ms for DOM to settle, then call toJpeg twice to force image caching inside the SVG context
-      await new Promise(resolve => setTimeout(resolve, 300));
-      try { await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.5 }); } catch (e) {}
+       // Safari workaround: Wait a tiny bit for UI to settle
+      await new Promise(resolve => setTimeout(resolve, 150));
       
       const image = await toJpeg(certificateRef.current, {
  quality: 0.95,
@@ -117,9 +129,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  setDownloadingPdf(true);
  setDownloadSuccessPdf(false);
  
-       // Safari workaround: Wait 300ms for DOM to settle, then call toJpeg twice to force image caching inside the SVG context
-      await new Promise(resolve => setTimeout(resolve, 300));
-      try { await toJpeg(certificateRef.current, { quality: 0.1, pixelRatio: 0.5 }); } catch (e) {}
+       // Safari workaround: Wait a tiny bit for UI to settle
+      await new Promise(resolve => setTimeout(resolve, 150));
       
       const image = await toJpeg(certificateRef.current, {
  quality: 0.95,
