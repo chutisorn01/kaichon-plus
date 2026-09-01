@@ -14,7 +14,6 @@ export const SafeImage: React.FC<SafeImageProps> = ({ src, className, alt, cross
 
     const processImage = (imageSrc: string) => {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.onload = () => {
         // iOS Safari html-to-image crashes if base64 images are too large.
         // Limit max dimensions to 1000px and compress to JPEG.
