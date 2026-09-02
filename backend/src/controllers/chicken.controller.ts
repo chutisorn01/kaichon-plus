@@ -350,7 +350,7 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
     const { includeAny } = req.query;
 
     if (includeAny === 'true') {
-      let data: any = await Chicken.findById(req.params.id)
+      let data: any = await Chicken.findById(req.params.id).select('-image')
         .populate('father', 'code name gender bloodline')
         .populate('mother', 'code name gender bloodline')
         .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
@@ -369,17 +369,17 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
         return res.status(200).json({ status: 'success', data: { ...data, siblingCount, _sourceCollection: 'chickens' } });
       }
 
-      data = await Father.findById(req.params.id).populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText').lean();
+      data = await Father.findById(req.params.id).select('-image').populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText').lean();
       if (data) {
         return res.status(200).json({ status: 'success', data: { ...data, gender: 'male', _sourceCollection: 'fathers' } });
       }
 
-      data = await Mother.findById(req.params.id).populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText').lean();
+      data = await Mother.findById(req.params.id).select('-image').populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText').lean();
       if (data) {
         return res.status(200).json({ status: 'success', data: { ...data, gender: 'female', _sourceCollection: 'mothers' } });
       }
 
-      data = await Chick.findById(req.params.id)
+      data = await Chick.findById(req.params.id).select('-image')
         .populate('father', 'code name bloodline breed')
         .populate('mother', 'code name bloodline breed')
         .populate('batch')
@@ -421,7 +421,7 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
       return next(new AppError('Chicken not found', 404));
     }
 
-    const chicken = await Chicken.findById(req.params.id)
+    const chicken = await Chicken.findById(req.params.id).select('-image')
       .populate('father', 'code name gender bloodline')
       .populate('mother', 'code name gender bloodline')
       .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
@@ -455,7 +455,7 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
 // Get Pedigree Tree for a chicken
 export const getChickenPedigree = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const chicken = await Chicken.findById(req.params.id);
+    const chicken = await Chicken.findById(req.params.id).select('-image');
     if (!chicken) {
       return next(new AppError('Chicken not found', 404));
     }
