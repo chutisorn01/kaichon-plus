@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
+import dashboardRoutes from './routes/dashboard.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import chickenRoutes from './routes/chicken.routes.js';
 import fatherRoutes from './routes/father.routes.js';
@@ -55,6 +56,8 @@ connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+
 app.use('/api/chickens', chickenRoutes);
 app.use('/api/fathers', fatherRoutes);
 app.use('/api/mothers', motherRoutes);
