@@ -566,7 +566,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
             >
               <>
                 <img 
-                  src={chick.image || `${import.meta.env.VITE_API_URL}/api/${chick._sourceCollection || 'chickens'}/${chick._id}/image`}
+                  src={chick.image || `${import.meta.env.VITE_API_URL}/api/${chick._sourceCollection || 'chickens'}/${chick._id}/image?t=${chick.updatedAt ? new Date(chick.updatedAt).getTime() : ''}`}
                   alt={chick.name} 
                   className="w-full h-full object-cover" 
                   onError={(e) => {

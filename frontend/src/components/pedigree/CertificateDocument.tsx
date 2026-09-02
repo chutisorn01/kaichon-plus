@@ -10,9 +10,9 @@ interface CertificateDocumentProps {
 
 export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateDocumentProps>(({ chicken, scale = 1 }, ref) => {
 
-  const getMainImg = () => chicken?.image || (chicken?._id ? `${import.meta.env.VITE_API_URL}/api/${chicken?._sourceCollection || (chicken?.gender === 'chick' ? 'chicks' : chicken?.gender === 'female' ? 'mothers' : chicken?.gender === 'male' ? 'fathers' : 'chickens')}/${chicken?._id}/image` : null);
-  const getFatherImg = () => chicken?.father?.image || (chicken?.father?._id ? `${import.meta.env.VITE_API_URL}/api/fathers/${chicken.father._id}/image` : null);
-  const getMotherImg = () => chicken?.mother?.image || (chicken?.mother?._id ? `${import.meta.env.VITE_API_URL}/api/mothers/${chicken.mother._id}/image` : null);
+  const getMainImg = () => chicken?.image || (chicken?._id ? `${import.meta.env.VITE_API_URL}/api/${chicken?._sourceCollection || (chicken?.gender === 'chick' ? 'chicks' : chicken?.gender === 'female' ? 'mothers' : chicken?.gender === 'male' ? 'fathers' : 'chickens')}/${chicken?._id}/image?t=${chicken?.updatedAt ? new Date(chicken.updatedAt).getTime() : ''}` : null);
+  const getFatherImg = () => chicken?.father?.image || (chicken?.father?._id ? `${import.meta.env.VITE_API_URL}/api/fathers/${chicken.father._id}/image?t=${chicken?.father?.updatedAt ? new Date(chicken.father.updatedAt).getTime() : ''}` : null);
+  const getMotherImg = () => chicken?.mother?.image || (chicken?.mother?._id ? `${import.meta.env.VITE_API_URL}/api/mothers/${chicken.mother._id}/image?t=${chicken?.mother?.updatedAt ? new Date(chicken.mother.updatedAt).getTime() : ''}` : null);
  const getGenderText = (gender: string) => {
  if (gender === 'male' || gender === 'ผู้') return 'เพศผู้';
  if (gender === 'female' || gender === 'เมีย') return 'เพศเมีย';
