@@ -14,6 +14,7 @@ const router = express.Router();
 
 router.get('/promoted', getPromotedFathers);
 
+router.get('/:id/image', getFatherImage);
 router.use(protect);
 
 router.route('/')

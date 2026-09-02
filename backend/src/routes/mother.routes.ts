@@ -11,6 +11,7 @@ import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
+router.get('/:id/image', getMotherImage);
 router.use(protect);
 
 router.route('/')
