@@ -177,15 +177,28 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  
  // 2) Fallback สำหรับ Desktop หรือเบราว์เซอร์ที่ไม่รองรับ Share API
  if (!shared) {
- const blob = b64toBlob(image, 'image/jpeg');
- const url = URL.createObjectURL(blob);
- const link = document.createElement('a');
- link.href = url;
- link.download = fileName;
- document.body.appendChild(link);
- link.click();
- document.body.removeChild(link);
- setTimeout(() => URL.revokeObjectURL(url), 100);
+   try {
+     const blob = b64toBlob(image, 'image/jpeg');
+     const url = URL.createObjectURL(blob);
+     const link = document.createElement('a');
+     link.style.display = 'none';
+     link.href = url;
+     link.download = fileName;
+     document.body.appendChild(link);
+     link.click();
+     setTimeout(() => {
+       if (document.body.contains(link)) document.body.removeChild(link);
+       URL.revokeObjectURL(url);
+     }, 10000);
+   } catch (fallbackErr) {
+     console.error('Blob download failed, trying data URI:', fallbackErr);
+     const link = document.createElement('a');
+     link.href = image;
+     link.download = fileName;
+     document.body.appendChild(link);
+     link.click();
+     document.body.removeChild(link);
+   }
  }
  
  
