@@ -254,7 +254,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
     const chickenIdsList = shouldFetchChickens ? await Chicken.find(filter).select('_id createdAt').lean() : [];
     
     // Only query Chick if includeChicks is true, or gender is chick
-    const shouldFetchChicks = includeChicks === 'true' || gender === 'chick';
+    const shouldFetchChicks = (includeChicks === 'true' && (!gender || gender === 'all')) || gender === 'chick';
     const chickIdsList = shouldFetchChicks ? await Chick.find(chickFilter).select('_id createdAt').lean() : [];
 
     const combinedIds = [
