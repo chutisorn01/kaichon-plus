@@ -11,6 +11,10 @@ interface CertificateModalProps {
 }
 
 export default function CertificateModal({ chicken, onClose }: CertificateModalProps) {
+
+  const getMainImg = () => chicken?.image || (chicken?._id ? `${import.meta.env.VITE_API_URL}/api/${chicken?._sourceCollection || (chicken?.gender === 'chick' ? 'chicks' : chicken?.gender === 'female' ? 'mothers' : chicken?.gender === 'male' ? 'fathers' : 'chickens')}/${chicken?._id}/image` : null);
+  const getFatherImg = () => chicken?.father?.image || (chicken?.father?._id ? `${import.meta.env.VITE_API_URL}/api/fathers/${chicken.father._id}/image` : null);
+  const getMotherImg = () => chicken?.mother?.image || (chicken?.mother?._id ? `${import.meta.env.VITE_API_URL}/api/mothers/${chicken.mother._id}/image` : null);
  const certificateRef = useRef<HTMLDivElement>(null);
  const containerRef = useRef<HTMLDivElement>(null);
  const [downloadingJpg, setDownloadingJpg] = useState(false);
