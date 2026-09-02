@@ -778,12 +778,22 @@ const streamImage = async (Model: any, id: string, res: Response) => {
   try {
     const doc = await Model.findById(id).select('image').lean();
     if (!doc || !doc.image) {
-      return res.status(404).send('Image not found');
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.status(200).send(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#f1f5f9"/>
+  <text x="50%" y="50%" font-size="60" font-family="sans-serif" text-anchor="middle" dominant-baseline="middle" fill="#cbd5e1">🐓</text>
+</svg>`);
     }
 
     const match = doc.image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
     if (!match) {
-      return res.status(404).send('Invalid image format');
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.status(200).send(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#f1f5f9"/>
+  <text x="50%" y="50%" font-size="60" font-family="sans-serif" text-anchor="middle" dominant-baseline="middle" fill="#cbd5e1">🐓</text>
+</svg>`);
     }
 
     const buffer = Buffer.from(match[2], 'base64');
