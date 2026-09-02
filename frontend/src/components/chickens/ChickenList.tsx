@@ -9,6 +9,9 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [search, setSearch] = useState(() => sessionStorage.getItem('chickenList_searchQuery') || '');
   const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female' | 'chick'>(() => 
     (sessionStorage.getItem('chickenList_genderFilter') as 'all' | 'male' | 'female' | 'chick') || 'all'
@@ -73,6 +76,9 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [search, setSearch] = useState(() => sessionStorage.getItem('chickenList_searchQuery') || '');
   const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female' | 'chick'>(() => 
     (sessionStorage.getItem('chickenList_genderFilter') as 'all' | 'male' | 'female' | 'chick') || 'all'
@@ -93,189 +99,44 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
     fetchChickens(1);
   }, [search, genderFilter]);
 
-  const fetchChickens = async () => {
+  const fetchChickens = async (pageNum = 1) => {
     try {
-      setLoading(true);
+      if (pageNum === 1) setLoading(true);
+      else setIsLoadingMore(true);
+
       const token = localStorage.getItem('token');
       const headers = { 'Authorization': `Bearer ${token}` };
 
-      let url = `${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(search)}`;
-      if (genderFilter === 'male' || genderFilter === 'female') {
+      let url = `${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(search)}&includeChicks=true&page=${pageNum}&limit=20`;
+      if (genderFilter !== 'all') {
         url += `&gender=${genderFilter}`;
       }
 
-      const cacheBuster = `t=${Date.now()}`;
-      // Fetch from all 4 endpoints in parallel (chickens, fathers, mothers, chicks)
-      const [chickensRes, fathersRes, mothersRes, chicksRes] = await Promise.all([
-        fetch(url, { headers }),
-        fetch(`${import.meta.env.VITE_API_URL}/api/fathers?${cacheBuster}`, { headers }).catch(() => null),
-        fetch(`${import.meta.env.VITE_API_URL}/api/mothers?${cacheBuster}`, { headers }).catch(() => null),
-        fetch(`${import.meta.env.VITE_API_URL}/api/chicks?${cacheBuster}`, { headers }).catch(() => null)
-      ]);
+      const res = await fetch(url, { headers });
+      const data = await res.json();
 
-      const chickensData = await chickensRes.json();
-      const rawChickens = chickensData.data || chickensData.chickens || (Array.isArray(chickensData) ? chickensData : []);
+      let newChickens = [];
+      let _hasMore = false;
 
-      let rawFathers: any[] = [];
-      if (fathersRes && fathersRes.ok) rawFathers = await fathersRes.json();
-
-      let rawMothers: any[] = [];
-      if (mothersRes && mothersRes.ok) rawMothers = await mothersRes.json();
-
-      let rawChicks: any[] = [];
-      if (chicksRes && chicksRes.ok) rawChicks = await chicksRes.json();
-
-      // Format fathers to match chicken schema format
-      const formattedFathers = (Array.isArray(rawFathers) ? rawFathers : []).map((f: any) => ({
-        _id: f._id,
-        code: f.code,
-        name: f.name,
-        gender: 'male',
-        bloodline: f.breed || f.bloodline || 'พ่อพันธุ์',
-        bandNumber: f.bandNumber,
-        bandColor: f.bandColor,
-        bandText: f.bandText,
-        user: f.user,
-        image: f.image,
-        isFatherRegistry: true
-      }));
-
-      // Format mothers to match chicken schema format
-      const formattedMothers = (Array.isArray(rawMothers) ? rawMothers : []).map((m: any) => ({
-        _id: m._id,
-        code: m.code,
-        name: m.name,
-        gender: 'female',
-        bloodline: m.breed || m.bloodline || 'แม่พันธุ์',
-        bandNumber: m.bandNumber,
-        bandColor: m.bandColor,
-        bandText: m.bandText,
-        user: m.user,
-        image: m.image,
-        isMotherRegistry: true
-      }));
-
-      // Format chicks to match chicken schema format
-      const formattedChicks = (Array.isArray(rawChicks) ? rawChicks : []).map((c: any) => ({
-        _id: c._id,
-        code: c.code,
-        name: c.name || `ลูกไก่ #${c.bandNumber || c.code}`,
-        gender: 'chick',
-        chickGender: c.gender,
-        bloodline: c.bloodline || 'กำลังพัฒนา',
-        bandNumber: c.bandNumber,
-        bandColor: c.bandColor,
-        bandText: c.bandText,
-        user: c.user,
-        image: c.image,
-        isChickRegistry: true
-      }));
-
-      // Combine and filter out duplicates by code
-      const combined: any[] = [];
-      const existingCodes = new Set<string>();
-
-      if (genderFilter === 'all' || genderFilter === 'male' || genderFilter === 'female') {
-        rawChickens.forEach((c: any) => {
-          if (!existingCodes.has(c.code?.toUpperCase())) {
-            combined.push(c);
-            existingCodes.add(c.code?.toUpperCase());
-          }
-        });
+      if (data.success && data.pagination) {
+        newChickens = data.data || [];
+        _hasMore = data.pagination.hasMore;
+      } else {
+        newChickens = data.data || data.chickens || (Array.isArray(data) ? data : []);
       }
 
-      formattedFathers.forEach((f: any) => {
-        if (!existingCodes.has(f.code?.toUpperCase())) {
-          if (genderFilter === 'all' || genderFilter === 'male') {
-            combined.push(f);
-            existingCodes.add(f.code?.toUpperCase());
-          }
-        }
-      });
-
-      formattedMothers.forEach((m: any) => {
-        if (!existingCodes.has(m.code?.toUpperCase())) {
-          if (genderFilter === 'all' || genderFilter === 'female') {
-            combined.push(m);
-            existingCodes.add(m.code?.toUpperCase());
-          }
-        }
-      });
-
-      formattedChicks.forEach((c: any) => {
-        if (!existingCodes.has(c.code?.toUpperCase())) {
-          if (genderFilter === 'all' || genderFilter === 'chick') {
-            combined.push(c);
-            existingCodes.add(c.code?.toUpperCase());
-          }
-        }
-      });
-
-      // Filter by search query if applicable
-      const filtered = combined.filter((c: any) => {
-        if (!search.trim()) return true;
-        const q = search.toLowerCase();
-        return (
-          c.name?.toLowerCase().includes(q) ||
-          c.code?.toLowerCase().includes(q) ||
-          c.bloodline?.toLowerCase().includes(q) ||
-          c.bandNumber?.toLowerCase().includes(q)
-        );
-      });
-
-      if (search.trim()) {
-        const q = search.toLowerCase().trim();
-        const searchWords = q.split(/\s+/);
-        
-        filtered.sort((a: any, b: any) => {
-          const calculateScore = (item: any) => {
-            let score = 0;
-            const name = (item.name || '').toLowerCase();
-            const code = (item.code || '').toLowerCase();
-            const bloodline = (item.bloodline || '').toLowerCase();
-            const bandNumber = (item.bandNumber || '').toLowerCase();
-            const bandText = (item.bandText || '').toLowerCase();
-            const farmName = (item.user?.farmName || '').toLowerCase();
-
-            for (const word of searchWords) {
-              // 1. Band Number (กิ๊ฟ) - Most important
-              if (bandNumber === word) score += 100;
-              else if (bandNumber.includes(word)) score += 70;
-
-              // 2. Name, Farm Name, Band Text - Second most important
-              if (name === word || farmName === word || bandText === word) score += 80;
-              else if (name.includes(word) || farmName.includes(word) || bandText.includes(word)) score += 60;
-
-              // 3. System Code - Third most important
-              if (code === word) score += 50;
-              else if (code.includes(word)) score += 30;
-
-              // 4. Bloodline - Lowest priority
-              if (bloodline === word) score += 20;
-              else if (bloodline.includes(word)) score += 10;
-            }
-            return score;
-          };
-
-          const scoreA = calculateScore(a);
-          const scoreB = calculateScore(b);
-
-          if (scoreA !== scoreB) {
-            return scoreB - scoreA;
-          }
-
-          // Fallback to createdAt descending
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return dateB - dateA;
-        });
+      setHasMore(_hasMore);
+      
+      if (pageNum === 1) {
+        setChickens(newChickens);
+      } else {
+        setChickens(prev => [...prev, ...newChickens]);
       }
-
-      setChickens(filtered);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 

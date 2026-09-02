@@ -26,16 +26,9 @@ def update_file(file_path):
     )
 
     # 3. Rewrite fetchChickens to accept page and handle pagination natively
-    old_fetch_start = "const fetchChickens = async () => {"
-    old_fetch_end = "setChickens(mergedArray);"
+    # Use regex to find the entire block of fetchChickens from 'const fetchChickens = async () => {' to '};' before 'const handleDelete ='
+    fetch_pattern = re.compile(r'const fetchChickens = async \(\) => \{.*?setLoading\(false\);\n    \}\n  \};', re.DOTALL)
     
-    start_idx = content.find(old_fetch_start)
-    end_idx = content.find(old_fetch_end) + len(old_fetch_end)
-
-    if start_idx == -1 or end_idx == -1:
-        print("Could not find fetchChickens block")
-        return
-
     new_fetch_logic = """const fetchChickens = async (pageNum = 1) => {
     try {
       if (pageNum === 1) setLoading(true);
@@ -59,7 +52,6 @@ def update_file(file_path):
         newChickens = data.data || [];
         _hasMore = data.pagination.hasMore;
       } else {
-        // Fallback for older backend API shape
         newChickens = data.data || data.chickens || (Array.isArray(data) ? data : []);
       }
 
@@ -69,9 +61,16 @@ def update_file(file_path):
         setChickens(newChickens);
       } else {
         setChickens(prev => [...prev, ...newChickens]);
-      }"""
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
+  };"""
 
-    content = content[:start_idx] + new_fetch_logic + content[end_idx:]
+    content = fetch_pattern.sub(new_fetch_logic, content)
 
     # 4. Add "Load More" button at the bottom of the list
     load_more_jsx = """
@@ -98,12 +97,6 @@ def update_file(file_path):
           </div>
         )}"""
 
-    content = content.replace(
-        "        {/* List Content */}",
-        "        {/* List Content */}"
-    )
-    
-    # insert before the closing main div (before Logout Confirmation Modal or just before the final return closing tag)
     content = content.replace(
         "      </main>",
         load_more_jsx + "\n      </main>"
