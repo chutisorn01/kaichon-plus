@@ -351,8 +351,8 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
 
     if (includeAny === 'true') {
       let data: any = await Chicken.findById(req.params.id)
-        .populate('father', 'code name gender bloodline image')
-        .populate('mother', 'code name gender bloodline image')
+        .populate('father', 'code name gender bloodline')
+        .populate('mother', 'code name gender bloodline')
         .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
         .lean();
         
@@ -380,8 +380,8 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
       }
 
       data = await Chick.findById(req.params.id)
-        .populate('father', 'code name image bloodline breed')
-        .populate('mother', 'code name image bloodline breed')
+        .populate('father', 'code name bloodline breed')
+        .populate('mother', 'code name bloodline breed')
         .populate('batch')
         .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
         .lean();
@@ -422,8 +422,8 @@ export const getChickenById = async (req: Request, res: Response, next: NextFunc
     }
 
     const chicken = await Chicken.findById(req.params.id)
-      .populate('father', 'code name gender bloodline image')
-      .populate('mother', 'code name gender bloodline image')
+      .populate('father', 'code name gender bloodline')
+      .populate('mother', 'code name gender bloodline')
       .populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description signatureImage stampText')
       .lean();
 

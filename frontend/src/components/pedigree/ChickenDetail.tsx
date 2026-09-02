@@ -305,13 +305,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
       }
 
       // Fetch siblings if batch exists
-      if (data?.batch?._id || data?.batch) {
-        const bId = data.batch._id || data.batch;
-        const sibRes = await fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${chickenId}/siblings?t=${Date.now()}`, { headers }).catch(() => null);
-        if (sibRes && sibRes.ok) {
-          setSiblings(await sibRes.json());
-        }
-      }
+
       
       setLoading(false);
     } catch (err) {
