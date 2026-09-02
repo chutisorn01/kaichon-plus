@@ -151,7 +151,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  let shared = false;
 
  // 1) ลองใช้ Web Share API (สำหรับมือถือ iOS/Android จะเด้งเมนูให้ Save Image หรือแชร์ต่อได้)
- const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) && window.matchMedia('(pointer: coarse)').matches;
+ const isMac = /Macintosh/.test(navigator.userAgent);
+ const isIPadOS = isMac && navigator.maxTouchPoints > 1;
+ const isMobile = (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || isIPadOS) && window.matchMedia('(max-width: 1024px)').matches;
   if (isMobile && navigator.share) {
  try {
  const blob = b64toBlob(image, 'image/jpeg');
@@ -226,7 +228,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  const fileName = `Certificate_${chicken.code || 'Kaichon'}.pdf`;
  let shared = false;
 
- const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) && window.matchMedia('(pointer: coarse)').matches;
+ const isMac = /Macintosh/.test(navigator.userAgent);
+ const isIPadOS = isMac && navigator.maxTouchPoints > 1;
+ const isMobile = (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || isIPadOS) && window.matchMedia('(max-width: 1024px)').matches;
   if (isMobile && navigator.share) {
  try {
  const blob = pdf.output('blob');
