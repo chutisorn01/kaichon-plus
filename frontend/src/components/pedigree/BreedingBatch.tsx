@@ -614,7 +614,7 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
                               type="number" min="0" max="100"
                               className="w-full p-2.5 bg-white dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-xs font-bold"
                               value={formData.maleCount}
-                              onChange={e => setFormData({...formData, maleCount: Math.max(0, parseInt(e.target.value) || 0)})}
+                              onChange={e => setFormData({...formData, maleCount: e.target.value === '' ? '' as any : Math.max(0, parseInt(e.target.value) || 0)})}
                             />
                           </div>
                           <div className="space-y-1">
@@ -658,7 +658,7 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
                               type="number" min="0" max="100"
                               className="w-full p-2.5 bg-white dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-pink-500 text-xs font-bold"
                               value={formData.femaleCount}
-                              onChange={e => setFormData({...formData, femaleCount: Math.max(0, parseInt(e.target.value) || 0)})}
+                              onChange={e => setFormData({...formData, femaleCount: e.target.value === '' ? '' as any : Math.max(0, parseInt(e.target.value) || 0)})}
                             />
                           </div>
                           <div className="space-y-1">
