@@ -796,17 +796,17 @@ const streamImage = async (Model: any, id: string, res: Response) => {
 };
 
 export const getChickenImage = async (req: Request, res: Response) => {
-  return streamImage(Chicken, req.params.id as string, res);
+  return streamImage(Chicken, req.params.id, res);
 };
 
 export const getChickImage = async (req: Request, res: Response) => {
-  return streamImage(Chick, req.params.id as string, res);
+  return streamImage(Chick, req.params.id, res);
 };
 
 export const getFatherImage = async (req: Request, res: Response) => {
-  return streamImage(Father, req.params.id as string, res);
+  return streamImage(Father, req.params.id, res);
 };
 
 export const getMotherImage = async (req: Request, res: Response) => {
-  return streamImage(Mother, req.params.id as string, res);
+  return streamImage(Mother, req.params.id, res);
 };

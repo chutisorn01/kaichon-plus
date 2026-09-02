@@ -236,13 +236,20 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
               >
                 {/* Image Column */}
                 <div className="w-28 h-28 bg-slate-50 dark:bg-slate-800/80 rounded-2xl overflow-hidden shrink-0 border border-slate-100 dark:border-white/5 flex items-center justify-center relative shadow-inner">
-                  {chicken.image ? (
-                    <img src={chicken.image} alt={chicken.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400">
-                      <ChickenIcon size={28} />
-                    </div>
-                  )}
+                  <img 
+                    src={`${import.meta.env.VITE_API_URL}/api/${chicken.gender === 'chick' ? 'chicks' : 'chickens'}/${chicken._id}/image`} 
+                    alt={chicken.name} 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.nextElementSibling) {
+                        (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hidden-fallback" style={{ display: 'none' }}>
+                    <ChickenIcon size={28} />
+                  </div>
                 </div>
 
                 {/* Text Column */}

@@ -1,3 +1,4 @@
+import { getMotherImage } from '../controllers/chicken.controller.js';
 import express from 'express';
 import { 
   getMothers, 

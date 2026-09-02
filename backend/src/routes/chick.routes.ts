@@ -1,3 +1,4 @@
+import { getChickImage } from '../controllers/chicken.controller.js';
 import express from 'express';
 import { 
   getChicks, 
@@ -11,6 +12,7 @@ import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
+router.get('/:id/image', getChickImage);
 router.get('/:id', getChickById);
 router.get('/:id/siblings', getSiblings);
 

@@ -9,6 +9,7 @@ import {
   registerChicken,
   updateChicken,
   deleteChicken,
+  getChickenImage,
 } from '../controllers/chicken.controller.js';
 
 const router = Router();
@@ -31,6 +32,7 @@ const updateSchema = [
 // Endpoints mapping
 router.get('/', getAllChickens);
 router.get('/parents-options', getParentsOptions);
+router.get('/:id/image', getChickenImage);
 router.get('/:id', getChickenById);
 router.get('/:id/pedigree', getChickenPedigree);
 
