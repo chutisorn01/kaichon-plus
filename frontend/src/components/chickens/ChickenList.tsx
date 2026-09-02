@@ -228,7 +228,10 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
             {chickens.map((chicken) => (
               <div 
                 key={chicken._id}
-                onClick={() => onNavigate('chicken-detail', chicken._id)}
+                onClick={() => {
+                  try { sessionStorage.setItem(`cached_chicken_${chicken._id}`, JSON.stringify(chicken)); } catch (e) {}
+                  onNavigate('chicken-detail', chicken._id);
+                }}
                 className="group bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-sm hover:shadow-xl hover:border-red-500/30 dark:hover:border-red-500/30 active:scale-[0.98] transition-all cursor-pointer relative overflow-hidden flex items-center gap-4"
               >
                 {/* Image Column */}

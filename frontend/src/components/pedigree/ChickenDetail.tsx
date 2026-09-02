@@ -123,9 +123,19 @@ export const getStatusConfig = (status: string) => {
 
 export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: string, onNavigate: (page: any) => void }) {
   const isPublic = !localStorage.getItem('token');
-  const [chick, setChick] = useState<any>(null);
+  const [chick, setChick] = useState<any>(() => {
+    try {
+      const cached = sessionStorage.getItem(`cached_chicken_${chickenId}`);
+      if (cached) return JSON.parse(cached);
+    } catch (e) {}
+    return null;
+  });
   const [siblings, setSiblings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !sessionStorage.getItem(`cached_chicken_${chickenId}`);
+    } catch (e) { return true; }
+  });
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{ 
@@ -210,7 +220,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
   const handleQuickImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     let file = e.target.files?.[0];
     if (file && chick) {
-      setLoading(true);
+      if (!chick) setLoading(true);
       // Handle iPhone HEIC format
       if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
         try {
@@ -262,7 +272,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
 
   const fetchDetail = async () => {
     try {
-      setLoading(true);
+      if (!chick) setLoading(true);
       const token = localStorage.getItem('token');
       const headers: Record<string, string> = {};
       if (token) {
