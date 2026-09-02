@@ -281,11 +281,12 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
 
     let chickens: any[] = [];
     if (paginatedChickenIds.length > 0) {
-      chickens = await Chicken.find({ _id: { $in: paginatedChickenIds } }).select('-image')
+      const rawChickens = await Chicken.find({ _id: { $in: paginatedChickenIds } }).select('-image')
         .populate('father', 'code name gender bloodline')
         .populate('mother', 'code name gender bloodline')
         .populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText')
         .lean();
+      chickens = rawChickens.map(c => ({ ...c, _sourceCollection: 'chickens' }));
     }
 
     let mappedChicks: any[] = [];
@@ -313,7 +314,8 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           gender: 'chick', // Map to chicken schema equivalent
           bloodline: parentBloodline || 'กำลังพัฒนา',
           isChickRegistry: true,
-          chickOriginalData: c
+          _sourceCollection: 'chicks',
+          chickOriginalData: { ...c, _sourceCollection: 'chicks' }
         };
       });
     }
