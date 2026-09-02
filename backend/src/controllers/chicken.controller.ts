@@ -73,7 +73,11 @@ const detectCircularReference = async (
 export const getAllChickens = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { search, gender, includeChicks } = req.query;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    
     const filter: any = {};
+    const chickFilter: any = {};
 
     if (gender === 'male' || gender === 'female') {
       filter.gender = gender;
@@ -106,6 +110,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
 
     if (userId) {
       filter.user = userId;
+      chickFilter.user = userId;
     }
 
     if (search) {
@@ -119,7 +124,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
         if (isWordCertNo) {
           searchWords.push(word);
         } else {
-          // Auto-split numbers and text (e.g., "001โกเซ้ม" -> "001 โกเซ้ม")
+          // Auto-split numbers and text
           const splitWord = word
             .replace(/([0-9])([a-zA-Zก-ฮเแโใไาีืึุูะัิี])/g, '$1 $2')
             .replace(/([a-zA-Zก-ฮเแโใไาีืึุูะัิี])([0-9])/g, '$1 $2');
@@ -129,7 +134,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
       }
       
       // Escape special regex characters in searchStr for matching users
-      const regexPattern = searchWords.map(w => w.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
+      const regexPattern = searchWords.map(w => w.replace(/[/\-\^$*+?.()|[\]{}]/g, '\$&')).join('|');
       const anyWordRegex = new RegExp(regexPattern, 'i');
 
       matchingUsers = await User.find({
@@ -202,9 +207,9 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
         }
       }
 
-      filter.$and = searchWords.map(word => {
+      const searchConditions = searchWords.map(word => {
         // Escape special regex characters
-        const escapedWord = word.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+        const escapedWord = word.replace(/[/\-\^$*+?.()|[\]{}]/g, '\$&');
         const regex = new RegExp(escapedWord, 'i');
         const conditions: any[] = [
           { code: regex },
@@ -218,182 +223,128 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
           { 'saleInfo.customerFarm': regex }
         ];
 
-        // Match full 24-character ObjectId
         if (/^[0-9a-fA-F]{24}$/.test(word)) {
           conditions.push({ _id: word });
         }
-
-        // Match pre-fetched certificate IDs
-        if (certNoChickenIds.length > 0) {
-          conditions.push({ _id: { $in: certNoChickenIds } });
-        }
         
-        const matchedUserIds = matchingUsers
-          .filter((u: any) => regex.test(u.farmName || '') || regex.test(u.name || ''))
-          .map((u: any) => u._id);
-          
-        if (matchedUserIds.length > 0) conditions.push({ user: { $in: matchedUserIds } });
-        
-        return { $or: conditions };
+        return { $or: conditions, regex, word };
+      });
+      
+      filter.$and = searchConditions.map((sc) => {
+        const conds = [...sc.$or];
+        if (certNoChickenIds.length > 0) conds.push({ _id: { $in: certNoChickenIds } });
+        const matchedUserIds = matchingUsers.filter((u: any) => sc.regex.test(u.farmName || '') || sc.regex.test(u.name || '')).map((u: any) => u._id);
+        if (matchedUserIds.length > 0) conds.push({ user: { $in: matchedUserIds } });
+        return { $or: conds };
+      });
+      
+      chickFilter.$and = searchConditions.map((sc) => {
+        const conds = [...sc.$or];
+        if (certNoChickIds.length > 0) conds.push({ _id: { $in: certNoChickIds } });
+        const matchedUserIds = matchingUsers.filter((u: any) => sc.regex.test(u.farmName || '') || sc.regex.test(u.name || '')).map((u: any) => u._id);
+        if (matchedUserIds.length > 0) conds.push({ user: { $in: matchedUserIds } });
+        return { $or: conds };
       });
     }
 
-    let chickens = await Chicken.find(filter)
-      .select('-image')
-      .populate('father', 'code name gender bloodline')
-      .populate('mother', 'code name gender bloodline')
-      .populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText')
-      .sort({ createdAt: -1 })
-      .lean();
+    // --- STEP 1: Fetch IDs only for pagination ---
+    
+    // Only query Chicken if gender filter is male/female/undefined
+    const shouldFetchChickens = !gender || gender === 'male' || gender === 'female';
+    const chickenIdsList = shouldFetchChickens ? await Chicken.find(filter).select('_id createdAt').lean() : [];
+    
+    // Only query Chick if includeChicks is true, or gender is chick
+    const shouldFetchChicks = includeChicks === 'true' || gender === 'chick';
+    const chickIdsList = shouldFetchChicks ? await Chick.find(chickFilter).select('_id createdAt').lean() : [];
 
-    if (includeChicks === 'true' && search) {
-      const chickFilter: any = {};
-      if (userId) {
-        chickFilter.user = userId;
-      }
-      
-      chickFilter.$and = searchWords.map(word => {
-        // Escape special regex characters
-        const escapedWord = word.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
-        const regex = new RegExp(escapedWord, 'i');
-        const conditions: any[] = [
-          { code: regex },
-          { name: regex },
-          { bandNumber: regex },
-          { bandText: regex },
-          { fatherNameText: regex },
-          { motherNameText: regex },
-          { 'saleInfo.customerName': regex },
-          { 'saleInfo.customerFarm': regex }
-        ];
+    const combinedIds = [
+      ...chickenIdsList.map(item => ({ id: item._id, type: 'chicken', createdAt: (item as any).createdAt })),
+      ...chickIdsList.map(item => ({ id: item._id, type: 'chick', createdAt: (item as any).createdAt }))
+    ];
 
-        // Match full 24-character ObjectId
-        if (/^[0-9a-fA-F]{24}$/.test(word)) {
-          conditions.push({ _id: word });
-        }
+    // Sort by createdAt desc
+    combinedIds.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
 
-        // Match pre-fetched certificate IDs for chicks
-        if (certNoChickIds.length > 0) {
-          conditions.push({ _id: { $in: certNoChickIds } });
-        }
-        
-        const matchedUserIds = matchingUsers
-          .filter((u: any) => regex.test(u.farmName || '') || regex.test(u.name || ''))
-          .map((u: any) => u._id);
-          
-        if (matchedUserIds.length > 0) conditions.push({ user: { $in: matchedUserIds } });
-        
-        return { $or: conditions };
-      });
+    const totalCount = combinedIds.length;
+    const totalPages = Math.ceil(totalCount / limit);
+    const startIndex = (page - 1) * limit;
+    const paginatedIds = combinedIds.slice(startIndex, startIndex + limit);
 
-      const chicks = await Chick.find(chickFilter)
-        .select('-image')
+    // --- STEP 2: Fetch full documents for the paginated slice ---
+    
+    const paginatedChickenIds = paginatedIds.filter(item => item.type === 'chicken').map(item => item.id);
+    const paginatedChickIds = paginatedIds.filter(item => item.type === 'chick').map(item => item.id);
+
+    let chickens: any[] = [];
+    if (paginatedChickenIds.length > 0) {
+      chickens = await Chicken.find({ _id: { $in: paginatedChickenIds } })
+        .populate('father', 'code name gender bloodline')
+        .populate('mother', 'code name gender bloodline')
+        .populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText')
+        .lean();
+    }
+
+    let mappedChicks: any[] = [];
+    if (paginatedChickIds.length > 0) {
+      const chicks = await Chick.find({ _id: { $in: paginatedChickIds } })
         .populate('father', 'code name bloodline breed')
         .populate('mother', 'code name bloodline breed')
         .populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText')
         .lean();
 
-      const mappedChicks = chicks.map(c => {
+      mappedChicks = chicks.map(c => {
         let parentBloodline = (c as any).bloodline || '';
         if (!(c as any).bloodline) {
           const f = c.father as any;
           const m = c.mother as any;
-          const fBlood = f?.bloodline || f?.breed || '';
-          const mBlood = m?.bloodline || m?.breed || '';
-          
-          if (fBlood && mBlood) {
-            if (fBlood === mBlood) {
-              parentBloodline = fBlood;
-            } else {
-              parentBloodline = `${fBlood}-${mBlood}`;
-            }
-          } else if (fBlood || mBlood) {
-            parentBloodline = fBlood || mBlood;
-          } else {
-            parentBloodline = 'กำลังพัฒนา';
-          }
+          if (f && m) parentBloodline = `${f.bloodline || f.breed || '?'} / ${m.bloodline || m.breed || '?'}`;
+          else if (f) parentBloodline = f.bloodline || f.breed || '';
+          else if (m) parentBloodline = m.bloodline || m.breed || '';
         }
 
         return {
           ...c,
-          bloodline: parentBloodline
+          name: (c as any).name || `ลูกไก่ #${(c as any).bandNumber || (c as any).code}`,
+          chickGender: (c as any).gender,
+          gender: 'chick', // Map to chicken schema equivalent
+          bloodline: parentBloodline || 'กำลังพัฒนา',
+          isChickRegistry: true,
+          chickOriginalData: c
         };
-      });
-
-      chickens = [...chickens, ...(mappedChicks as any[])] as any[];
-    }
-
-    // Sort the final results
-    if (search) {
-      const searchLower = (search as string).toLowerCase().trim();
-      chickens.sort((a: any, b: any) => {
-        const aCode = (a.code || '').toLowerCase();
-        const bCode = (b.code || '').toLowerCase();
-        const aBand = (a.bandNumber || '').toLowerCase();
-        const bBand = (b.bandNumber || '').toLowerCase();
-        const aName = (a.name || '').toLowerCase();
-        const bName = (b.name || '').toLowerCase();
-        const aBandText = (a.bandText || '').toLowerCase();
-        const bBandText = (b.bandText || '').toLowerCase();
-        const aFarm = (a.user?.farmName || '').toLowerCase();
-        const bFarm = (b.user?.farmName || '').toLowerCase();
-        const aCustomer = (a.saleInfo?.customerName || '').toLowerCase();
-        const bCustomer = (b.saleInfo?.customerName || '').toLowerCase();
-        const aCustomerFarm = (a.saleInfo?.customerFarm || '').toLowerCase();
-        const bCustomerFarm = (b.saleInfo?.customerFarm || '').toLowerCase();
-
-        const searchWords = searchLower.split(/\s+/);
-
-        const calculateScore = (band: string, bandText: string, name: string, farm: string, code: string, customer: string, customerFarm: string) => {
-          let score = 0;
-          for (const word of searchWords) {
-            // 1. กิ๊ฟสำคัญที่สุด (Band Number & Band Text)
-            if (band === word || bandText === word) score += 100;
-            else if (band.includes(word) || bandText.includes(word)) score += 70;
-
-            // 2. ชื่อไก่ และ ชื่อฟาร์ม สำคัญรองลงมา (Chicken Name & Farm Name & Customer)
-            if (name === word || farm === word || customer === word || customerFarm === word) score += 80;
-            else if (name.includes(word) || farm.includes(word) || customer.includes(word) || customerFarm.includes(word)) score += 60;
-
-            // 3. รหัสระบบ สำคัญน้อยสุด (System Code)
-            if (code === word) score += 50;
-            else if (code.includes(word)) score += 30;
-          }
-          return score;
-        };
-
-        const scoreA = calculateScore(aBand, aBandText, aName, aFarm, aCode, aCustomer, aCustomerFarm);
-        const scoreB = calculateScore(bBand, bBandText, bName, bFarm, bCode, bCustomer, bCustomerFarm);
-
-        // If scores are different, sort by score descending
-        if (scoreA !== scoreB) {
-          return scoreB - scoreA;
-        }
-
-        // Fallback to createdAt
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return dateB - dateA;
-      });
-    } else {
-      chickens.sort((a: any, b: any) => {
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return dateB - dateA;
       });
     }
 
-    res.status(200).json({
-      status: 'success',
-      results: chickens.length,
-      data: chickens,
+    // --- STEP 3: Merge and restore sort order ---
+    
+    const mergedResults = [...chickens, ...mappedChicks];
+    
+    // Sort merged results exactly as the paginatedIds array to maintain consistency
+    const sortedMergedResults = paginatedIds.map(paginatedItem => 
+      mergedResults.find(r => r._id.toString() === paginatedItem.id.toString())
+    ).filter(Boolean);
+
+    res.json({
+      success: true,
+      data: sortedMergedResults,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasMore: page < totalPages
+      }
     });
-  } catch (error) {
-    next(error);
+
+  } catch (err: any) {
+    console.error('Error fetching chickens:', err);
+    res.status(500).json({ message: err.message });
   }
 };
 
-// Get single chicken
 export const getChickenById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { includeAny } = req.query;
