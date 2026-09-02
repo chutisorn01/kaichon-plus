@@ -88,8 +88,8 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  <div className="w-40 h-40 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-3xl p-[4px] shadow-[0_0_30px_rgba(251,191,36,0.3)] relative shrink-0">
  <div className="absolute inset-0 rounded-3xl border border-white/40 m-1 z-20 pointer-events-none"></div>
  <div className="w-full h-full rounded-[24px] bg-slate-900 overflow-hidden shadow-inner relative z-10">
- {chicken.image ? (
- <SafeImage crossOrigin="anonymous" src={chicken.image} alt="Chicken" className="w-full h-full object-cover" />
+ {getMainImg() ? (
+                      <SafeImage crossOrigin="anonymous" src={getMainImg()} alt="Chicken" className="w-full h-full object-cover" />
  ) : (
  <Trophy className="w-16 h-16 opacity-50 text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
  )}

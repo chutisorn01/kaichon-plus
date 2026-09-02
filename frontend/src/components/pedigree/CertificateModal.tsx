@@ -44,14 +44,14 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
   let isMounted = true;
   let objectUrl: string | null = null;
 
-  if (!chicken?.image) {
+  if (!getMainImg()) {
    setIsChickenLoaded(true); // No image to load
    return;
   }
 
   const prepareImage = async () => {
    try {
-    let fetchUrl = chicken.image;
+    let fetchUrl = getMainImg();
     if (!fetchUrl.startsWith('data:')) {
      const cacheBuster = fetchUrl.includes('?') ? '&cb=' : '?cb=';
      fetchUrl = fetchUrl + cacheBuster + new Date().getTime();
@@ -375,8 +375,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="w-full h-full rounded-[24px] bg-slate-900 overflow-hidden shadow-inner relative z-10">
  {localChickenUrl ? (
  <img src={localChickenUrl} alt="Chicken" className="w-full h-full object-cover" onLoad={() => setIsChickenLoaded(true)} onError={() => setIsChickenLoaded(true)} />
- ) : chicken.image ? (
- <SafeImage src={chicken.image} alt="Chicken" className="w-full h-full object-cover" />
+ ) : getMainImg() ? (
+                <SafeImage src={getMainImg()} alt="Chicken" className="w-full h-full object-cover" />
  ) : (
  <Trophy className="w-16 h-16 opacity-50 text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
  )}
