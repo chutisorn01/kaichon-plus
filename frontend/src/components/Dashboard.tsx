@@ -142,7 +142,7 @@ export default function Dashboard({ onLogout, onNavigate }: { onLogout: () => vo
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`, { headers });
         const data = await res.json();
         
-        if (active && data.status === 'success') {
+        if (active && (data.success === true || data.status === 'success')) {
           const results = data.data || [];
           const q = query.toLowerCase();
           const searchWords = q.split(/\s+/);
