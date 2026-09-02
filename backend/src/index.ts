@@ -24,6 +24,7 @@ import { errorHandler } from './middleware/error.middleware.js';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Cloudflare/Nginx)
 const PORT = process.env.PORT || 5001;
 
 // 1. CORS should be the very first middleware so preflight OPTIONS requests are handled
