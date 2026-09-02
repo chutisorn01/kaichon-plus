@@ -237,7 +237,7 @@ export default function ChickenList({ onNavigate }: { onNavigate: (page: string,
                 {/* Image Column */}
                 <div className="w-28 h-28 bg-slate-50 dark:bg-slate-800/80 rounded-2xl overflow-hidden shrink-0 border border-slate-100 dark:border-white/5 flex items-center justify-center relative shadow-inner">
                   <img 
-                    src={`${import.meta.env.VITE_API_URL}/api/${chicken.gender === 'chick' ? 'chicks' : 'chickens'}/${chicken._id}/image`} 
+                    src={`${import.meta.env.VITE_API_URL}/api/${chicken.gender === 'chick' ? 'chicks' : 'chickens'}/${chicken._id}/image?t=${chicken.updatedAt ? new Date(chicken.updatedAt).getTime() : ''}`} 
                     alt={chicken.name} 
                     className="w-full h-full object-cover" 
                     onError={(e) => {
