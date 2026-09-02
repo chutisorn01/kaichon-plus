@@ -532,9 +532,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-700 to-blue-500 border border-blue-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-lg">
  Sire (พ่อ)
  </div>
- {chicken.father?.image ? (
+ {getFatherImg() ? (
  <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/50 overflow-hidden shadow-lg">
- <SafeImage src={chicken.father.image} alt={chicken.father.name} className="w-full h-full object-cover" />
+ <SafeImage src={getFatherImg()!} alt={chicken.father?.name || ''} className="w-full h-full object-cover" />
  </div>
  ) : (
  <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/20 bg-blue-900/30 flex items-center justify-center shadow-lg">
@@ -557,9 +557,9 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-700 to-pink-500 border border-pink-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-lg">
  Dam (แม่)
  </div>
- {chicken.mother?.image ? (
+ {getMotherImg() ? (
  <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/50 overflow-hidden shadow-lg">
- <SafeImage src={chicken.mother.image} alt={chicken.mother.name} className="w-full h-full object-cover" />
+ <SafeImage src={getMotherImg()!} alt={chicken.mother?.name || ''} className="w-full h-full object-cover" />
  </div>
  ) : (
  <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/20 bg-pink-900/30 flex items-center justify-center shadow-lg">
