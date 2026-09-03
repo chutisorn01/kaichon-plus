@@ -28,6 +28,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
     color: '',
     bandNumber: '',
     bandColor: 'ทอง',
+    bandText: '',
     notes: '',
     status: 'ปกติ',
     image: ''
@@ -65,7 +66,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
 
   const handleOpenAdd = () => {
     setEditingId(null);
-    setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'ทอง', notes: '', status: 'ปกติ', image: '' });
+    setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'ทอง', bandText: '', notes: '', status: 'ปกติ', image: '' });
     setShowAddForm(true);
   };
 
@@ -78,6 +79,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
       color: mother.color || '',
       bandNumber: mother.bandNumber || '',
       bandColor: mother.bandColor || 'ทอง',
+      bandText: mother.bandText || '',
       notes: mother.notes || '',
       status: mother.status || 'ปกติ',
       image: mother.image || ''
@@ -107,7 +109,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
         setShowAddForm(false);
         setEditingId(null);
         fetchMothers();
-        setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'ทอง', notes: '', status: 'ปกติ', image: '' });
+        setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'ทอง', bandText: '', notes: '', status: 'ปกติ', image: '' });
         setAlertConfig({
           show: true,
           title: '🎉 สำเร็จเรียบร้อย',
@@ -430,6 +432,18 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 gap-3 mb-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400">ข้อความบนกิ๊บปีก (ชื่อซุ้ม/ฟาร์ม)</label>
+                  <input 
+                    type="text" 
+                    placeholder="เช่น เพชรบูรพา" 
+                    className={inputClass}
+                    value={formData.bandText}
+                    onChange={(e) => setFormData({...formData, bandText: e.target.value})}
+                  />
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-600 dark:text-slate-400">เลขกิ๊ฟปีก</label>
