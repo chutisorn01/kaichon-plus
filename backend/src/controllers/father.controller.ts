@@ -4,7 +4,7 @@ import { Chicken } from '../models/chicken.model.js';
 
 export const getFathers = async (req: any, res: Response) => {
   try {
-    const fathers = await Father.find({ user: req.user.id }).populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description');
+    const fathers = await Father.find({ user: req.user.id }).select('-image').populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description');
     res.json(fathers);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -166,6 +166,15 @@ export const getPromotedFathers = async (req: any, res: Response) => {
     const sorted = [...shuffledVips, ...shuffledStandards];
     
     res.json(sorted);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
+export const getFatherImage = async (req: any, res: Response) => {
+  try {
+    const item = await Father.findOne({ _id: req.params.id }).select('image');
+    if (!item) return res.status(404).json({ message: 'ไม่พบข้อมูล' });
+    res.json({ image: item.image });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

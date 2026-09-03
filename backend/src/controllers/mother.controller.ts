@@ -4,7 +4,7 @@ import { Chicken } from '../models/chicken.model.js';
 
 export const getMothers = async (req: any, res: Response) => {
   try {
-    const mothers = await Mother.find({ user: req.user.id }).populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description');
+    const mothers = await Mother.find({ user: req.user.id }).select('-image').populate('user', 'name farmName farmCode isVerified profileImage coverImage phone lineId facebook address description');
     res.json(mothers);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -144,6 +144,15 @@ export const deleteMother = async (req: any, res: Response) => {
     }
 
     res.json({ message: 'ลบข้อมูลแม่ไก่เรียบร้อยแล้ว' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
+export const getMotherImage = async (req: any, res: Response) => {
+  try {
+    const item = await Mother.findOne({ _id: req.params.id }).select('image');
+    if (!item) return res.status(404).json({ message: 'ไม่พบข้อมูล' });
+    res.json({ image: item.image });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

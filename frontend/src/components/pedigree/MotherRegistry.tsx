@@ -34,14 +34,16 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
     image: ''
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedBase64 = await compressImage(file);
+        setFormData(prev => ({ ...prev, image: compressedBase64 }));
+      } catch (err) {
+        console.error("Image compression failed", err);
+        alert("ไม่สามารถบีบอัดรูปภาพได้");
+      }
     }
   };
 
@@ -275,13 +277,16 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
               >
                 {/* Image Column */}
                 <div className="w-28 h-28 bg-slate-50 dark:bg-slate-800/80 rounded-2xl overflow-hidden shrink-0 border border-slate-100 dark:border-white/5 flex items-center justify-center relative shadow-inner">
-                  {mother.image ? (
-                    <img src={mother.image} alt={mother.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-14 h-14 bg-pink-100 dark:bg-pink-950/40 rounded-full flex items-center justify-center text-pink-600">
-                      <ChickenIcon size={28} />
-                    </div>
-                  )}
+                  <LazyImage 
+                    url={`${import.meta.env.VITE_API_URL}/api/mothers/${mother._id}/image`} 
+                    alt={mother.name} 
+                    className="w-full h-full object-cover"
+                    fallbackIcon={
+                      <div className="w-14 h-14 bg-pink-100 dark:bg-pink-950/40 rounded-full flex items-center justify-center text-pink-600">
+                        <ChickenIcon size={28} />
+                      </div>
+                    }
+                  />
                 </div>
 
                 {/* Text Column */}
