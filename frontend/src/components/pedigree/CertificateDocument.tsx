@@ -174,8 +174,6 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  <span className="text-sm font-bold text-amber-400">-</span>
  )}
  </div>
- {/* Faint color glow at the bottom */}
- <div className={`absolute bottom-0 right-0 w-16 h-16  rounded-full opacity-30 pointer-events-none ${getBandColorCircleClass(chicken.bandColor || 'แดง')}`}></div>
  </div>
  
  <div className="bg-slate-800/40 px-2 py-1.5 rounded-xl border border-slate-700/50 flex flex-col justify-center shadow-md">
