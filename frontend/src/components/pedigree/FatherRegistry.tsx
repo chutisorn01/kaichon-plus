@@ -126,24 +126,40 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
     setShowAddForm(true);
   };
 
-  const handleOpenEdit = (father: any) => {
-    setEditingId(father._id);
-    setFormData({
-      code: father.code || '',
-      name: father.name || '',
-      breed: father.breed || '',
-      color: father.color || '',
-      bandNumber: father.bandNumber || '',
-      bandColor: father.bandColor || 'ทอง',
-      bandText: father.bandText || '',
-      price: father.price || '',
-      records: father.records || '',
-      hatchDate: father.hatchDate || '',
-      status: father.status || 'ปกติ',
-      image: father.image || ''
-    });
-    setShowAddForm(true);
+  const handleOpenEdit = async (father: any) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/fathers/${father._id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const fullFather = await res.json();
+      setEditingId(fullFather._id);
+      setFormData({
+        code: fullFather.code || '',
+        name: fullFather.name || '',
+        breed: fullFather.breed || '',
+        color: fullFather.color || '',
+        bandNumber: fullFather.bandNumber || '',
+        bandColor: fullFather.bandColor || 'ทอง',
+        bandText: fullFather.bandText || '',
+        price: fullFather.price || '',
+        records: fullFather.records || '',
+        hatchDate: fullFather.hatchDate || '',
+        status: fullFather.status || 'ปกติ',
+        image: fullFather.image || ''
+      });
+      setShowAddForm(true);
+    } catch (err) {
+      console.error(err);
+      alert('ไม่สามารถโหลดข้อมูลได้');
+    } finally {
+      setLoading(false);
+    }
   };
+  
+  // Prevent duplicate definition below by stripping the old function body
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -70,22 +70,36 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
     setShowAddForm(true);
   };
 
-  const handleOpenEdit = (mother: any) => {
-    setEditingId(mother._id);
-    setFormData({
-      code: mother.code || '',
-      name: mother.name || '',
-      breed: mother.breed || '',
-      color: mother.color || '',
-      bandNumber: mother.bandNumber || '',
-      bandColor: mother.bandColor || 'ทอง',
-      bandText: mother.bandText || '',
-      notes: mother.notes || '',
-      status: mother.status || 'ปกติ',
-      image: mother.image || ''
-    });
-    setShowAddForm(true);
+  const handleOpenEdit = async (mother: any) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mothers/${mother._id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const fullMother = await res.json();
+      setEditingId(fullMother._id);
+      setFormData({
+        code: fullMother.code || '',
+        name: fullMother.name || '',
+        breed: fullMother.breed || '',
+        color: fullMother.color || '',
+        bandNumber: fullMother.bandNumber || '',
+        bandColor: fullMother.bandColor || 'ทอง',
+        bandText: fullMother.bandText || '',
+        notes: fullMother.notes || '',
+        status: fullMother.status || 'ปกติ',
+        image: fullMother.image || ''
+      });
+      setShowAddForm(true);
+    } catch (err) {
+      console.error(err);
+      alert('ไม่สามารถโหลดข้อมูลได้');
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
