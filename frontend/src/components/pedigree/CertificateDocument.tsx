@@ -89,7 +89,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  <div className="flex items-center justify-between w-full bg-slate-800/20 py-2 px-6 rounded-3xl border border-slate-700/30 shadow-lg">
  <div className="flex items-center gap-8">
  {/* Royal Photo Frame */}
- <div className="w-40 h-40 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-3xl p-[4px] shadow-[0_0_30px_rgba(251,191,36,0.3)] relative shrink-0">
+ <div className="w-40 h-40 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-3xl p-[4px] shadow-xl relative shrink-0">
  <div className="absolute inset-0 rounded-3xl border border-white/40 m-1 z-20 pointer-events-none"></div>
  <div className="w-full h-full rounded-[24px] bg-slate-900 overflow-hidden shadow-inner relative z-10">
  {getMainImg() ? (
@@ -234,23 +234,23 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  {/* Horizontal Connection Line (Spans only the gap, touching box edges) */}
  <div className="absolute top-[45%] left-1/2 -translate-x-1/2 w-28 h-[2px] bg-gradient-to-r from-blue-500/50 via-amber-500/50 to-pink-500/50 z-0">
  {/* Center Dot */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-amber-500 border-2 border-amber-500 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.5)]"></div>
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-amber-500 border-2 border-amber-500 rounded-full shadow-md"></div>
  </div>
  
  {/* Vertical Drop Line (Reaches exactly the top edge of Subject card) */}
  <div className="absolute top-[45%] left-1/2 h-[calc(55%+8px)] w-[2px] bg-gradient-to-b from-amber-500/50 to-amber-500/10 z-0"></div>
 
  {/* Sire (Father) */}
- <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-blue-900/40 to-slate-900/90 border border-blue-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-[0_0_20px_rgba(59,130,246,0.15)] relative z-10 text-center">
- <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-700 to-blue-500 border border-blue-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+ <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-blue-900/40 to-slate-900/90 border border-blue-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-lg relative z-10 text-center">
+ <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-700 to-blue-500 border border-blue-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-md">
  Sire (พ่อ)
  </div>
  {getFatherImg() ? (
- <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/50 overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+ <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/50 overflow-hidden shadow-md">
  <SafeImage crossOrigin="anonymous" src={getFatherImg()!} alt={chicken.father?.name || ''} className="w-full h-full object-cover" />
  </div>
  ) : (
- <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/20 bg-blue-900/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+ <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-blue-500/20 bg-blue-900/30 flex items-center justify-center shadow-sm">
  <Trophy className="w-6 h-6 text-blue-400/50" />
  </div>
  )}
@@ -266,16 +266,16 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
 
  {/* Dam (Mother) */}
  {/* Dam (Mother) */}
- <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-pink-900/40 to-slate-900/90 border border-pink-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-[0_0_20px_rgba(236,72,153,0.15)] relative z-10 text-center">
- <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-700 to-pink-500 border border-pink-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-[0_0_10px_rgba(236,72,153,0.5)]">
+ <div className="w-[220px] min-w-[220px] shrink-0 bg-gradient-to-b from-pink-900/40 to-slate-900/90 border border-pink-500/40 px-3 pt-4 pb-2 rounded-2xl shadow-lg relative z-10 text-center">
+ <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-700 to-pink-500 border border-pink-400 text-white text-[11px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-md">
  Dam (แม่)
  </div>
  {getMotherImg() ? (
- <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/50 overflow-hidden shadow-[0_0_15px_rgba(236,72,153,0.4)]">
+ <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/50 overflow-hidden shadow-md">
  <SafeImage crossOrigin="anonymous" src={getMotherImg()!} alt={chicken.mother?.name || ''} className="w-full h-full object-cover" />
  </div>
  ) : (
- <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/20 bg-pink-900/30 flex items-center justify-center shadow-[0_0_15px_rgba(236,72,153,0.2)]">
+ <div className="w-16 h-16 mx-auto mb-2 rounded-full border-[3px] border-pink-500/20 bg-pink-900/30 flex items-center justify-center shadow-sm">
  <Heart className="w-6 h-6 text-pink-400/50" />
  </div>
  )}
@@ -292,7 +292,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  
  {/* Subject (Child) */}
  {/* Subject (Child) */}
- <div className="w-[240px] min-w-[240px] shrink-0 bg-gradient-to-b from-amber-600/30 to-slate-900/90 border-2 border-amber-500/60 px-4 pt-3 pb-2 rounded-2xl shadow-[0_0_25px_rgba(251,191,36,0.2)] relative z-10 text-center mt-2">
+ <div className="w-[240px] min-w-[240px] shrink-0 bg-gradient-to-b from-amber-600/30 to-slate-900/90 border-2 border-amber-500/60 px-4 pt-3 pb-2 rounded-2xl shadow-xl relative z-10 text-center mt-2">
  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-widest px-4 py-0.5 rounded-full shadow-lg">
  Subject
  </div>
@@ -341,7 +341,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  {/* Seal */}
  {chicken.user?.profileImage && (
  <div className="flex flex-col items-center justify-center shrink-0">
- <div className="w-12 h-12 rounded-full border-2 border-amber-500/50 p-1 mb-1 bg-slate-900 shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+ <div className="w-12 h-12 rounded-full border-2 border-amber-500/50 p-1 mb-1 bg-slate-900 shadow-sm">
  <SafeImage crossOrigin="anonymous" src={chicken.user.profileImage} alt="Farm Logo" className="w-full h-full object-cover rounded-full" />
  </div>
  <div className="text-[8px] text-amber-500/80 uppercase tracking-widest font-bold max-w-[64px] text-center truncate">
