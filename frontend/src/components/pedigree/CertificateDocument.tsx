@@ -51,7 +51,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  </div>
 
  {/* Bottom-up Dark Fade Overlay (70% opacity at bottom) */}
- <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-slate-900/40 to-transparent pointer-events-none z-[5]"></div>
+ <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-slate-900/40 to-slate-900/0 pointer-events-none z-[5]"></div>
 
  {/* Header */}
  <div className="pt-8 pb-0 text-center relative z-20">
@@ -63,12 +63,12 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  </h1>
  <div className="inline-flex items-center justify-center mt-3 relative group">
  {/* Decorative glowing background */}
- <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 blur-md rounded-full"></div>
+ <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20  rounded-full"></div>
  
  {/* Main Pill */}
  <div className="relative px-8 py-1.5 rounded-full bg-gradient-to-r from-slate-800/80 via-slate-800/90 to-slate-800/80 border border-amber-500/30 shadow-inner overflow-hidden">
  {/* Shine effect */}
- <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
+ <div className="absolute inset-0 bg-gradient-to-r from-amber-100/0 via-amber-100/10 to-amber-100/0 -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
  
  <h2 className="text-sm font-black text-amber-300 tracking-[0.2em] relative z-10 ">
  ใบประวัติรับรองสายพันธุ์
@@ -76,9 +76,9 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  </div>
  </div>
  <div className="flex items-center justify-center mt-2">
- <div className="h-[1px] w-32 bg-gradient-to-r from-transparent to-amber-500/50"></div>
+ <div className="h-[1px] w-32 bg-gradient-to-r from-amber-500/0 to-amber-500/50"></div>
  <Award className="w-6 h-6 text-amber-400 mx-4" />
- <div className="h-[1px] w-32 bg-gradient-to-l from-transparent to-amber-500/50"></div>
+ <div className="h-[1px] w-32 bg-gradient-to-l from-amber-500/0 to-amber-500/50"></div>
  </div>
  </div>
 
@@ -125,7 +125,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  {chicken.user?.farmName || chicken.user?.name || 'ชุติศรณ์ ฟาร์ม'}
  </div>
  )}
- <div className="w-40 h-[1px] bg-gradient-to-r from-transparent via-amber-500/80 to-transparent mb-1"></div>
+ <div className="w-40 h-[1px] bg-gradient-to-r from-amber-500/0 via-amber-500/80 to-amber-500/0 mb-1"></div>
  <div className="text-[9px] text-amber-500/90 uppercase tracking-widest font-bold">
  Authorized Signature
  </div>
@@ -175,7 +175,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  )}
  </div>
  {/* Faint color glow at the bottom */}
- <div className={`absolute bottom-0 right-0 w-16 h-16 blur-xl rounded-full opacity-30 pointer-events-none ${getBandColorCircleClass(chicken.bandColor || 'แดง')}`}></div>
+ <div className={`absolute bottom-0 right-0 w-16 h-16  rounded-full opacity-30 pointer-events-none ${getBandColorCircleClass(chicken.bandColor || 'แดง')}`}></div>
  </div>
  
  <div className="bg-slate-800/40 px-2 py-1.5 rounded-xl border border-slate-700/50 flex flex-col justify-center shadow-md">
@@ -202,7 +202,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
 
  {chicken.status === 'ขายแล้ว' && chicken.saleInfo?.customerName && (
  <div className="col-span-2 bg-slate-800/60 px-3 py-2 rounded-xl border border-amber-500/30 flex items-center justify-between relative overflow-hidden shadow-inner mt-0.5">
- <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent"></div>
+ <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/10 to-amber-500/0"></div>
  <span className="text-[10px] text-amber-500/80 font-bold uppercase tracking-widest relative z-10 shrink-0 flex items-center gap-1.5">
  <Award className="w-3.5 h-3.5 text-amber-500" />
  เจ้าของใหม่
@@ -334,7 +334,7 @@ export const CertificateDocument = React.forwardRef<HTMLDivElement, CertificateD
  {/* Footer with Verification and Breeder Info */}
  <div className="h-[130px] px-12 pb-10 flex items-end justify-center relative z-20 mt-auto shrink-0">
  <div className="w-full h-full bg-slate-900/95 border border-amber-500/20 rounded-2xl pl-8 pr-4 py-4 flex items-center justify-between shadow-2xl relative overflow-hidden shadow-amber-500/5">
- <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 pointer-events-none"></div>
+ <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-amber-500/0 to-amber-500/5 pointer-events-none"></div>
  
  {/* Left Block: Seal + Breeder Info */}
  <div className="flex items-center gap-6 relative z-10 flex-1 min-w-0 pr-4">
