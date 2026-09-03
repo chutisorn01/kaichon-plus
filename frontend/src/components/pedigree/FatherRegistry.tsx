@@ -108,7 +108,7 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
   const fetchFathers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/fathers`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/fathers?t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -130,7 +130,7 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/fathers/${father._id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/fathers/${father._id}?t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const fullFather = await res.json();

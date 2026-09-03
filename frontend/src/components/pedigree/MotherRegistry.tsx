@@ -52,7 +52,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
   const fetchMothers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mothers`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mothers?t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -74,7 +74,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mothers/${mother._id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mothers/${mother._id}?t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const fullMother = await res.json();
