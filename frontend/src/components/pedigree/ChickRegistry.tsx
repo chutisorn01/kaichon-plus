@@ -214,7 +214,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
             
             // Add image to zip
             const base64Data = dataUrl.split(',')[1];
-            zip.file(`Pedigree_${chick.name || chick.code || 'Chick'}.jpg`, base64Data, { base64: true });
+            zip.file(`Pedigree_${chick.name || chick.code || 'Chick'}_${i+1}.jpg`, base64Data, { base64: true });
           }
         }
         
