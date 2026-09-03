@@ -1,11 +1,11 @@
-import { getMotherImage } from '../controllers/chicken.controller.js';
 import express from 'express';
 import { 
   getMothers, 
   getMotherById, 
   createMother, 
   updateMother, 
-  deleteMother 
+  deleteMother,
+  getMotherImage
 } from '../controllers/mother.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 

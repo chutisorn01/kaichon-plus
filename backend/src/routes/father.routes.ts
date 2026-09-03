@@ -1,4 +1,3 @@
-import { getFatherImage } from '../controllers/chicken.controller.js';
 import express from 'express';
 import { 
   getFathers, 
@@ -6,7 +5,8 @@ import {
   createFather, 
   updateFather, 
   deleteFather,
-  getPromotedFathers
+  getPromotedFathers,
+  getFatherImage
 } from '../controllers/father.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
