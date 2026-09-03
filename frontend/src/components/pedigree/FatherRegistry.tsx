@@ -75,7 +75,8 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
     breed: '',
     color: '',
     bandNumber: '',
-    bandColor: 'แดง',
+    bandColor: 'ทอง',
+    bandText: '',
     price: '',
     records: '',
     hatchDate: '',
@@ -121,7 +122,7 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
 
   const handleOpenAdd = () => {
     setEditingId(null);
-    setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'แดง', price: '', records: '', hatchDate: '', status: 'ปกติ', image: '' });
+    setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'ทอง', bandText: '', price: '', records: '', hatchDate: '', status: 'ปกติ', image: '' });
     setShowAddForm(true);
   };
 
@@ -133,7 +134,8 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
       breed: father.breed || '',
       color: father.color || '',
       bandNumber: father.bandNumber || '',
-      bandColor: father.bandColor || 'แดง',
+      bandColor: father.bandColor || 'ทอง',
+      bandText: father.bandText || '',
       price: father.price || '',
       records: father.records || '',
       hatchDate: father.hatchDate || '',
@@ -165,7 +167,7 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
         setShowAddForm(false);
         setEditingId(null);
         fetchFathers();
-        setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'แดง', price: '', records: '', hatchDate: '', status: 'ปกติ', image: '' });
+        setFormData({ code: '', name: '', breed: '', color: '', bandNumber: '', bandColor: 'ทอง', bandText: '', price: '', records: '', hatchDate: '', status: 'ปกติ', image: '' });
         setAlertConfig({
           show: true,
           title: '🎉 สำเร็จเรียบร้อย',
@@ -480,6 +482,18 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 gap-3 mb-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400">ข้อความบนกิ๊บปีก (ชื่อซุ้ม/ฟาร์ม)</label>
+                  <input 
+                    type="text" 
+                    placeholder="เช่น เพชรบูรพา" 
+                    className={inputClass}
+                    value={formData.bandText}
+                    onChange={(e) => setFormData({...formData, bandText: e.target.value})}
+                  />
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-600 dark:text-slate-400">เลขกิ๊ฟปีก</label>
