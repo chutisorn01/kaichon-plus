@@ -169,13 +169,19 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           
           const element = document.getElementById(`cert-export-container`);
           if (element) {
-            const dataUrl = await toJpeg(element, {
+            const options = {
               quality: 0.95,
               backgroundColor: '#0f172a',
               pixelRatio: 2,
               useCORS: true,
               style: { transform: 'scale(1)', transformOrigin: 'top left' }
-            });
+            };
+            
+            // SAFARI FIX: Dummy run to force image/SVG decoding
+            await toJpeg(element, options).catch(() => {});
+            await new Promise(r => setTimeout(r, 150));
+            
+            const dataUrl = await toJpeg(element, options);
             
             if (i > 0) pdf.addPage();
             pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, (1123 * pdfWidth) / 794);
@@ -204,13 +210,19 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
           
           const element = document.getElementById(`cert-export-container`);
           if (element) {
-            const dataUrl = await toJpeg(element, {
+            const options = {
               quality: 0.95,
               backgroundColor: '#0f172a',
               pixelRatio: 2,
               useCORS: true,
               style: { transform: 'scale(1)', transformOrigin: 'top left' }
-            });
+            };
+            
+            // SAFARI FIX: Dummy run to force image/SVG decoding
+            await toJpeg(element, options).catch(() => {});
+            await new Promise(r => setTimeout(r, 150));
+            
+            const dataUrl = await toJpeg(element, options);
             
             // Add image to zip
             const base64Data = dataUrl.split(',')[1];
