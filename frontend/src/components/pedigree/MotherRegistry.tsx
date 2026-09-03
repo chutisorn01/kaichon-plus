@@ -1,4 +1,6 @@
 import { Plus, Search, Trash2, Edit, ChevronLeft, Heart, Tag, Camera, CheckCircle, AlertTriangle, Layers, Home, Crown } from 'lucide-react';
+import { LazyImage } from '../common/LazyImage';
+import { compressImage } from '../../utils/imageUtils';
 import { ChickenIcon } from '../ui/ChickenIcon';
 import { CustomSelect } from '../ui/CustomSelect';
 import { getBandColorClass, getBandColorCircleClass } from './FatherRegistry';

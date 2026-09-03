@@ -1,4 +1,6 @@
 import { Plus, Search, ChevronLeft, Swords, Tag, Heart, Trophy, Trash2, Edit, CheckCircle, Camera, AlertTriangle, Rocket } from 'lucide-react';
+import { LazyImage } from '../common/LazyImage';
+import { compressImage } from '../../utils/imageUtils';
 import { ChickenIcon } from '../ui/ChickenIcon';
 import { CustomSelect } from '../ui/CustomSelect';
 import { useLanguage } from '../LanguageContext';
