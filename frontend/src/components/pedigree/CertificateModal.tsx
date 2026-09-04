@@ -345,8 +345,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
 
  {/* Background Watermark */}
  <div className="absolute inset-0 flex items-center justify-center opacity-25 z-0 pointer-events-none overflow-hidden">
- {chicken.user?.profileImage || chicken.user?.coverImage ? (
- <SafeImage src={chicken.user.coverImage || chicken.user.profileImage} alt="Watermark" className="w-full h-full object-cover" />
+ {chicken.user ? (
+ <SafeImage src={`${import.meta.env.VITE_API_URL}/api/auth/${chicken.user._id || chicken.user}/cover-image`} alt="Watermark" className="w-full h-full object-cover" />
  ) : (
  <ShieldCheck className="w-[600px] h-[600px] text-amber-500/50" />
  )}
@@ -422,8 +422,8 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
 
  {/* Right: Signature/Stamp */}
  <div className="flex flex-col items-center justify-center relative mt-2 pr-4">
- {chicken.user?.signatureImage ? (
- <SafeImage src={chicken.user.signatureImage} alt="Signature" className="h-12 object-contain " />
+ {chicken.user ? (
+ <SafeImage src={`${import.meta.env.VITE_API_URL}/api/auth/${chicken.user._id || chicken.user}/signature-image`} alt="Signature" className="h-12 object-contain " />
  ) : (
  <div className="text-3xl text-amber-400 -rotate-6 pb-1" style={{ fontFamily: "'Charm', cursive" }}>
  {chicken.user?.farmName || chicken.user?.name || 'ชุติศรณ์ ฟาร์ม'}
@@ -643,10 +643,10 @@ export default function CertificateModal({ chicken, onClose }: CertificateModalP
  {/* Left Block: Seal + Breeder Info */}
  <div className="flex items-center gap-6 relative z-10 flex-1 min-w-0 pr-4">
  {/* Seal */}
- {chicken.user?.profileImage && (
+ {chicken.user && (
  <div className="flex flex-col items-center justify-center shrink-0">
  <div className="w-12 h-12 rounded-full border-2 border-amber-500/50 p-1 mb-1 bg-slate-900 shadow-lg">
- <SafeImage src={chicken.user.profileImage} alt="Farm Logo" className="w-full h-full object-cover rounded-full" />
+ <SafeImage src={`${import.meta.env.VITE_API_URL}/api/auth/${chicken.user._id || chicken.user}/profile-image`} alt="Farm Logo" className="w-full h-full object-cover rounded-full" />
  </div>
  <div className="text-[8px] text-amber-500/80 uppercase tracking-widest font-bold max-w-[64px] text-center truncate">
  {chicken.user?.farmName || chicken.user?.name || 'Official Seal'}
