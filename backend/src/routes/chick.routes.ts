@@ -6,7 +6,8 @@ import {
   createChick, 
   updateChick, 
   deleteChick,
-  getSiblings
+  getSiblings,
+  bulkSaleChicks
 } from '../controllers/chick.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
@@ -21,6 +22,8 @@ router.use(protect);
 router.route('/')
   .get(getChicks)
   .post(createChick);
+
+router.post('/bulk-sale', bulkSaleChicks);
 
 router.route('/:id')
   .put(updateChick)

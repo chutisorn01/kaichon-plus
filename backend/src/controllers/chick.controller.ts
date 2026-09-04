@@ -109,3 +109,36 @@ export const getSiblings = async (req: any, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 };
+export const bulkSaleChicks = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    const { batchId, customerName, customerFarm, saleDate, totalPrice, notes } = req.body;
+    
+    // Find chicks in this batch that are "ปกติ"
+    const chicks = await Chick.find({ batch: batchId, user: req.user.id, status: 'ปกติ' });
+    if (!chicks || chicks.length === 0) {
+      return res.status(400).json({ message: 'ไม่พบลูกไก่สถานะปกติในคอกนี้ หรือขายไปหมดแล้ว' });
+    }
+
+    const pricePerChick = Math.round(totalPrice / chicks.length);
+
+    await Chick.updateMany(
+      { batch: batchId, user: req.user.id, status: 'ปกติ' },
+      {
+        $set: {
+          status: 'ขายแล้ว',
+          saleInfo: {
+            customerName,
+            customerFarm,
+            saleDate: saleDate || new Date(),
+            price: pricePerChick,
+            notes
+          }
+        }
+      }
+    );
+
+    res.json({ message: `บันทึกขายลูกไก่ ${chicks.length} ตัวสำเร็จ`, updatedCount: chicks.length });
+  } catch (error) {
+    next(error);
+  }
+};

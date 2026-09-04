@@ -56,6 +56,94 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
     return (sessionStorage.getItem('FarmStatistics_activeTab') as any) || 'overview';
   });
 
+  const [showBulkSaleForm, setShowBulkSaleForm] = useState(false);
+  const [batches, setBatches] = useState<any[]>([]);
+  const [bulkSaleData, setBulkSaleData] = useState({
+    batchId: '',
+    customerName: '',
+    customerFarm: '',
+    saleDate: new Date().toISOString().split('T')[0],
+    totalPrice: '',
+    notes: ''
+  });
+  const [chicksInBatch, setChicksInBatch] = useState(0);
+
+  const handleOpenBulkSale = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/breeding-batches`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const batchData = await res.json();
+        // Filter out archived batches
+        setBatches(batchData.filter((b: any) => !b.isArchived));
+      }
+      setShowBulkSaleForm(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleBatchSelect = async (batchId: string) => {
+    setBulkSaleData({ ...bulkSaleData, batchId });
+    if (!batchId) {
+      setChicksInBatch(0);
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/breeding-batches/${batchId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const availableChicks = json.chicks?.filter((c: any) => c.status === 'ปกติ') || [];
+        setChicksInBatch(availableChicks.length);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleBulkSaleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bulkSaleData.batchId || chicksInBatch === 0) {
+      alert('กรุณาเลือกคอกที่มีลูกไก่สถานะปกติอยู่');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chicks/bulk-sale`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(bulkSaleData)
+      });
+      if (res.ok) {
+        alert('บันทึกขายลูกไก่แบบเหมาคอกเรียบร้อยแล้ว!');
+        setShowBulkSaleForm(false);
+        setBulkSaleData({
+          batchId: '',
+          customerName: '',
+          customerFarm: '',
+          saleDate: new Date().toISOString().split('T')[0],
+          totalPrice: '',
+          notes: ''
+        });
+        fetchStatistics();
+      } else {
+        const data = await res.json();
+        alert(data.message || 'เกิดข้อผิดพลาด');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    }
+  };
+
   useEffect(() => {
     sessionStorage.setItem('FarmStatistics_activeTab', activeTab);
   }, [activeTab]);
@@ -148,13 +236,22 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
             </div>
           </div>
 
-          <button 
-            onClick={fetchStatistics}
-            className="p-2 text-slate-500 hover:text-blue-600 bg-slate-100 dark:bg-slate-800 rounded-xl transition-colors cursor-pointer shrink-0 active:scale-95"
-            title="รีเฟรชข้อมูล"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handleOpenBulkSale}
+              className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white px-3 sm:px-4 py-2 rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-amber-500/20 active:scale-95 transition-all flex items-center gap-1.5"
+            >
+              <span className="hidden sm:inline">💰 บันทึกขายเหมาคอก</span>
+              <span className="sm:hidden">💰 ขายเหมา</span>
+            </button>
+            <button 
+              onClick={fetchStatistics}
+              className="p-2 text-slate-500 hover:text-blue-600 bg-slate-100 dark:bg-slate-800 rounded-xl transition-colors cursor-pointer shrink-0 active:scale-95"
+              title="รีเฟรชข้อมูล"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -578,6 +675,84 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
         )}
 
       </div>
+
+      {/* Bulk Sale Modal */}
+      {showBulkSaleForm && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                💰 บันทึกขายเหมาคอก
+              </h2>
+              <button onClick={() => setShowBulkSaleForm(false)} className="text-slate-400 hover:text-slate-600 transition-colors">✕</button>
+            </div>
+            
+            <form onSubmit={handleBulkSaleSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">เลือกคอกผสมพันธุ์</label>
+                <CustomSelect
+                  value={bulkSaleData.batchId}
+                  onChange={handleBatchSelect}
+                  options={batches.map(b => ({ value: b._id, label: `คอก ${b.batchCode}` }))}
+                  placeholder="-- เลือกคอก --"
+                />
+                {bulkSaleData.batchId && (
+                  <p className="text-xs font-bold mt-1 text-emerald-600 dark:text-emerald-400">
+                    * พบลูกไก่สถานะปกติในคอกนี้: {chicksInBatch} ตัว
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">ชื่อลูกค้า / ซุ้มลูกค้า</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="เช่น เสี่ยบอย กทม."
+                  className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  value={bulkSaleData.customerName}
+                  onChange={e => setBulkSaleData({...bulkSaleData, customerName: e.target.value})}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500">ราคาเหมารวม (บาท)</label>
+                  <input 
+                    type="number" 
+                    required min="0"
+                    placeholder="เช่น 10000"
+                    className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                    value={bulkSaleData.totalPrice}
+                    onChange={e => setBulkSaleData({...bulkSaleData, totalPrice: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500">วันที่ขาย</label>
+                  <input 
+                    type="date" 
+                    required
+                    className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                    value={bulkSaleData.saleDate}
+                    onChange={e => setBulkSaleData({...bulkSaleData, saleDate: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <button 
+                  type="submit"
+                  disabled={chicksInBatch === 0}
+                  className="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-black text-base shadow-lg shadow-amber-500/30 transition-all active:scale-95"
+                >
+                  ยืนยันการขายเหมาคอก ({chicksInBatch} ตัว)
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
