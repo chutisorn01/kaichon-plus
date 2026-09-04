@@ -256,3 +256,44 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
+// --- Image Streaming Endpoints ---
+
+const streamUserImage = async (id: string, res: Response, field: string) => {
+  try {
+    const doc = await User.findById(id).select(field).lean() as any;
+    if (!doc || !doc[field]) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.status(200).send(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#f1f5f9"/><text x="50%" y="50%" font-size="60" font-family="sans-serif" text-anchor="middle" dominant-baseline="middle" fill="#cbd5e1">👤</text></svg>`);
+    }
+
+    const match = doc[field].match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!match) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.status(200).send(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#f1f5f9"/><text x="50%" y="50%" font-size="60" font-family="sans-serif" text-anchor="middle" dominant-baseline="middle" fill="#cbd5e1">👤</text></svg>`);
+    }
+
+    const buffer = Buffer.from(match[2], 'base64');
+    res.setHeader('Content-Type', match[1]);
+    res.setHeader('Content-Length', buffer.length);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.end(buffer);
+  } catch (error) {
+    console.error('Error streaming user image:', error);
+    return res.status(500).send('Server Error');
+  }
+};
+
+export const getUserProfileImage = async (req: Request, res: Response) => {
+  return streamUserImage(req.params.id, res, 'profileImage');
+};
+
+export const getUserCoverImage = async (req: Request, res: Response) => {
+  return streamUserImage(req.params.id, res, 'coverImage');
+};
+
+export const getUserSignatureImage = async (req: Request, res: Response) => {
+  return streamUserImage(req.params.id, res, 'signatureImage');
+};

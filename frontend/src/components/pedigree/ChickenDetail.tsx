@@ -534,9 +534,16 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
         
 
         
-        {(chick.user?.coverImage || chick.user?.profileImage) ? (
+        {chick.user ? (
           <>
-            <img src={chick.user.coverImage || chick.user.profileImage} alt="Cover" className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-100 z-0" />
+            <img 
+              src={`${import.meta.env.VITE_API_URL}/api/auth/${chick.user._id}/cover-image`} 
+              alt="Cover" 
+              className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-100 z-0"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-red-950/80 via-red-900/30 to-transparent z-0 pointer-events-none"></div>
           </>
         ) : (

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validation.middleware.js';
 import { protect } from '../middleware/auth.middleware.js';
-import { register, login, getMe, updateProfile, googleAuth, changePassword, getPublicSettings } from '../controllers/auth.controller.js';
+import { register, login, getMe, updateProfile, googleAuth, changePassword, getPublicSettings, getUserProfileImage, getUserCoverImage, getUserSignatureImage } from '../controllers/auth.controller.js';
 
 const router = Router();
 
@@ -22,8 +22,11 @@ const changePasswordSchema = [
   { field: 'newPassword', required: true, type: 'string' as const, message: 'New password is required' },
 ];
 
-// Endpoints mapping
 router.get('/settings', getPublicSettings);
+router.get('/:id/profile-image', getUserProfileImage);
+router.get('/:id/cover-image', getUserCoverImage);
+router.get('/:id/signature-image', getUserSignatureImage);
+
 router.post('/register', validate(registrationSchema), register);
 router.post('/login', validate(loginSchema), login);
 router.post('/google', googleAuth);
