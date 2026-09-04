@@ -52,7 +52,7 @@ const getBandColorHex = (colorName: string) => {
 export default function FarmStatistics({ onNavigate }: { onNavigate: (page: string) => void }) {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'breeders' | 'bands'>(() => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'breeders' | 'bands' | 'finance'>(() => {
     return (sessionStorage.getItem('FarmStatistics_activeTab') as any) || 'overview';
   });
 
@@ -67,6 +67,58 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
     notes: ''
   });
   const [chicksInBatch, setChicksInBatch] = useState(0);
+
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [expenseForm, setExpenseForm] = useState({ date: new Date().toISOString().split('T')[0], category: 'อาหาร', amount: '', note: '' });
+  const [isSubmittingExpense, setIsSubmittingExpense] = useState(false);
+
+  const handleExpenseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!expenseForm.amount || parseFloat(expenseForm.amount) <= 0) {
+      alert('กรุณากรอกจำนวนเงินให้ถูกต้อง');
+      return;
+    }
+    setIsSubmittingExpense(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(expenseForm)
+      });
+      if (res.ok) {
+        setShowExpenseModal(false);
+        setExpenseForm({ date: new Date().toISOString().split('T')[0], category: 'อาหาร', amount: '', note: '' });
+        fetchStatistics();
+      } else {
+        alert('เกิดข้อผิดพลาดในการบันทึกรายจ่าย');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('เกิดข้อผิดพลาดในการบันทึกรายจ่าย');
+    } finally {
+      setIsSubmittingExpense(false);
+    }
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    if (!window.confirm('ยืนยันการลบรายจ่ายนี้?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchStatistics();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleOpenBulkSale = async () => {
     try {
@@ -348,6 +400,16 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
             }`}
           >
             <Tag className="w-3.5 h-3.5" /> สัดส่วนสีกิ๊ฟปีก
+          </button>
+          <button
+            onClick={() => setActiveTab('finance')}
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeTab === 'finance'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Wallet className="w-3.5 h-3.5" /> การเงิน & การขาย
           </button>
         </div>
 
@@ -746,6 +808,82 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
                   className="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-black text-base shadow-lg shadow-amber-500/30 transition-all active:scale-95"
                 >
                   ยืนยันการขายเหมาคอก ({chicksInBatch} ตัว)
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
+      {/* Expense Modal */}
+      {showExpenseModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl shadow-2xl p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <TrendingDown className="w-5 h-5 text-rose-500" /> บันทึกรายจ่าย
+              </h2>
+              <button onClick={() => setShowExpenseModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">✕</button>
+            </div>
+            
+            <form onSubmit={handleExpenseSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">วันที่</label>
+                <input 
+                  type="date" 
+                  required
+                  className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  value={expenseForm.date}
+                  onChange={e => setExpenseForm({...expenseForm, date: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">หมวดหมู่</label>
+                <select 
+                  className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  value={expenseForm.category}
+                  onChange={e => setExpenseForm({...expenseForm, category: e.target.value})}
+                >
+                  <option value="อาหาร">ค่าอาหาร</option>
+                  <option value="ยา/วิตามิน">ค่ายา/วิตามิน</option>
+                  <option value="อุปกรณ์">ค่าอุปกรณ์</option>
+                  <option value="ค่าจ้าง">ค่าจ้าง</option>
+                  <option value="อื่นๆ">อื่นๆ</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">จำนวนเงิน (บาท)</label>
+                <input 
+                  type="number" 
+                  required min="1"
+                  placeholder="เช่น 500"
+                  className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  value={expenseForm.amount}
+                  onChange={e => setExpenseForm({...expenseForm, amount: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">หมายเหตุ (ไม่บังคับ)</label>
+                <input 
+                  type="text" 
+                  placeholder="เช่น ซื้อข้าวเปลือก 2 กระสอบ"
+                  className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  value={expenseForm.note}
+                  onChange={e => setExpenseForm({...expenseForm, note: e.target.value})}
+                />
+              </div>
+
+              <div className="pt-2">
+                <button 
+                  type="submit"
+                  disabled={isSubmittingExpense}
+                  className="w-full py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-sm transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isSubmittingExpense ? 'กำลังบันทึก...' : 'บันทึกรายจ่าย'}
                 </button>
               </div>
             </form>
