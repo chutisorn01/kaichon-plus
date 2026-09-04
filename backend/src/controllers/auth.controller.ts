@@ -287,13 +287,13 @@ const streamUserImage = async (id: string, res: Response, field: string) => {
 };
 
 export const getUserProfileImage = async (req: Request, res: Response) => {
-  return streamUserImage(req.params.id, res, 'profileImage');
+  return streamUserImage(req.params.id as string, res, 'profileImage');
 };
 
 export const getUserCoverImage = async (req: Request, res: Response) => {
-  return streamUserImage(req.params.id, res, 'coverImage');
+  return streamUserImage(req.params.id as string, res, 'coverImage');
 };
 
 export const getUserSignatureImage = async (req: Request, res: Response) => {
-  return streamUserImage(req.params.id, res, 'signatureImage');
+  return streamUserImage(req.params.id as string, res, 'signatureImage');
 };
