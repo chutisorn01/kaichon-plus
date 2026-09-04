@@ -111,7 +111,7 @@ export const getSiblings = async (req: any, res: Response) => {
 };
 export const bulkSaleChicks = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const { batchId, customerName, customerFarm, saleDate, totalPrice, notes } = req.body;
+    const { batchId, customerName, customerFarm, customerPhone, saleDate, totalPrice, notes } = req.body;
     
     // Find chicks in this batch that are "ปกติ"
     const chicks = await Chick.find({ batch: batchId, user: req.user.id, status: 'ปกติ' });
@@ -129,6 +129,7 @@ export const bulkSaleChicks = async (req: any, res: Response, next: NextFunction
           saleInfo: {
             customerName,
             customerFarm,
+            customerPhone,
             saleDate: saleDate || new Date(),
             price: pricePerChick,
             notes

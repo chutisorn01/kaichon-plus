@@ -67,6 +67,7 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
     batchId: '',
     customerName: '',
     customerFarm: '',
+    customerPhone: '',
     saleDate: new Date().toISOString().split('T')[0],
     totalPrice: '',
     notes: ''
@@ -186,6 +187,7 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
           batchId: '',
           customerName: '',
           customerFarm: '',
+          customerPhone: '',
           saleDate: new Date().toISOString().split('T')[0],
           totalPrice: '',
           notes: ''
@@ -888,15 +890,38 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
                 )}
               </div>
 
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500">ชื่อลูกค้า</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="เช่น เสี่ยบอย กทม."
+                    className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                    value={bulkSaleData.customerName}
+                    onChange={e => setBulkSaleData({...bulkSaleData, customerName: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500">ชื่อฟาร์ม / ซุ้มลูกค้า (ถ้ามี)</label>
+                  <input 
+                    type="text" 
+                    placeholder="เช่น ซุ้มเพชรเจริญ"
+                    className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                    value={bulkSaleData.customerFarm}
+                    onChange={e => setBulkSaleData({...bulkSaleData, customerFarm: e.target.value})}
+                  />
+                </div>
+              </div>
+              
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500">ชื่อลูกค้า / ซุ้มลูกค้า</label>
+                <label className="text-xs font-bold text-slate-500">เบอร์โทรศัพท์ติดต่อ</label>
                 <input 
                   type="text" 
-                  required
-                  placeholder="เช่น เสี่ยบอย กทม."
+                  placeholder="094-xxx-xxxx"
                   className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
-                  value={bulkSaleData.customerName}
-                  onChange={e => setBulkSaleData({...bulkSaleData, customerName: e.target.value})}
+                  value={bulkSaleData.customerPhone}
+                  onChange={e => setBulkSaleData({...bulkSaleData, customerPhone: e.target.value})}
                 />
               </div>
 
@@ -922,6 +947,16 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
                     onChange={e => setBulkSaleData({...bulkSaleData, saleDate: e.target.value})}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">บันทึกเพิ่มเติม</label>
+                <textarea 
+                  placeholder="เช่น จัดส่งทางรถตู้, ลูกค้ามารับเอง"
+                  className="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500 resize-none h-20"
+                  value={bulkSaleData.notes}
+                  onChange={e => setBulkSaleData({...bulkSaleData, notes: e.target.value})}
+                />
               </div>
 
               <div className="pt-4">
