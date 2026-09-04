@@ -46,7 +46,8 @@ export const SafeImage: React.FC<SafeImageProps> = ({ src, className, alt, cross
         if (isMounted) setBase64Src(imageSrc);
       };
       img.onerror = () => {
-        if (isMounted) setBase64Src(imageSrc);
+        // If image fails to load, use a 1x1 transparent pixel to prevent html-to-image from crashing
+        if (isMounted) setBase64Src('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
       };
       img.src = imageSrc;
     };
@@ -68,7 +69,8 @@ export const SafeImage: React.FC<SafeImageProps> = ({ src, className, alt, cross
       })
       .catch(err => {
         console.error("SafeImage fetch error:", err);
-        if (isMounted) processImage(src);
+        // If fetch fails (e.g. 404), use transparent pixel to prevent html-to-image crash
+        if (isMounted) setBase64Src('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
       });
 
     return () => { isMounted = false; };
