@@ -375,10 +375,10 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs">
+        <div className="flex overflow-x-auto flex-nowrap snap-x bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs gap-1.5 hide-scrollbar">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            className={`flex-none snap-start px-4 sm:flex-1 py-2.5 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'overview'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                 : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
