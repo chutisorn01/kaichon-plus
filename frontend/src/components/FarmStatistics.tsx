@@ -741,6 +741,124 @@ export default function FarmStatistics({ onNavigate }: { onNavigate: (page: stri
           </div>
         )}
 
+
+        {activeTab === 'finance' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Finance Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-white/5 flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-2">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <p className="text-sm font-bold text-slate-500">รายรับรวม (จากการขาย)</p>
+                <h3 className="text-2xl font-black text-emerald-600">{stats.finance?.totalIncome?.toLocaleString() || 0} ฿</h3>
+              </div>
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-white/5 flex flex-col items-center text-center">
+                <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-2">
+                  <TrendingDown className="w-6 h-6" />
+                </div>
+                <p className="text-sm font-bold text-slate-500">รายจ่ายรวม (ค่าอาหาร/ยา)</p>
+                <h3 className="text-2xl font-black text-rose-600">{stats.finance?.totalExpense?.toLocaleString() || 0} ฿</h3>
+              </div>
+              <div className="bg-gradient-to-br from-amber-400 to-amber-600 rounded-3xl p-5 border border-amber-300 flex flex-col items-center text-center text-white shadow-lg shadow-amber-500/20">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-2 backdrop-blur-sm">
+                  <Wallet className="w-6 h-6" />
+                </div>
+                <p className="text-sm font-bold opacity-90">กำไรสุทธิ</p>
+                <h3 className="text-2xl font-black">{stats.finance?.netProfit?.toLocaleString() || 0} ฿</h3>
+              </div>
+            </div>
+
+            {/* Tables Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              
+              {/* Sales History */}
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-white/5 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <Receipt className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-lg font-black text-slate-800 dark:text-white">ประวัติการขายล่าสุด</h2>
+                </div>
+                
+                {stats.finance?.salesHistory?.length > 0 ? (
+                  <div className="space-y-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                    {stats.finance.salesHistory.map((sale: any, idx: number) => (
+                      <div key={idx} className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                        <div>
+                          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                            {sale.customerName !== '-' ? sale.customerName : 'ลูกค้าทั่วไป'}
+                          </p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">
+                            {new Date(sale.date).toLocaleDateString('th-TH')} • ไก่: {sale.name} ({sale.code})
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm font-black text-emerald-600">+{sale.amount.toLocaleString()} ฿</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 text-slate-400 text-sm font-bold">
+                    ยังไม่มีประวัติการขายไก่
+                  </div>
+                )}
+              </div>
+
+              {/* Expenses History */}
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-white/5 shadow-sm">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                      <TrendingDown className="w-5 h-5" />
+                    </div>
+                    <h2 className="text-lg font-black text-slate-800 dark:text-white">ประวัติรายจ่าย</h2>
+                  </div>
+                  <button 
+                    onClick={() => setShowExpenseModal(true)}
+                    className="flex items-center gap-1 text-xs font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-3 py-1.5 rounded-lg hover:opacity-80 transition-opacity"
+                  >
+                    <PlusCircle className="w-4 h-4" /> เพิ่มรายจ่าย
+                  </button>
+                </div>
+                
+                {stats.finance?.expensesHistory?.length > 0 ? (
+                  <div className="space-y-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                    {stats.finance.expensesHistory.map((expense: any, idx: number) => (
+                      <div key={idx} className="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl group">
+                        <div>
+                          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                            {expense.category}
+                            {expense.note && <span className="text-xs font-normal text-slate-500 ml-2">({expense.note})</span>}
+                          </p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">
+                            {new Date(expense.date).toLocaleDateString('th-TH')}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-black text-rose-600">-{expense.amount.toLocaleString()} ฿</span>
+                          <button 
+                            onClick={() => handleDeleteExpense(expense._id)}
+                            className="p-1.5 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/30"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 text-slate-400 text-sm font-bold">
+                    ยังไม่มีประวัติรายจ่าย
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* Bulk Sale Modal */}
