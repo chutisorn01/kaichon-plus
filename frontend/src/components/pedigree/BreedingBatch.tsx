@@ -86,16 +86,14 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const [batchRes, fatherRes, motherRes, profileRes] = await Promise.all([
+      
+      // Step 1: Fetch light data first to unblock UI
+      const [batchRes, profileRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL}/api/breeding-batches`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`${import.meta.env.VITE_API_URL}/api/fathers`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`${import.meta.env.VITE_API_URL}/api/mothers`, { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       
-      setBatches(await batchRes.json());
-      setFathers(await fatherRes.json());
-      setMothers(await motherRes.json());
+      if (batchRes.ok) setBatches(await batchRes.json());
 
       if (profileRes.ok) {
         const profileData = await profileRes.json();
@@ -105,7 +103,18 @@ export default function BreedingBatch({ onNavigate }: { onNavigate: (page: any) 
         }
       }
 
+      // Unblock UI immediately
       setLoading(false);
+
+      // Step 2: Fetch heavy data silently in the background
+      const [fatherRes, motherRes] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_URL}/api/fathers`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${import.meta.env.VITE_API_URL}/api/mothers`, { headers: { 'Authorization': `Bearer ${token}` } })
+      ]);
+      
+      if (fatherRes.ok) setFathers(await fatherRes.json());
+      if (motherRes.ok) setMothers(await motherRes.json());
+
     } catch (err) {
       console.error(err);
       setLoading(false);
