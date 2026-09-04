@@ -134,7 +134,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
       }
       
       // Escape special regex characters in searchStr for matching users
-      const regexPattern = searchWords.map(w => w.replace(/[/\-\^$*+?.()|[\]{}]/g, '\$&')).join('|');
+      const regexPattern = searchWords.map(w => w.replace(/[/\-\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
       const anyWordRegex = new RegExp(regexPattern, 'i');
 
       matchingUsers = await User.find({
@@ -209,7 +209,7 @@ export const getAllChickens = async (req: Request, res: Response, next: NextFunc
 
       const searchConditions = searchWords.map(word => {
         // Escape special regex characters
-        const escapedWord = word.replace(/[/\-\^$*+?.()|[\]{}]/g, '\$&');
+        const escapedWord = word.replace(/[/\-\^$*+?.()|[\]{}]/g, '\\$&');
         const regex = new RegExp(escapedWord, 'i');
         const conditions: any[] = [
           { code: regex },
