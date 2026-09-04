@@ -30,7 +30,7 @@ import {
   LineChart,
   Line
 } from 'recharts';
-import { FormatOptionLabel } from './ui/CustomSelect';
+import { CustomSelect, FormatOptionLabel } from './ui/CustomSelect';
 
 const getBandColorHex = (colorName: string) => {
   switch (colorName) {
