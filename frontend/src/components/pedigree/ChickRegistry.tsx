@@ -276,29 +276,42 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
   };
 
   const handleBulkUpdateBand = async () => {
-    if (!bulkBandStartNumber) return alert('กรุณาระบุเลขเริ่มต้น');
+    if (!bulkBandStartNumber && !bulkBandColor && !bulkBandText) return alert('กรุณาระบุข้อมูลที่ต้องการแก้ไขอย่างน้อย 1 อย่าง');
     try {
       const token = localStorage.getItem('token');
       // Sort selected chicks to match display order
       const sortedSelectedChicks = chicks.filter(c => selectedChicks.has(c._id));
       
-      const startNumStr = bulkBandStartNumber.trim();
-      const match = startNumStr.match(/(\d+)$/);
-      let prefix = startNumStr;
+      let prefix = '';
       let startNum = 0;
       let numLength = 0;
-      
-      if (match) {
-        prefix = startNumStr.substring(0, startNumStr.length - match[1].length);
-        startNum = parseInt(match[1], 10);
-        numLength = match[1].length;
+      let match = null;
+
+      if (bulkBandStartNumber) {
+        const startNumStr = bulkBandStartNumber.trim();
+        match = startNumStr.match(/(\d+)$/);
+        prefix = startNumStr;
+        
+        if (match) {
+          prefix = startNumStr.substring(0, startNumStr.length - match[1].length);
+          startNum = parseInt(match[1], 10);
+          numLength = match[1].length;
+        }
       }
 
       await Promise.all(sortedSelectedChicks.map((chick, index) => {
-        let newBandNumber = bulkBandStartNumber;
-        if (match) {
-          newBandNumber = prefix + String(startNum + index).padStart(numLength, '0');
+        const payload: any = {};
+        
+        if (bulkBandStartNumber) {
+          let newBandNumber = bulkBandStartNumber.trim();
+          if (match) {
+            newBandNumber = prefix + String(startNum + index).padStart(numLength, '0');
+          }
+          payload.bandNumber = newBandNumber;
         }
+        
+        if (bulkBandColor) payload.bandColor = bulkBandColor;
+        if (bulkBandText) payload.bandText = bulkBandText;
         
         return fetch(`${import.meta.env.VITE_API_URL}/api/chicks/${chick._id}`, {
           method: 'PUT',
@@ -306,11 +319,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ 
-            bandNumber: newBandNumber,
-            ...(bulkBandColor && { bandColor: bulkBandColor }),
-            ...(bulkBandText && { bandText: bulkBandText })
-          })
+          body: JSON.stringify(payload)
         });
       }));
       
@@ -883,7 +892,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
             <p className="text-xs text-slate-500">ระบบจะทำการรันตัวเลขกิ๊ฟให้ลูกไก่ {selectedChicks.size} ตัวตามลำดับอัตโนมัติ</p>
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">เลขเริ่มต้น (เช่น A001)</label>
+                <label className="text-xs font-bold text-slate-600">เลขเริ่มต้น (ไม่ระบุ = ใช้เลขเดิม)</label>
                 <input 
                   type="text"
                   value={bulkBandStartNumber}
