@@ -4,7 +4,7 @@ import { Chicken } from '../models/chicken.model.js';
 
 export const getFathers = async (req: any, res: Response) => {
   try {
-    const fathers = await Father.find({ user: req.user.id }).select('-image').populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText');
+    const fathers = await Father.find({ user: req.user.id }).select('-image').populate('user', 'name farmName farmCode isVerified phone lineId facebook address description stampText').lean();
     res.json(fathers);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
