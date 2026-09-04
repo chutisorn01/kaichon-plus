@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Father } from '../models/father.model.js';
 import { Chicken } from '../models/chicken.model.js';
+import { streamImage } from './chicken.controller.js';
 
 export const getFathers = async (req: any, res: Response) => {
   try {
@@ -171,11 +172,5 @@ export const getPromotedFathers = async (req: any, res: Response) => {
   }
 };
 export const getFatherImage = async (req: any, res: Response) => {
-  try {
-    const item = await Father.findOne({ _id: req.params.id }).select('image');
-    if (!item) return res.status(404).json({ message: 'ไม่พบข้อมูล' });
-    res.json({ image: item.image });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
+  return streamImage(Father, req.params.id as string, res);
 };

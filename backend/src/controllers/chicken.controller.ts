@@ -774,7 +774,7 @@ export const deleteChicken = async (req: Request, res: Response, next: NextFunct
 
 // --- Image Streaming Endpoints ---
 
-const streamImage = async (Model: any, id: string, res: Response) => {
+export const streamImage = async (Model: any, id: string, res: Response) => {
   try {
     const doc = await Model.findById(id).select('image').lean();
     if (!doc || !doc.image) {

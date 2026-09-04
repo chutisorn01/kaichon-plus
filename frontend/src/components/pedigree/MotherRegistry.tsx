@@ -280,7 +280,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
                 {/* Image Column */}
                 <div className="w-28 h-28 bg-slate-50 dark:bg-slate-800/80 rounded-2xl overflow-hidden shrink-0 border border-slate-100 dark:border-white/5 flex items-center justify-center relative shadow-inner">
                   <LazyImage 
-                    url={`${import.meta.env.VITE_API_URL}/api/mothers/${mother._id}/image`} 
+                    url={`${import.meta.env.VITE_API_URL}/api/mothers/${mother._id}/image?t=${mother.updatedAt ? new Date(mother.updatedAt).getTime() : ''}`} 
                     alt={mother.name} 
                     className="w-full h-full object-cover"
                     fallbackIcon={

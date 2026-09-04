@@ -309,7 +309,7 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
                 {/* Image Column */}
                 <div className="w-28 h-28 bg-slate-50 dark:bg-slate-800/80 rounded-2xl overflow-hidden shrink-0 border border-slate-100 dark:border-white/5 flex items-center justify-center relative shadow-inner">
                   <LazyImage 
-                    url={`${import.meta.env.VITE_API_URL}/api/fathers/${father._id}/image`} 
+                    url={`${import.meta.env.VITE_API_URL}/api/fathers/${father._id}/image?t=${father.updatedAt ? new Date(father.updatedAt).getTime() : ''}`} 
                     alt={father.name} 
                     className="w-full h-full object-cover"
                     fallbackIcon={
