@@ -184,8 +184,10 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
     gender: '',
     hatchDate: '',
     fatherNameText: '',
-    motherNameText: ''
+    motherNameText: '',
+    image: ''
   });
+  const [imageChanged, setImageChanged] = useState(false);
 
   useEffect(() => {
     if (chickenId) {
@@ -212,6 +214,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
       const reader = new FileReader();
       reader.onloadend = () => {
         setEditForm(prev => ({ ...prev, image: reader.result as string }));
+        setImageChanged(true);
       };
       reader.readAsDataURL(file);
     }
@@ -294,6 +297,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
       }
 
       if (data) {
+        setImageChanged(false);
         data._sourceCollection = sourceCollection;
         setChick(data);
         setEditForm({
@@ -336,6 +340,10 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
       const endpoint = `${import.meta.env.VITE_API_URL}/api/${chick._sourceCollection || 'chickens'}/${chickenId}`;
 
       const payload = { ...editForm };
+      if (!imageChanged) {
+        delete (payload as any).image;
+      }
+      
       if (payload.bloodline !== undefined) {
         (payload as any).breed = payload.bloodline;
       }
@@ -897,9 +905,23 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
                   htmlFor="edit-image-upload" 
                   className="w-24 h-24 bg-slate-100 dark:bg-slate-800/80 rounded-2xl flex flex-col items-center justify-center gap-1.5 text-slate-400 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-red-500 transition-colors cursor-pointer group overflow-hidden relative"
                 >
-                  {editForm.image ? (
+                  {editForm.image || !imageChanged ? (
                     <>
-                      <img src={editForm.image} alt="Chicken" className="w-full h-full object-cover" />
+                      <img 
+                        src={editForm.image || `${import.meta.env.VITE_API_URL}/api/${chick?._sourceCollection || 'chickens'}/${chick?._id}/image?t=${chick?.updatedAt ? new Date(chick.updatedAt).getTime() : ''}`}
+                        alt="Chicken" 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextElementSibling) {
+                            (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                          }
+                        }}
+                      />
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400" style={{ display: 'none' }}>
+                        <Camera className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                        <span className="text-[9px] font-bold">อัปโหลดรูปภาพ</span>
+                      </div>
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <Camera className="w-5 h-5 text-white" />
                       </div>
@@ -911,10 +933,13 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
                     </>
                   )}
                 </label>
-                {editForm.image && (
+                {(editForm.image || (!imageChanged && chick)) && (
                   <button 
                     type="button" 
-                    onClick={() => setEditForm(prev => ({ ...prev, image: '' }))}
+                    onClick={() => {
+                      setEditForm(prev => ({ ...prev, image: '' }));
+                      setImageChanged(true);
+                    }}
                     className="text-[9px] text-red-500 font-bold hover:underline cursor-pointer"
                   >
                     ลบรูปภาพ
