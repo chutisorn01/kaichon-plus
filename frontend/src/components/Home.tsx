@@ -64,7 +64,45 @@ export default function Home({ onNavigate }: { onNavigate: (page: any, id?: stri
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chickens?search=${encodeURIComponent(query)}&includeChicks=true`);
       const data = await res.json();
       if (data.status === 'success') {
-        setSearchResults(data.data || []);
+        const results = data.data || [];
+        const q = query.toLowerCase();
+        const searchWords = q.split(/\s+/);
+
+        const sorted = [...results].sort((a: any, b: any) => {
+          const calculateScore = (item: any) => {
+            let score = 0;
+            const name = (item.name || '').toLowerCase();
+            const code = (item.code || '').toLowerCase();
+            const bandNumber = (item.bandNumber || '').toLowerCase();
+            const bandText = (item.bandText || '').toLowerCase();
+            const farmName = (item.user?.farmName || '').toLowerCase();
+
+            for (const word of searchWords) {
+              if (bandNumber === word) score += 100;
+              else if (bandNumber.includes(word)) score += 70;
+
+              if (name === word || farmName === word || bandText === word) score += 80;
+              else if (name.includes(word) || farmName.includes(word) || bandText.includes(word)) score += 60;
+
+              if (code === word) score += 50;
+              else if (code.includes(word)) score += 30;
+            }
+            return score;
+          };
+
+          const scoreA = calculateScore(a);
+          const scoreB = calculateScore(b);
+
+          if (scoreA !== scoreB) {
+            return scoreB - scoreA;
+          }
+
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+
+        setSearchResults(sorted);
       }
     } catch (err) {
       console.error(err);
