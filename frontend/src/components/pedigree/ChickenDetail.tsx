@@ -568,6 +568,7 @@ export default function ChickenDetail({ chickenId, onNavigate }: { chickenId: st
               disabled={isPublic}
             />
             <label 
+              key={chick.updatedAt?.toString()}
               htmlFor={!isPublic ? "quick-image-upload" : undefined}
               className={`block w-40 h-40 sm:w-48 sm:h-48 bg-slate-50 dark:bg-slate-800 rounded-3xl overflow-hidden shrink-0 border-4 border-white dark:border-slate-900 shadow-lg flex flex-col items-center justify-center relative ${!isPublic ? 'cursor-pointer hover:border-red-500 transition-colors' : ''}`}
             >
