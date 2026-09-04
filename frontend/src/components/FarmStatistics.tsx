@@ -11,9 +11,14 @@ import {
   Layers,
   Heart,
   Tag,
-  TrendingUp,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Wallet,
+  Receipt,
+  TrendingUp,
+  TrendingDown,
+  PlusCircle,
+  Trash2
 } from 'lucide-react';
 import {
   PieChart,
