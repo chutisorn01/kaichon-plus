@@ -341,7 +341,7 @@ export default function MotherRegistry({ onNavigate }: { onNavigate: (page: any)
                           {mother.bandColor && <div className={`w-2 h-2 rounded-full ${getBandColorCircleClass(mother.bandColor)} shadow-sm border border-black/10 shrink-0`} />}
                         </span>
                         <span className="shrink-0">#{mother.bandNumber}</span>
-                        {mother.bandText && <span className="truncate">[{mother.bandText}]</span>}
+                        <span className="truncate">[{mother.bandText || mother.user?.stampText || mother.user?.farmName || mother.user?.name || ''}]</span>
                       </span>
                     ) : (
                       <span className="text-[9px] text-slate-400 italic">ไม่ได้ติดกิ๊ฟ</span>

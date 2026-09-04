@@ -614,7 +614,7 @@ export default function ChickRegistry({ selectedBatchCode, onNavigate }: { selec
                                   {chick.bandColor && <div className={`w-2 h-2 rounded-full ${getBandColorCircleClass(chick.bandColor)} shadow-sm border border-black/10 shrink-0`} />}
                                 </span>
                                 <span className="shrink-0">#{chick.bandNumber}</span>
-                                {chick.bandText && <span className="truncate">[{chick.bandText}]</span>}
+                                <span className="truncate">[{chick.bandText || chick.user?.stampText || chick.user?.farmName || chick.user?.name || ''}]</span>
                               </div>
                             )}
                           </div>

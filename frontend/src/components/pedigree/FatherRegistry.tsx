@@ -387,7 +387,7 @@ export default function FatherRegistry({ onNavigate }: { onNavigate: (page: any,
                           {father.bandColor && <div className={`w-2 h-2 rounded-full ${getBandColorCircleClass(father.bandColor)} shadow-sm border border-black/10 shrink-0`} />}
                         </span>
                         <span className="shrink-0">#{father.bandNumber}</span>
-                        {father.bandText && <span className="truncate">[{father.bandText}]</span>}
+                        <span className="truncate">[{father.bandText || father.user?.stampText || father.user?.farmName || father.user?.name || ''}]</span>
                       </span>
                     ) : (
                       <span className="text-[9px] text-slate-400 italic">ไม่ได้ติดกิ๊ฟ</span>
